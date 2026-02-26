@@ -1,0 +1,28 @@
+# node_modules
+node_modules/
+.expo/
+dist/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS files
+.DS_Store
+*.pem
+
+# React Native
+*.jsbundle
+
+# Android
+android/.gradle
+android/build/
+android/app/build/
+android/.idea
+*.iml
+local.properties
+
+# iOS
+ios/build/
+ios/Pods/
+ios/.symlinks/
+ios/build/

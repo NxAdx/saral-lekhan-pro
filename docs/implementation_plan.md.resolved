@@ -1,0 +1,76 @@
+# सरल लेखन (Saral Lekhan) - App Planning & Design
+
+This plan outlines the design and features for the "सरल लेखन" application, based on the Tippani design system documentation and HTML sample files located in this folder. The system is tailored for Hindi/Devanagari writers and follows a tactile, warm aesthetic with a pill-shaped UI vocabulary.
+
+## Source Documents
+- **Design tokens & components**: `tippani-design-system.html` (CSS prototype) contains the full set of colors, typography, spacings, and UI components
+- **Specification**: `tippani-design-system-documentation.docx` (extracted locally) provides complete rules, requirements, and implementation notes for every element of the app. The text has been incorporated into this plan.
+
+## Key Principles (from documentation)
+1. **Tactile First** – every button/key feels like a real physical object; shadows are hard with zero blur; press states translateY+shadow collapse.
+2. **Warmth Over Sterility** – warm greys and burnt terracotta accent define the palette; no pure black/white or cool tones.
+3. **Bilingual by Design** – Hindi (Devanagari) is primary; font choices, spacing, and UI strings support seamless mixing of Hindi and English.
+
+## App Overview & Visual Features
+"सरल लेखन" is a production‑ready, bilingual notes app with the following user-facing screens and components:
+
+### Home / Feed Screen
+- **Header** with app name (`Tippani / टिप्पणी`) using Vesper Libre & Hind.
+- **Search input** (pill-shaped) with leading icon and placeholder "खोजें… · Search…".
+- **Tag rail**: horizontal scrollable pill chips; first chip "सभी / All" selected by default.
+- **Note feed**: vertical list of **note pill cards** (full width minus margins) showing title, preview text, date, and tag. Supports pull‑to‑refresh and empty state with illustration + CTA.
+- **FAB** floating at bottom-right above bottom nav; uses radial gradient highlight.
+- **Bottom navigation bar** with five tabs (Home, Search, [FAB slot], Alerts, Profile); uses Lucide icons and terracotta active dot.
+
+### Editor Screen
+- **Navigation header** with back arrow, auto‑save indicator, and accent "Done" button.
+- **Format toolbar**: horizontally scrollable row of tactile key buttons for bold/italic/underline/हिंदी symbols, plus a pin icon.
+- **Title input** and **body textarea** styled per specifications (Hind 20px/16px, proper line-heights, cursor color #C14E28).
+- **Meta bar** at bottom showing word/char count and current tag chip; auto-save animations indicated with pulsing or success text.
+
+### Tag Manager & Settings
+- Tag screen for creating and deleting tags with pill inputs and accent add button.
+- Settings with pill toggles for theme, font size, default script, auto‑save interval, cloud sync status, and about info.
+
+### Context Menu / Modals / Toasts
+- Long-press on note pill opens bottom sheet with options (Edit, Pin, Share, Delete).
+- Toast notifications appear above bottom nav with terracotta animation and auto-dismiss.
+
+## UI/UX Details & Visual Guidance
+- **Color rules**: accent terracotta is used exclusively for primary actions; ink‑dim only for timestamps/placeholders; no pure black/white.
+- **Typography**: Hind (various weights) for all UI text and note content; Vesper Libre Black for large headings; DM Mono for metadata.
+- **Spacing**: base unit 4px; all spacing tokens defined in `tokens.ts`. All layout values are multiples of 4.
+- **Radius hierarchy**: pill for primary elements, xl for containers, md for toolbar keys.
+- **Shadows**: hard offsets with zero blur; direction bottom‑right; pressed state reduces shadow but never removes.
+- **Motion**: key press animations, staggered feed entry, FAB spring pop, reduced motion fallbacks respecting accessibility.
+- **Accessibility**: WCAG AA contrast, hitSlop for small targets, screen reader labels in Hindi+English, focus indicators for web, explicit `writingDirection` on inputs.
+
+> **Prototype**: `saral-lekhan-sample.html` demonstrates home & editor screens with interactive hover/active states. Use this as a visual reference when building the app.
+
+## Architecture & Technical Plan
+To reach production quality, the following architecture is recommended (mirroring examples in the documentation):
+
+1. **Stack**: Expo + React Native (with Expo Router for navigation), Reanimated 3 for motion, SQLite for local storage, optional cloud sync (e.g., GraphQL/REST + OAuth).
+2. **Design Tokens**: central `src/tokens.ts` exports colors, spacing, typography, shadows. Components reference only tokens.
+3. **Component Library**: implement reusable UI pieces (`NotePill`, `TagPill`, `KeyButton`, `FAB`, `PillInput`, `BottomSheet`, `Toast`, etc.) using specified styles and animated behaviors.
+4. **State Management**: simple stores (e.g., Zustand/Redux) for notes, tags, UI state (modal visibility, theme). Auto‑save logic and network sync handled here.
+5. **Database**: local schema + queries in `src/db` using Expo SQLite or WatermelonDB. Fields: id, title, body, tag, timestamps, pinned, etc.
+6. **Localization**: maintain Hindi-first UI strings with English secondary; handle mixed script rules, directionality, and numeral usage.
+7. **Tests & CI**: unit tests for components/styles, E2E tests for user flows (detox/Appium) and accessibility audits. Setup CI to run `yarn lint`, `yarn test`, and build checks.
+
+## Next Steps
+1. **Scaffold project** (task list updated). Create a new Expo app, integrate fonts and tokens, and add the sample HTML as reference.
+2. **Implement core screens** using provided components prototypes and apply design tokens exactly.
+3. **Add features**: notes CRUD, tagging, search, auto-save, context menu, navigation, theme toggles.
+4. **Validate** visual fidelity against sample prototype and documentation rules.
+5. **Prepare for publication**: configure app icons, splash screens, versioning, and app store metadata; ensure accessibility and performance requirements.
+
+## Verification & Review
+See previous manual steps plus:
+- Run accessibility checks (screen reader, contrast, motion). 
+- Test on both Android and iOS simulators/devices with Hindi content.
+- Confirm all tokens are used dynamically; no hardcoded values remain.
+- Review with stakeholders before publishing.
+
+---
+*This plan now incorporates the full design documentation and outlines both visual/UI requirements and a path toward a production‑ready notes application named "सरल लेखन".*
