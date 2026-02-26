@@ -70,7 +70,7 @@ export function BentoCard({
                 <View style={styles.metaRow}>
                     <Text style={[styles.date, { color: colors.inkDim, fontFamily: font.mono }]}>{date}</Text>
                     {tag ? (
-                        <View style={[styles.tagChip, { backgroundColor: colors.accentBg, borderColor: colors.accentDim }]}>
+                        <View style={[styles.tagChip, { backgroundColor: colors.accentBg, borderColor: colors.accentDim, borderRadius: radius.md }]}>
                             <Text style={[styles.tagText, { color: colors.accent, fontFamily: font.sansSemi }]}>{tag}</Text>
                         </View>
                     ) : null}
@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
     },
     tagChip: {
         borderWidth: 1,
-        borderRadius: 9999, // Pill shaped tags still exist inside components
         paddingVertical: 2,
         paddingHorizontal: 10,
     },

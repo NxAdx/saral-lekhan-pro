@@ -12,7 +12,7 @@ interface TagPillProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function TagPill({ label, active, onPress }: TagPillProps) {
-  const { colors, font } = useTheme();
+  const { colors, font, radius } = useTheme();
   const pressed = useSharedValue(0);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -29,6 +29,7 @@ export function TagPill({ label, active, onPress }: TagPillProps) {
         {
           backgroundColor: active ? colors.accent : colors.bg,
           borderColor: active ? colors.accentDark : colors.stroke,
+          borderRadius: radius.md,
         },
         animStyle
       ]}
@@ -46,7 +47,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,
-    borderRadius: 9999,
   },
   label: {
     fontSize: 11,

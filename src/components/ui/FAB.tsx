@@ -12,7 +12,7 @@ interface FABProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function FAB({ onPress }: FABProps) {
-  const { colors, shadow } = useTheme();
+  const { colors, shadow, radius } = useTheme();
 
   // simple mount animation
   const scale = useSharedValue(0);
@@ -39,6 +39,7 @@ export function FAB({ onPress }: FABProps) {
         {
           backgroundColor: colors.accent,
           borderColor: colors.accentDark,
+          borderRadius: radius.xl,
           ...shadow.soft,
           shadowColor: colors.shadow,
         },
@@ -57,7 +58,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderWidth: 2,
-    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },

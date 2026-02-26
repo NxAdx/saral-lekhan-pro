@@ -27,17 +27,29 @@ const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
     { id: 'Ta', label: 'தமிழ்' },
 ];
 
+const SEED_COLORS = [
+    '#FF5722', // Tippani Orange
+    '#2196F3', // Material Blue
+    '#4CAF50', // Material Green
+    '#9C27B0', // Material Purple
+    '#E91E63', // Material Pink
+    '#FFEB3B', // Material Yellow
+    '#00BCD4', // Material Cyan
+    '#607D8B', // Material Blue Grey
+];
+
+const ICON_SHAPES: { id: 'circle' | 'squircle' | 'rounded'; label: string }[] = [
+    { id: 'circle', label: 'Circle' },
+    { id: 'squircle', label: 'Squircle' },
+    { id: 'rounded', label: 'Rounded' },
+];
+
 export default function SettingsScreen() {
     const router = useRouter();
-
-    // Theme state
-    const themeName = useThemeStore(s => s.themeName);
-    const setTheme = useThemeStore(s => s.setTheme);
     const theme = useTheme();
     const colors = theme.colors;
     const font = theme.font;
 
-    // Settings state
     const settings = useSettingsStore();
     const loc = strings[settings.language] || strings['En'];
 
@@ -57,7 +69,7 @@ export default function SettingsScreen() {
         },
         backBtn: { marginRight: 16, padding: 4 },
         title: { fontFamily: font.sansBold, fontSize: 22, color: colors.ink },
-        content: { padding: 20, paddingBottom: 60 },
+        content: { padding: 20, paddingBottom: 100 },
 
         sectionTitle: { fontFamily: font.sansBold, fontSize: 13, color: colors.accent, textTransform: 'uppercase', marginBottom: 12, marginTop: 24, letterSpacing: 1 },
 
@@ -67,10 +79,11 @@ export default function SettingsScreen() {
         // Cards & Lists
         listBlock: {
             backgroundColor: colors.bgRaised,
-            borderRadius: sharedTokens.radius.lg,
+            borderRadius: theme.radius.lg,
             borderWidth: 1,
             borderColor: colors.strokeDim,
             overflow: 'hidden',
+            marginBottom: 16,
         },
         listItem: {
             flexDirection: 'row',
@@ -82,28 +95,36 @@ export default function SettingsScreen() {
         },
         listItemNoBorder: { borderBottomWidth: 0 },
         listLabel: { fontFamily: font.sansMed, fontSize: 16, color: colors.ink },
-        listSub: { fontFamily: font.sans, fontSize: 13, color: colors.inkDim },
+        listSub: { fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginTop: 2 },
+        listContent: { flex: 1, marginRight: 12 },
 
-        // Theme Dots
-        themeScroll: { paddingVertical: 10, paddingHorizontal: 4 },
-        themeCard: {
-            width: 100, height: 130,
-            borderRadius: sharedTokens.radius.md,
-            borderWidth: 2,
-            marginRight: 12,
-            padding: 10,
-            justifyContent: 'space-between'
+        // Grid Selectors (Material You style)
+        gridRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12 },
+        colorCircle: { width: 44, height: 44, borderRadius: 22, borderWidth: 3, padding: 2 },
+        colorInner: { flex: 1, borderRadius: 20 },
+
+        shapeBtn: {
+            paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1,
+            alignItems: 'center', justifyContent: 'center'
         },
-        themeDot: { width: 24, height: 24, borderRadius: 12, borderWidth: 1, borderColor: colors.strokeDim },
-        themeLabel: { fontFamily: font.sansMed, fontSize: 12, textAlign: 'center', marginTop: 8 },
+        activeShape: { backgroundColor: colors.accentDim, borderColor: colors.accent },
+        inactiveShape: { backgroundColor: colors.bg, borderColor: colors.strokeDim },
 
-        // Pill selectors
+        // Control buttons
+        modeBtn: {
+            flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center',
+            borderRightWidth: 1, borderRightColor: colors.strokeDim,
+        },
+        modeBtnLast: { borderRightWidth: 0 },
+        activeMode: { backgroundColor: colors.accent },
+        modeText: { fontFamily: font.sansSemi, fontSize: 13 },
+
         pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
-    }), [colors, font]);
+    }), [colors, font, theme.radius, settings.nightMode]);
 
     return (
         <View style={s.root}>
-            <StatusBar barStyle={themeName === 'classic' || themeName === 'lavender' ? 'dark-content' : 'light-content'} backgroundColor={colors.bg} translucent={false} />
+            <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
@@ -129,29 +150,103 @@ export default function SettingsScreen() {
                     />
                 </View>
 
-                {/* Themes */}
-                <Text style={s.sectionTitle}>{loc.settingsScreen.appearanceTheme}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.themeScroll}>
-                    {THEME_OPTIONS.map((t) => {
-                        const tColors = themes[t.id];
-                        const isActive = themeName === t.id;
-                        return (
+                {/* Appearance Customizer */}
+                <Text style={s.sectionTitle}>{loc.settingsScreen.lookAndFeel}</Text>
+
+                <View style={s.listBlock}>
+                    {/* Night Mode Toggle */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.nightMode}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.nightModeSub}</Text>
+                        </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.strokeDim }}>
+                        {(['system', 'light', 'dark'] as const).map((m, idx) => (
                             <Pressable
-                                key={t.id}
-                                onPress={() => setTheme(t.id)}
+                                key={m}
+                                onPress={() => settings.setNightMode(m)}
                                 style={[
-                                    s.themeCard,
-                                    { backgroundColor: tColors.bgRaised, borderColor: isActive ? tColors.accent : tColors.strokeDim }
+                                    s.modeBtn,
+                                    idx === 2 && s.modeBtnLast,
+                                    settings.nightMode === m && s.activeMode
                                 ]}
                             >
-                                <View style={[s.themeDot, { backgroundColor: tColors.accent }]} />
-                                <View style={{ height: 6, width: '80%', backgroundColor: tColors.inkMid, borderRadius: 3, marginTop: 'auto', marginBottom: 6 }} />
-                                <View style={{ height: 6, width: '50%', backgroundColor: tColors.inkDim, borderRadius: 3 }} />
-                                <Text style={[s.themeLabel, { color: isActive ? tColors.accent : tColors.inkMid }]}>{t.label}</Text>
+                                <Text style={[s.modeText, { color: settings.nightMode === m ? colors.white : colors.inkMid }]}>
+                                    {m === 'system' ? 'System' : m === 'light' ? 'Light' : 'Dark'}
+                                </Text>
                             </Pressable>
-                        );
-                    })}
-                </ScrollView>
+                        ))}
+                    </View>
+
+                    {/* AMOLED Toggle */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.amoledMode}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.amoledModeSub}</Text>
+                        </View>
+                        <Switch
+                            value={settings.amoledMode}
+                            onValueChange={settings.setAmoledMode}
+                            trackColor={{ false: colors.strokeDim, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
+
+                    {/* Dynamic Colors (Android only mockup for now) */}
+                    <View style={[s.listItem, s.listItemNoBorder]}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.dynamicColors}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.dynamicColorsSub}</Text>
+                        </View>
+                        <Switch
+                            value={settings.dynamicColors}
+                            onValueChange={settings.setDynamicColors}
+                            trackColor={{ false: colors.strokeDim, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
+                </View>
+
+                {/* Color Palette */}
+                <Text style={s.sectionTitle}>{loc.settingsScreen.colorSeed}</Text>
+                <View style={s.listBlock}>
+                    <View style={s.gridRow}>
+                        {SEED_COLORS.map(c => (
+                            <Pressable
+                                key={c}
+                                onPress={() => settings.setSeedColor(c)}
+                                style={[s.colorCircle, { borderColor: settings.seedColor === c ? colors.accent : 'transparent' }]}
+                            >
+                                <View style={[s.colorInner, { backgroundColor: c }]} />
+                            </Pressable>
+                        ))}
+                    </View>
+                    <View style={{ padding: 16, paddingTop: 0 }}>
+                        <Text style={s.listSub}>{loc.settingsScreen.colorSeedSub}</Text>
+                    </View>
+                </View>
+
+                {/* Icon Shapes */}
+                <Text style={s.sectionTitle}>{loc.settingsScreen.iconShape}</Text>
+                <View style={s.listBlock}>
+                    <View style={s.gridRow}>
+                        {ICON_SHAPES.map(sh => (
+                            <Pressable
+                                key={sh.id}
+                                onPress={() => settings.setIconShape(sh.id)}
+                                style={[s.shapeBtn, settings.iconShape === sh.id ? s.activeShape : s.inactiveShape]}
+                            >
+                                <Text style={[s.modeText, { color: settings.iconShape === sh.id ? colors.accent : colors.inkMid }]}>
+                                    {sh.label}
+                                </Text>
+                            </Pressable>
+                        ))}
+                    </View>
+                    <View style={{ padding: 16, paddingTop: 0 }}>
+                        <Text style={s.listSub}>{loc.settingsScreen.iconShapeSub}</Text>
+                    </View>
+                </View>
 
                 {/* Fonts & Language */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.typographyLanguage}</Text>
@@ -167,6 +262,9 @@ export default function SettingsScreen() {
                         ))}
                     </View>
                 </View>
+
+                {/* Back to Home Hint */}
+                <View style={{ height: 40 }} />
 
             </ScrollView>
         </View>

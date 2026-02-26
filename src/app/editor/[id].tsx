@@ -118,7 +118,11 @@ export default function EditNoteScreen() {
   const s = useMemo(() => StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.bg, paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 44 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.strokeDim + '44' },
-    circleBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: colors.stroke, backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center', ...shadow.gentle, shadowColor: colors.shadow },
+    circleBtn: {
+      width: 36, height: 36, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.stroke,
+      backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
+      ...shadow.gentle, shadowColor: colors.shadow
+    },
     circleBtnActive: { backgroundColor: colors.accent, borderColor: colors.accentDark },
     headerMid: { flex: 1, alignItems: 'center' },
     headerDate: { fontFamily: font.mono, fontSize: 11, color: colors.inkDim },
@@ -173,7 +177,7 @@ export default function EditNoteScreen() {
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle={theme.themeName === 'classic' || theme.themeName === 'lavender' ? 'dark-content' : 'light-content'} backgroundColor={colors.bg} />
+      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
         <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12}>
@@ -205,7 +209,7 @@ export default function EditNoteScreen() {
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-            <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: 16 }}>
+            <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: radius.lg }}>
               <TextInput
                 style={s.titleInput}
                 placeholder={loc.editor.titlePlaceholder}

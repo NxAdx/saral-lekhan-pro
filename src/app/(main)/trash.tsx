@@ -11,9 +11,8 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 
 export default function TrashScreen() {
     const router = useRouter();
-    const themeName = useThemeStore(s => s.themeName);
-    const theme = useThemeStore();
-    const { colors, font, shadow } = useTheme();
+    const theme = useTheme();
+    const { colors, font, shadow } = theme;
     const lang = useSettingsStore(s => s.language);
     const loc = strings[lang] || strings['En'];
 
@@ -66,7 +65,7 @@ export default function TrashScreen() {
 
     return (
         <View style={s.root}>
-            <StatusBar barStyle={themeName === 'classic' || themeName === 'lavender' ? 'dark-content' : 'light-content'} backgroundColor={colors.bg} translucent={false} />
+            <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>

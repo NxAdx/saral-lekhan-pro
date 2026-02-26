@@ -40,14 +40,17 @@ type AppStrings = {
     justNow: string;
     aesthetics: string;
     appearanceTheme: string;
+    nightMode: string;
+    nightModeSub: string;
+    amoledMode: string;
+    amoledModeSub: string;
+    colorSeed: string;
+    colorSeedSub: string;
+    iconShape: string;
+    iconShapeSub: string;
+    dynamicColors: string;
+    dynamicColorsSub: string;
     typographyLanguage: string;
-    accessibilityFeatures: string;
-    pureBlackDb: string;
-    pureBlackDbSub: string;
-    dynamicAccent: string;
-    dynamicAccentSub: string;
-    reduceMotion: string;
-    reduceMotionSub: string;
     dataStorage: string;
     trashDesc: string;
   };
@@ -94,14 +97,17 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'JUST NOW',
       aesthetics: 'Aesthetics',
       appearanceTheme: 'Appearance Theme',
+      nightMode: 'Night Mode',
+      nightModeSub: 'System, Light or Dark',
+      amoledMode: 'AMOLED Mode',
+      amoledModeSub: 'Pitch black backgrounds in dark mode',
+      colorSeed: 'Color Palette',
+      colorSeedSub: 'Choose a primary seed color',
+      iconShape: 'Icon Shape',
+      iconShapeSub: 'Change shapes of buttons and containers',
+      dynamicColors: 'Dynamic Colors',
+      dynamicColorsSub: 'Sync with system wallpaper (Android 12+)',
       typographyLanguage: 'Typography & Language',
-      accessibilityFeatures: 'Accessibility & Features',
-      pureBlackDb: 'Pure Black Database',
-      pureBlackDbSub: 'Force OLED black across all dark modes',
-      dynamicAccent: 'Dynamic Accent',
-      dynamicAccentSub: 'Pick accent from current wallpaper',
-      reduceMotion: 'Reduce Motion',
-      reduceMotionSub: 'Disable bouncy spring animations',
       dataStorage: 'Data & Storage',
       trashDesc: 'View or restore deleted notes',
     }
@@ -146,16 +152,19 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'अभी-अभी',
       aesthetics: 'सौंदर्यशास्त्र',
       appearanceTheme: 'ऐप की थीम',
+      nightMode: 'नाइट मोड',
+      nightModeSub: 'सिस्टम, लाइट या डार्क',
+      amoledMode: 'AMOLED मोड',
+      amoledModeSub: 'डार्क मोड में पिच ब्लैक बैकग्राउंड',
+      colorSeed: 'रंग पैलेट',
+      colorSeedSub: 'एक मुख्य रंग चुनें',
+      iconShape: 'आइकन का आकार',
+      iconShapeSub: 'बटन और कंटेनर का आकार बदलें',
+      dynamicColors: 'डायनामिक रंग',
+      dynamicColorsSub: 'वॉलपेपर के साथ सिंक करें (Android 12+)',
       typographyLanguage: 'फ़ॉन्ट और भाषा',
-      accessibilityFeatures: 'पहुंच और सुविधाएँ',
-      pureBlackDb: 'प्योर ब्लैक डेटाबेस',
-      pureBlackDbSub: 'डार्क मोड में ओलेड (OLED) ब्लैक लागू करें',
-      dynamicAccent: 'डायनामिक रंग',
-      dynamicAccentSub: 'वर्तमान वॉलपेपर से रंग चुनें',
-      reduceMotion: 'एनिमेशन कम करें',
-      reduceMotionSub: 'उछलने वाले एनिमेशन अक्षम करें',
       dataStorage: 'डेटा और स्टोरेज',
-      trashDesc: 'हटाए गए नोट देखें या वापस लाएं',
+      trashDesc: 'हटवलेल्या नोट्स पहा किंवा परत आणा',
     }
   },
   Bn: {
@@ -198,15 +207,18 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'এইমাত্র',
       aesthetics: 'নান্দনিকতা',
       appearanceTheme: 'অ্যাপ থিম',
+      nightMode: 'নাইট মোড',
+      nightModeSub: 'সিস্টেম, লাইট বা ডার্ক',
+      amoledMode: 'AMOLED মোড',
+      amoledModeSub: 'ডার্ক মোডে পিচ ব্ল্যাক ব্যাকগ্রাউন্ড',
+      colorSeed: 'রঙের প্যালেট',
+      colorSeedSub: 'একটি প্রধান রঙ চয়ন করুন',
+      iconShape: 'আইকন আকৃতি',
+      iconShapeSub: 'বোতাম এবং কন্টেইনারের আকৃতি পরিবর্তন করুন',
+      dynamicColors: 'ডায়নামিক রঙ',
+      dynamicColorsSub: 'ওয়ালপেপারের সাথে সিঙ্ক করুন (Android 12+)',
       typographyLanguage: 'ফন্ট এবং ভাষা',
-      accessibilityFeatures: 'অ্যাক্সেসিবিলিটি এবং বৈশিষ্ট্য',
-      pureBlackDb: 'পিওর ব্ল্যাক ডেটাবেস',
-      pureBlackDbSub: 'ডার্ক মোডে ওলেড (OLED) ব্ল্যাক প্রয়োগ করুন',
-      dynamicAccent: 'ডায়নামিক রঙ',
-      dynamicAccentSub: 'বর্তমান ওয়ালপেপার থেকে রঙ বেছে নিন',
-      reduceMotion: 'অ্যানিমেশন কমান',
-      reduceMotionSub: 'লাফানো অ্যানিমেশন অক্ষম করুন',
-      dataStorage: 'ডেটা এবং স্টোরেজ',
+      dataStorage: 'ডেটা এবং স্টোরেज',
       trashDesc: 'মুছে ফেলা নোটগুলি দেখুন বা ফিরিয়ে আনুন',
     }
   },
@@ -250,14 +262,17 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'ఇప్పుడే',
       aesthetics: 'సౌందర్యం',
       appearanceTheme: 'యాప్ థీమ్',
+      nightMode: 'నైట్ మోడ్',
+      nightModeSub: 'సిస్టమ్, లైట్ లేదా డార్క్',
+      amoledMode: 'AMOLED మోడ్',
+      amoledModeSub: 'డార్క్ మోడ్‌లో పిచ్ బ్లాక్ బ్యాక్‌గ్రౌండ్',
+      colorSeed: 'కలర్ ప్యాలెట్',
+      colorSeedSub: 'ప్రధాన రంగును ఎంచుకోండి',
+      iconShape: 'ఐకాన్ ఆకారం',
+      iconShapeSub: 'బటన్లు మరియు కంటైనర్ల ఆకారం మార్చండి',
+      dynamicColors: 'డైనమిక్ రంగులు',
+      dynamicColorsSub: 'వాల్‌పేపర్‌తో సమకాలీకరించండి (Android 12+)',
       typographyLanguage: 'ఫాంట్ మరియు భాష',
-      accessibilityFeatures: 'యాక్సెసిబిలిటీ మరియు ఫీచర్స్',
-      pureBlackDb: 'ప్యూర్ బ్లాక్ డేటాబేస్',
-      pureBlackDbSub: 'డార్క్ మోడ్‌లో OLED బ్లాక్‌ను అమలు చేయండి',
-      dynamicAccent: 'డైనమిక్ రంగు',
-      dynamicAccentSub: 'ప్రస్తుత వాల్‌పేపర్ నుండి యాక్సెంట్ రంగు ఎంచుకోండి',
-      reduceMotion: 'యానిమేషన్ తగ్గించండి',
-      reduceMotionSub: 'ఎగిరే యానిమేషన్‌లను డిసేబుల్ చేయండి',
       dataStorage: 'డేటా మరియు స్టోరేజ్',
       trashDesc: 'తొలగించిన నోట్స్ చూడండి లేదా తిరిగి పొందండి',
     }
@@ -302,14 +317,17 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'नुकतेच',
       aesthetics: 'एस्थेटिक्स',
       appearanceTheme: 'अॅप थीम',
+      nightMode: 'नाईट मोड',
+      nightModeSub: 'सिस्टम, लाईट किंवा डार्क',
+      amoledMode: 'AMOLED मोड',
+      amoledModeSub: 'डार्क मोडमध्ये पिच ब्लॅक बॅकग्राउंड',
+      colorSeed: 'रंग पॅलेट',
+      colorSeedSub: 'एक मुख्य रंग निवडा',
+      iconShape: 'आयकनचा आकार',
+      iconShapeSub: 'बटणे आणि कंटेनरचा आकार बदला',
+      dynamicColors: 'डायनॅमिक रंग',
+      dynamicColorsSub: 'वॉलपेपरसह सिंक करा (Android 12+)',
       typographyLanguage: 'फॉन्ट आणि भाषा',
-      accessibilityFeatures: 'सुविधा आणि प्रवेशयोग्यता',
-      pureBlackDb: 'प्युअर ब्लॅक डेटाबेस',
-      pureBlackDbSub: 'डार्क मोडमध्ये ओलेड (OLED) ब्लॅक लागू करा',
-      dynamicAccent: 'डायनॅमिक रंग',
-      dynamicAccentSub: 'सध्याच्या वॉलपेपरवरून रंग निवडा',
-      reduceMotion: 'अॅनिमेशन कमी करा',
-      reduceMotionSub: 'उड्या मारणारे अॅनिमेशन बंद करा',
       dataStorage: 'डेटा आणि स्टोरेज',
       trashDesc: 'हटवलेल्या नोट्स पहा किंवा परत आणा',
     }
@@ -354,14 +372,17 @@ export const strings: Record<AppLanguage, AppStrings> = {
       justNow: 'இப்போது',
       aesthetics: 'அழகியல்',
       appearanceTheme: 'தீம் அமைப்புகள்',
+      nightMode: 'இரவு முறை',
+      nightModeSub: 'சிస్టம், ஒளி அல்லது இருள்',
+      amoledMode: 'AMOLED முறை',
+      amoledModeSub: 'இருள் முறையில் முழுமையான கருப்பு பின்னணி',
+      colorSeed: 'வண்ணத் தட்டு',
+      colorSeedSub: 'ஒரு முதன்மை நிறத்தைத் தேர்ந்தெடுக்கவும்',
+      iconShape: 'ஐகான் வடிவம்',
+      iconShapeSub: 'பொத்தான்கள் மற்றும் கொள்கலன்களின் வடிவத்தை மாற்றவும்',
+      dynamicColors: 'மாறும் வண்ணங்கள்',
+      dynamicColorsSub: 'வால்பேப்பருடன் ஒத்திசைக்கவும் (Android 12+)',
       typographyLanguage: 'அச்சு மற்றும் மொழி',
-      accessibilityFeatures: 'அணுகல் மற்றும் அம்சங்கள்',
-      pureBlackDb: 'முழுமையான கருப்பு முறை',
-      pureBlackDbSub: 'இருள் முறையில் OLED கருப்பை பயன்படுத்து',
-      dynamicAccent: 'மாறும் வண்ணங்கள்',
-      dynamicAccentSub: 'தற்போதைய வால்பேப்பரில் இருந்து நிறத்தை எடு',
-      reduceMotion: 'அசைவைக் குறை',
-      reduceMotionSub: 'துள்ளல் அனிமேஷன்களை முடக்கு',
       dataStorage: 'தரவு மற்றும் சேமிப்பு',
       trashDesc: 'நீக்கப்பட்ட குறிப்புகளைப் பார் அல்லது மீட்டமை',
     }

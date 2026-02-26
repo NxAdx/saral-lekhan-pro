@@ -14,6 +14,7 @@
     "@expo-google-fonts/dm-mono": "^0.2.3",
     "@expo-google-fonts/hind": "^0.2.3",
     "@expo-google-fonts/vesper-libre": "^0.2.3",
+    "@material/material-color-utilities": "^0.4.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "expo": "~49.0.0",
     "expo-constants": "~14.4.2",

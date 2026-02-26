@@ -148,7 +148,7 @@ export default function HomeScreen() {
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle={theme.themeName === 'classic' || theme.themeName === 'lavender' ? 'dark-content' : 'light-content'} backgroundColor={colors.bg} translucent={false} />
+      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
 
       <FlatList
         data={filteredNotes}
