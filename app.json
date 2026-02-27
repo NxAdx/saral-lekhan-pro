@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "saral-lekhan",
+    "slug": "saral-lekhan",
+    "scheme": "sarallekhan",
+    "version": "0.1.0",
+    "sdkVersion": "49.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "userInterfaceStyle": "automatic",
+    "fonts": [
+      "./assets/fonts/Hind-Regular.ttf",
+      "./assets/fonts/Hind-Medium.ttf",
+      "./assets/fonts/Hind-SemiBold.ttf",
+      "./assets/fonts/Hind-Bold.ttf",
+      "./assets/fonts/VesperLibre-Black.ttf",
+      "./assets/fonts/DMMono-Regular.ttf"
+    ],
+    "android": {
+      "package": "com.sarallekhan",
+      "softwareKeyboardLayoutMode": "resize",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "sarallekhan"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
+      }
+    },
+    "plugins": [
+      "@react-native-google-signin/google-signin"
+    ]
+  }
+}
