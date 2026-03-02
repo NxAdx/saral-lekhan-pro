@@ -9,6 +9,10 @@ yarn-error.*
 # OS files
 .DS_Store
 *.pem
+*.keystore
+*.jks
+google-services.json
+keystore_base64.txt
 
 # React Native
 *.jsbundle

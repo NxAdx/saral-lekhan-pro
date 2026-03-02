@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
+import * as Sentry from '@sentry/react-native';
 import { log } from '../utils/Logger';
 
 // Open (or create) the SQLite database
@@ -60,6 +61,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           get().loadNotes();
         }
       );
+    }, (err) => {
+      log.error("Failed to init DB", err);
+      Sentry.captureException(err);
     });
   },
 
@@ -78,6 +82,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           set({ notes: loadedNotes, isLoaded: true });
         }
       );
+    }, (err) => {
+      log.error("Failed to load notes", err);
+      Sentry.captureException(err);
     });
   },
 
@@ -86,7 +93,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const now = Date.now();
     const newNote: Note = {
       ...note,
-      id: now,
+      id: now + Math.floor(Math.random() * 100000), // Expert collision resistance
       created_at: now,
       updated_at: now,
       pinned: note.pinned ?? false,
@@ -101,6 +108,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0);`,
         [newNote.id, newNote.title, newNote.body, newNote.tag, newNote.created_at, newNote.updated_at, newNote.pinned ? 1 : 0]
       );
+    }, (err) => {
+      log.error("Failed to insert note", err);
+      Sentry.captureException(err);
     });
 
     return newNote.id;
@@ -122,6 +132,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
           [n.title, n.body, n.tag, n.updated_at, n.pinned ? 1 : 0, id]
         );
+      }, (err) => {
+        log.error("Failed to update note", err);
+        Sentry.captureException(err);
       });
     }
   },

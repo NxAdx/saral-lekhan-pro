@@ -1,5 +1,6 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as FileSystem from 'expo-file-system';
+import * as Sentry from '@sentry/react-native';
 
 // CRITICAL: This MUST be a "Web application" Client ID from Google Cloud Console.
 // It CANNOT be your Android Client ID, otherwise you get DEVELOPER_ERROR (Error 10).
@@ -82,6 +83,7 @@ export class GoogleDriveService {
 
     // 2. Backup the SQLite database
     static async backupDatabase(accessToken: string) {
+        Sentry.addBreadcrumb({ category: 'sync', message: 'Starting cloud backup', level: 'info' });
         try {
             // First, ensure all current SQLite transactions are flushed.
             // Easiest is to just read the file directly since Expo SQLite stores it in the DocumentDirectory
@@ -132,11 +134,14 @@ export class GoogleDriveService {
 
             if (!response.ok) {
                 const errorText = await response.text();
+                Sentry.captureMessage(`Drive upload failed: ${response.status}`, { level: 'error', extra: { errorText } });
                 throw new Error(`Drive upload failed: ${errorText}`);
             }
 
+            Sentry.addBreadcrumb({ category: 'sync', message: 'Backup successful', level: 'info' });
             return true;
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Backup Error:", error);
             throw error;
         }
@@ -144,6 +149,7 @@ export class GoogleDriveService {
 
     // 3. Restore the SQLite database
     static async restoreDatabase(accessToken: string) {
+        Sentry.addBreadcrumb({ category: 'sync', message: 'Starting cloud restore', level: 'info' });
         try {
             const fileId = await this.getExistingBackupId(accessToken);
             if (!fileId) {
@@ -171,11 +177,14 @@ export class GoogleDriveService {
             });
 
             if (status !== 200) {
+                Sentry.captureMessage(`Restore download failed: ${status}`, { level: 'error' });
                 throw new Error("Download corrupted or failed.");
             }
 
+            Sentry.addBreadcrumb({ category: 'sync', message: 'Restore successful', level: 'info' });
             return true;
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Restore Error:", error);
             throw error;
         }
