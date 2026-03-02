@@ -46,9 +46,6 @@ jobs:
           # Patch android/build.gradle to enforce Java 17 compilation
           sed -i '/allprojects {/a \    tasks.withType(JavaCompile).configureEach {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }' android/build.gradle
           
-          # Fix missing splashscreen_background resource crash and set to warm grey
-          sed -i '/<\/resources>/i \  <color name="splashscreen_background">#D9D7D2</color>' android/app/src/main/res/values/colors.xml
-
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android
         run: ./gradlew bundleRelease assembleRelease --no-daemon
