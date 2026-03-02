@@ -226,7 +226,7 @@ export default function HomeScreen() {
       backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
       ...shadow.gentle, shadowColor: colors.shadow
     },
-  }), [colors, font, radius, shadow, searchFocused]);
+  }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
   const ListHeader = useMemo(() => (
     <View>

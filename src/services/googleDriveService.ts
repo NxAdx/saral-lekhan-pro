@@ -156,15 +156,6 @@ export class GoogleDriveService {
                 throw new Error("No backup found on Google Drive.");
             }
 
-            // Download the file contents
-            const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to download backup: ${response.statusText}`);
-            }
-
             // Because it's a binary DB file, fetch().blob() is often problematic in React Native.
             // Instead we use Expo FileSystem to download it directly.
             const dbDir = `${FileSystem.documentDirectory}SQLite`;

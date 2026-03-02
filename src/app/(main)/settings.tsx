@@ -760,7 +760,7 @@ export default function SettingsScreen() {
                                         <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.accent }}>v{item.version}</Text>
                                         <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.inkDim }}>{item.date}</Text>
                                     </View>
-                                    {item.changes[settings.language.toLowerCase() as 'en' | 'hi' | 'mr']?.map((change, cIdx) => (
+                                    {(item.changes[settings.language.toLowerCase() as keyof typeof item.changes] || item.changes['en'])?.map((change, cIdx) => (
                                         <Text key={cIdx} style={{ fontFamily: font.sans, fontSize: 14, color: colors.ink, marginBottom: 6, lineHeight: 20 }}>
                                             • {change}
                                         </Text>

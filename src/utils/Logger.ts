@@ -107,9 +107,10 @@ class Logger {
     }
 
     public getDebugInfo(): string {
+        const Constants = require('expo-constants').default;
         return `
 --- DEBUG INFO ---
-App Version: 2.7.1 (Stability)
+App Version: ${Constants.expoConfig?.version || 'Unknown'} (Stability)
 Platform: ${Platform.OS} ${Platform.Version}
 Timestamp: ${new Date().toISOString()}
 ------------------

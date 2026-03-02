@@ -75,7 +75,7 @@ The editor features a custom toolbar for quick access to formatting and specific
 ### Robust Local Storage
 Uses SQLite via `expo-sqlite` for persistence. The `notesStore` (Zustand) acts as the bridge between the UI and the database, ensuring reactive updates and fast performance.
 
-### 6. Phase 12-14: Saral Lekhan Plus Features
+### Saral Lekhan Plus Features
 
 #### Biometric Security & AuthStore
 Implemented `expo-local-authentication` to secure the app. The core lock logic is separated into a strict `authStore.ts` (Zustand) that listens to device `AppState` changes (Active vs Background) and forces a global `LockScreen.tsx` modal overlay upon return.
@@ -130,4 +130,4 @@ cd android
 - **Database**: When modifying the data model, update both `src/db/schema.ts` and the `notesStore.ts`.
 
 ---
-*Generated: 2026-02-28 | Version 2.0 (Plus Expansion)*
+*Generated: 2026-03-02 | Version 2.9.3 (Audited & Hardened)*

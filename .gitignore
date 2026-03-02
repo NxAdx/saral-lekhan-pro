@@ -30,3 +30,23 @@ ios/build/
 ios/Pods/
 ios/.symlinks/
 ios/build/
+
+# IDE & Config
+.vscode/
+
+# Build & Release
+*.apk
+*.aab
+
+# Output & Logs
+*.txt
+*.bat
+*.log
+*.resolved
+
+# Local Assets & Backups
+ss/
+*.zip
+*.jpg
+*.png
+*.mp4

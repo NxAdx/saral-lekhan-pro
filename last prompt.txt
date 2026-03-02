@@ -1,4 +1,0 @@
-1. in viewing mode I could press styling and other button, and that style appear in last line of note.
-2. now styling work but it come with preflied text(**text**), etc.
-3. home screen now notes are on top but look  the size of those notes check ss toching boundry(screen edge).
-other component are looks good to me now, will tell after final build.
