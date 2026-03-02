@@ -10,6 +10,9 @@
       "android"
     ],
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#D9D7D2"
+    },
     "fonts": [
       "./assets/fonts/Hind-Regular.ttf",
       "./assets/fonts/Hind-Medium.ttf",
