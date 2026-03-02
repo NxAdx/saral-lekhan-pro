@@ -11,7 +11,10 @@
     ],
     "userInterfaceStyle": "automatic",
     "splash": {
-      "backgroundColor": "#D9D7D2"
+      "backgroundColor": "#D9D7D2",
+      "dark": {
+        "backgroundColor": "#171513"
+      }
     },
     "fonts": [
       "./assets/fonts/Hind-Regular.ttf",

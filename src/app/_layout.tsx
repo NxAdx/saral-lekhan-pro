@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
+import * as SystemUI from 'expo-system-ui';
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -95,6 +96,9 @@ export function RootLayout() {
         useAuthStore.getState().lockApp();
       }
     });
+
+    // Fix the 1ms white-flash on resume by pinning the root window background to our dark theme
+    SystemUI.setBackgroundColorAsync('#171513');
 
     return () => {
       subscription.remove();
