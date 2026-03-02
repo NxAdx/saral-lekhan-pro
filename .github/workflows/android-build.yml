@@ -55,7 +55,14 @@ jobs:
           
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android
-        run: ./gradlew bundleRelease assembleRelease --no-daemon
+        run: |
+          # Print the SHA-1 of the Release Keystore so the developer can easily copy it to Firebase
+          echo "=========================================================="
+          echo "🔥 RELEASE KEYSTORE SHA-1 FINGERPRINT (ADD THIS TO FIREBASE):"
+          keytool -list -v -keystore app/release.keystore -alias "${{ secrets.ANDROID_KEY_ALIAS }}" -storepass "${{ secrets.ANDROID_STORE_PASSWORD }}" | grep SHA1
+          echo "=========================================================="
+          
+          ./gradlew bundleRelease assembleRelease --no-daemon
         env:
           MYAPP_UPLOAD_STORE_FILE: release.keystore
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
