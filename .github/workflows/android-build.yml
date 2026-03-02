@@ -49,18 +49,25 @@ jobs:
           # Fix missing splashscreen_background resource crash
           sed -i '/<\/resources>/i \  <color name="splashscreen_background">#ffffff</color>' android/app/src/main/res/values/colors.xml
 
-      - name: 6. Build Production Bundle (AAB)
+      - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android
-        run: ./gradlew bundleRelease --no-daemon
+        run: ./gradlew bundleRelease assembleRelease --no-daemon
         env:
           MYAPP_UPLOAD_STORE_FILE: release.keystore
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
-      - name: 7. Upload Build Artifact
+      - name: 7. Upload Build Artifact (Google Play AAB)
         uses: actions/upload-artifact@v4
         with:
           name: saral-lekhan-production-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 7
+
+      - name: 8. Upload Testable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: saral-lekhan-production-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
