@@ -33,9 +33,11 @@ jobs:
           npx expo prebuild --platform android --clean
 
       - name: 5. Secure Secrets Injection & Native Patches
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           # Inject Secrets AFTER the clean prebuild
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+          cat <<< "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
           
           # Decode Base64 Keystore into binary file
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
