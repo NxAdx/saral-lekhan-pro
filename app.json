@@ -47,14 +47,7 @@
       "url": "https://u.expo.dev/d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin",
-      [
-        "sentry-expo",
-        {
-          "organization": "your-org-placeholder",
-          "project": "saral-lekhan-plus"
-        }
-      ]
+      "@react-native-google-signin/google-signin"
     ]
   }
 }

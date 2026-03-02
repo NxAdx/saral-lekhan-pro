@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
-import * as Sentry from 'sentry-expo';
+import * as Sentry from '@sentry/react-native';
 import { log } from '../utils/Logger';
 
 // Open (or create) the SQLite database
