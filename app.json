@@ -49,7 +49,7 @@
     "plugins": [
       "@react-native-google-signin/google-signin",
       [
-        "@sentry/react-native/expo",
+        "sentry-expo",
         {
           "organization": "your-org-placeholder",
           "project": "saral-lekhan-plus"

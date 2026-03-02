@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppState } from 'react-native';
-import * as Sentry from '@sentry/react-native';
+import * as Sentry from 'sentry-expo';
 import { Stack, SplashScreen } from 'expo-router';
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
@@ -111,4 +111,4 @@ export function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default Sentry.Native.wrap(RootLayout);

@@ -55,7 +55,8 @@
     "react-native-webview": "13.2.2",
     "zustand": "^4.5.7",
     "expo-image-picker": "~14.3.2",
-    "@sentry/react-native": "5.10.0"
+    "@sentry/react-native": "5.10.0",
+    "sentry-expo": "~7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -1,6 +1,6 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as FileSystem from 'expo-file-system';
-import * as Sentry from '@sentry/react-native';
+import * as Sentry from 'sentry-expo';
 
 // CRITICAL: This MUST be a "Web application" Client ID from Google Cloud Console.
 // It CANNOT be your Android Client ID, otherwise you get DEVELOPER_ERROR (Error 10).
