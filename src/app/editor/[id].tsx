@@ -60,7 +60,8 @@ export default function EditNoteScreen() {
 
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
-  const isMounted = useRef(true);
+  const isMounted = useRef(false);
+  const [editorHeight, setEditorHeight] = useState<number>(400);
 
   useEffect(() => {
     isMounted.current = true;
@@ -426,7 +427,7 @@ export default function EditNoteScreen() {
                 multiline blurOnSubmit returnKeyType="next"
               />
 
-              <View style={s.editorContainer}>
+              <View style={[s.editorContainer, { minHeight: editorHeight }]}>
                 <RichEditor
                   key={id}
                   ref={richText}
@@ -461,6 +462,9 @@ export default function EditNoteScreen() {
                   useContainer={false}
                   onCursorPosition={(y) => {
                     scrollRef.current?.scrollTo({ y: Math.max(0, y - 50), animated: true });
+                  }}
+                  onHeightChange={(h) => {
+                    setEditorHeight(Math.max(400, h + 100));
                   }}
                 />
               </View>

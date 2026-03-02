@@ -37,6 +37,7 @@ export default function NewNoteScreen() {
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [editorHeight, setEditorHeight] = useState<number>(400);
   const [isDirty, setIsDirty] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -248,7 +249,7 @@ export default function NewNoteScreen() {
             multiline blurOnSubmit returnKeyType="next"
           />
 
-          <View style={s.editorContainer}>
+          <View style={[s.editorContainer, { minHeight: editorHeight }]}>
             <RichEditor
               ref={richText}
               initialContentHTML=""
@@ -281,6 +282,9 @@ export default function NewNoteScreen() {
                     noteId.current = id;
                   }
                 }
+              }}
+              onHeightChange={(h) => {
+                setEditorHeight(Math.max(400, h + 100));
               }}
               scrollEnabled={false}
               useContainer={false}
