@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react-native';
 // CRITICAL: This MUST be a "Web application" Client ID from Google Cloud Console.
 // It CANNOT be your Android Client ID, otherwise you get DEVELOPER_ERROR (Error 10).
 // Without a Web Client ID, Google will give you a 401 Unauthorized error when accessing Google Drive API.
-const WEB_CLIENT_ID = "1021975293117-ompp70m5ehcg614a02fannpnj52v4r94.apps.googleusercontent.com";
+const WEB_CLIENT_ID = "871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.googleusercontent.com";
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
 
 try {
