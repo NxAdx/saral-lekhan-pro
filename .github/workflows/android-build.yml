@@ -43,8 +43,13 @@ jobs:
           # Patch MainApplication.java for production bundler
           sed -i 's/return ".expo\/.virtual-metro-entry";/return "index";/' android/app/src/main/java/com/sarallekhan/MainApplication.java
           
-          # Patch android/build.gradle to enforce Java 17 compilation
+          # Patch android/build.gradle to enforce Java 17 compilation and add Google Services classpath
           sed -i '/allprojects {/a \    tasks.withType(JavaCompile).configureEach {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }' android/build.gradle
+          sed -i '/dependencies {/a \        classpath("com.google.gms:google-services:4.4.1")' android/build.gradle
+          
+          # Patch android/app/build.gradle to aggressively apply the Google Services plugin at the very bottom
+          echo "" >> android/app/build.gradle
+          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android
