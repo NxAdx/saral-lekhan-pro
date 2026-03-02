@@ -29,7 +29,7 @@
         "chars": "অক্ষর",
         "words": "শব্দ",
         "notFound": "নোট পাওয়া যায়নি",
-        "tagPlaceholder": "ট্যাগ (যোগ করতে এন্টার টিপুন)",
+        "tagPlaceholder": "ট্যাগ",
         "thinking": "✨ চিন্তা করছে...",
         "exportPdf": "PDF হিসেবে সংরক্ষণ করুন",
         "exportTxt": "টেক্সট (.txt) হিসেবে সংরক্ষণ করুন",
@@ -59,7 +59,9 @@
         "ok": "ওকে",
         "cancel": "বাতিল",
         "dataStorage": "ডেটা এবং স্টোরেজ",
-        "trashDesc": "মুছে ফেলা নোটগুলি দেখুন বা ফিরিয়ে আনুন"
+        "trashDesc": "মুছে ফেলা নোটগুলি দেখুন বা ফিরিয়ে আনুন",
+        "aboutDeveloper": "ডিজাইন ও ডেভেলপ করেছেন",
+        "developerNames": "আদর্শ লোখান্ডে ও Antigravity"
     },
     "plusFeatures": {
         "title": "সরল লিখন প্লাস ⭐",

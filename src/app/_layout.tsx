@@ -50,7 +50,7 @@ import { log } from '../utils/Logger';
 SplashScreen.preventAutoHideAsync();
 
 Sentry.init({
-  dsn: "https://your_sentry_dsn_placeholder@sentry.io/123456",
+  dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",
   debug: __DEV__,
 });
 

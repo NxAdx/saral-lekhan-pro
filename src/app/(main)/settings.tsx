@@ -140,7 +140,7 @@ export default function SettingsScreen() {
             await FileSystem.writeAsStringAsync(uri, fullReport);
 
             if (!(await Sharing.isAvailableAsync())) {
-                Alert.alert("Error", "Sharing is not available on this device");
+                setSyncAlert({ visible: true, title: "Error", sub: "Sharing is not available on this device" });
                 return;
             }
 
@@ -153,7 +153,7 @@ export default function SettingsScreen() {
             log.info("Bug report shared successfully");
         } catch (e) {
             console.error("Failed to share bug report", e);
-            Alert.alert("Error", "Failed to generate bug report");
+            setSyncAlert({ visible: true, title: "Error", sub: "Failed to generate bug report" });
         }
     };
 
@@ -347,7 +347,7 @@ export default function SettingsScreen() {
                                     if (key.length > 0) {
                                         // Basic validation to prevent obvious bad inputs
                                         if (key.length < 30 || !key.startsWith('AIza')) {
-                                            Alert.alert("Invalid Key Format", "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key.");
+                                            setSyncAlert({ visible: true, title: "Invalid Key Format", sub: "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key." });
                                             return;
                                         }
                                         ai.setGeminiApiKey(key);

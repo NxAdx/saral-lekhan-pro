@@ -55,6 +55,7 @@ export default function EditNoteScreen() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const ai = useAiStore();
 
   const richText = useRef<RichEditor>(null);
@@ -191,7 +192,7 @@ export default function EditNoteScreen() {
       }
     } catch (e) {
       console.error("Failed to pick image", e);
-      Alert.alert("Error", "Could not load image.");
+      setAppAlert({ visible: true, title: "Error", subtitle: "Could not load image." });
     }
   };
 
@@ -261,7 +262,7 @@ export default function EditNoteScreen() {
       const generatedTitle = await AiService.getSmartTitle(bodyText.trim());
       setTitle(generatedTitle);
     } catch (e: any) {
-      Alert.alert("Spark AI Error", e.message || "Failed to generate title.");
+      setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to generate title." });
     } finally {
       setIsGenerating(false);
     }
@@ -276,7 +277,7 @@ export default function EditNoteScreen() {
       setSummaryText(summary);
       setShowSummaryModal(true);
     } catch (e: any) {
-      Alert.alert("Spark AI Error", e.message || "Failed to summarize note.");
+      setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to summarize note." });
     } finally {
       setIsGenerating(false);
     }
@@ -291,7 +292,7 @@ export default function EditNoteScreen() {
       richText.current?.insertHTML(`<br><br>${markdownToHtml(output)}<br>`);
       setAiPrompt('');
     } catch (e: any) {
-      Alert.alert("Spark AI Error", e.message || "Failed to generate content.");
+      setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to generate content." });
     } finally {
       setIsGenerating(false);
     }
@@ -305,7 +306,7 @@ export default function EditNoteScreen() {
       const output = await AiService.getFormatNote(bodyText.trim());
       richText.current?.setContentHTML(markdownToHtml(output));
     } catch (e: any) {
-      Alert.alert("Spark AI Error", e.message || "Failed to format content.");
+      setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to format content." });
     } finally {
       setIsGenerating(false);
     }
@@ -470,16 +471,13 @@ export default function EditNoteScreen() {
               <TextInput
                 style={s.tagInput}
                 placeholder={loc.editor.tagPlaceholder}
-                placeholderTextColor={colors.inkDim}
+                placeholderTextColor={colors.inkDim + '88'}
                 value={tag}
                 onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
                 autoCapitalize="none"
                 onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
               />
             </View>
-            <Text style={{ fontFamily: font.sans, fontSize: 11, color: colors.inkDim, marginLeft: 34, marginTop: -8, marginBottom: 12 }}>
-              {loc.editor.tagHint || "Add a tag to organize your notes"}
-            </Text>
           </ScrollView>
 
           <RichToolbar
@@ -788,6 +786,20 @@ export default function EditNoteScreen() {
             />
           </View>
         }
+      />
+
+      <ThemedModal
+        visible={appAlert.visible}
+        title={appAlert.title}
+        subtitle={appAlert.subtitle}
+        onClose={() => setAppAlert(prev => ({ ...prev, visible: false }))}
+        actions={[
+          {
+            label: loc.settingsScreen.ok,
+            style: 'default',
+            onPress: () => setAppAlert(prev => ({ ...prev, visible: false }))
+          }
+        ]}
       />
     </View>
   );

@@ -47,6 +47,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
 
   // Selection Mode State
@@ -95,22 +96,8 @@ export default function HomeScreen() {
   }, []);
 
   const handleBulkDelete = useCallback(() => {
-    Alert.alert(
-      loc.editor.deleteNote,
-      `${loc.home.deleteConfirm || "Delete"} ${selectedIds.size} ${loc.home.notesTitle || "notes"}?`,
-      [
-        { text: loc.editor.cancel, style: 'cancel' },
-        {
-          text: loc.editor.delete,
-          style: 'destructive',
-          onPress: () => {
-            selectedIds.forEach(id => deleteNote(id));
-            clearSelection();
-          }
-        }
-      ]
-    );
-  }, [selectedIds, deleteNote, clearSelection, loc]);
+    setShowBulkDeleteModal(true);
+  }, []);
 
   const handleBulkExport = useCallback(async () => {
     const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
@@ -187,7 +174,7 @@ export default function HomeScreen() {
       ...type.headlineLarge,
       fontFamily: font.sansBold, // Reverted to sansBold as per older UI
       color: colors.ink,
-      fontSize: 32, // Adjusted for scale
+      fontSize: 26, // Reduced to force one line and match smaller look
     },
     appSub: {
       ...type.labelMedium,
@@ -396,6 +383,28 @@ export default function HomeScreen() {
             label: loc.editor.cancel,
             style: 'cancel',
             onPress: () => setShowImportModal(false)
+          }
+        ]}
+      />
+
+      <ThemedModal
+        visible={showBulkDeleteModal}
+        title={loc.editor.deleteNote}
+        subtitle={`${loc.home.deleteConfirm || "Delete"} ${selectedIds.size} ${loc.home.notesTitle || "notes"}?`}
+        onClose={() => setShowBulkDeleteModal(false)}
+        actions={[
+          {
+            label: loc.editor.delete,
+            style: 'destructive',
+            onPress: () => {
+              selectedIds.forEach(id => deleteNote(id));
+              clearSelection();
+            }
+          },
+          {
+            label: loc.editor.cancel,
+            style: 'cancel',
+            onPress: () => setShowBulkDeleteModal(false)
           }
         ]}
       />

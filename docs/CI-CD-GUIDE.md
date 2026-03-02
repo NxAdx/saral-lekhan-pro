@@ -131,3 +131,11 @@ If you see a `DEVELOPER_ERROR` or `Error 10`, it means your Cloud Build is using
 3. Copy its **Client ID** (it looks like `12345-abcde.apps.googleusercontent.com`).
 4. In your code, check `src/services/googleDriveService.ts`. Ensure the `WEB_CLIENT_ID` variable matches this exact string.
 5. Push any code changes to GitHub and let the Cloud Build run one last time!
+
+### Step 12: Production Monitoring (Sentry)
+To catch crashes that happen on users' phones:
+1. Create a free account at [Sentry.io](https://sentry.io).
+2. Create a new "React Native" project called `saral-lekhan`.
+3. Copy your **DSN** (Data Source Name).
+4. In your code, open `src/app/_layout.tsx` and replace the placeholder DSN with your actual one.
+5. In `app.json`, update the `organization` and `project` slugs to match your Sentry account.
