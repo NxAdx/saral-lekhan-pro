@@ -10,6 +10,33 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.9.3",
+        date: "2026-03-02",
+        changes: {
+            en: [
+                "🛡️ Security Engine: Hardened biometric vaults and offline keys",
+                "⚡ Production Speed: Removed legacy components for faster loading",
+                "🐛 Bug Fixes: Resolved Drive sync duplication and Sentry reporting",
+                "🌐 Global Reach: Enhanced support for newer regional dialects",
+                "🎨 UI Polish: Minor layout spacing and typography adjustments"
+            ],
+            hi: [
+                "🛡️ सुरक्षा इंजन: मजबूत बायोमेट्रिक वॉल्ट और ऑफ़लाइन कुंजियाँ",
+                "⚡ उत्पादन गति: तेज़ लोडिंग के लिए पुराने घटकों को हटाया गया",
+                "🐛 बग फिक्स: ड्राइव सिंक दोहराव और सेंट्री रिपोर्टिंग को हल किया",
+                "🌐 वैश्विक पहुंच: नई क्षेत्रीय बोलियों के लिए बेहतर समर्थन",
+                "🎨 UI सुधार: मामूली लेआउट रिक्ति और टाइपोग्राफी समायोजन"
+            ],
+            mr: [
+                "🛡️ सुरक्षा इंजिन: मजबूत बायोमेट्रिक वॉल्ट आणि ऑफलाइन की",
+                "⚡ उत्पादन गती: वेगवान लोडिंगसाठी जुने घटक काढले",
+                "🐛 बग फिक्स: ड्राइव्ह सिंक डुप्लिकेशन आणि सेंट्री रिपोर्टिंग सोडवले",
+                "🌐 जागतिक पोहोच: नवीन प्रादेशिक बोलींसाठी वर्धित समर्थन",
+                "🎨 UI सुधारणा: किरकोळ लेआउट अंतर आणि टायपोग्राफी समायोजन"
+            ]
+        }
+    },
+    {
         version: "2.6.0",
         date: "2026-03-01",
         changes: {
