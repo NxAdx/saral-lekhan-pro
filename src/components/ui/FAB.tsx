@@ -46,8 +46,9 @@ export function FAB({ onPress }: FABProps) {
         animStyle
       ]}
     >
-      <Svg viewBox="0 0 20 20" width={24} height={24}>
-        <Path d="M10 4v12M4 10h12" stroke={colors.white} strokeWidth={2.5} strokeLinecap="round" />
+      <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <Path d="M12 5l0 14" />
+        <Path d="M5 12l14 0" />
       </Svg>
     </AnimatedPressable>
   );

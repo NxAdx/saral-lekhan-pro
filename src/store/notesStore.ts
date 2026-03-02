@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
+import { log } from '../utils/Logger';
 
 // Open (or create) the SQLite database
 const db = SQLite.openDatabase('saral_lekhan.db');
@@ -25,12 +26,13 @@ interface NotesState {
   loadNotes: () => void;
   addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>) => number;
   updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned'>>) => void;
-  deleteNote: (id: number) => void; // Soft delete
-  restoreNote: (id: number) => void; // Undelete
-  permanentlyDeleteNote: (id: number) => void; // Hard delete
+  deleteNote: (id: number) => void;
+  restoreNote: (id: number) => void;
+  permanentlyDeleteNote: (id: number) => void;
   getNotesFilteredByTag: (tag: string) => Note[];
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
+  resetDB: () => void;
 }
 
 export const useNotesStore = create<NotesState>((set, get) => ({
@@ -39,7 +41,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   initDB: () => {
     db.transaction((tx) => {
-      // 1. Create table if not exists
+      // Notes Table
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS notes (
           id INTEGER PRIMARY KEY NOT NULL,
@@ -48,28 +50,21 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           tag TEXT,
           created_at INTEGER,
           updated_at INTEGER,
-          pinned INTEGER,
+          pinned INTEGER DEFAULT 0,
           is_deleted INTEGER DEFAULT 0
         );`, [],
         () => {
-          // 2. Try to add 'is_deleted' column for existing users.
-          // This will fail silently if the column already exists.
-          tx.executeSql(
-            `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`, [],
-            () => get().loadNotes(),
-            () => {
-              // The error usually means the column already exists, so proceed regardless.
-              get().loadNotes();
-              return false; // Tells Expo SQLite not to rollback transaction due to this expected error
-            }
-          );
-        },
-        (_, error) => { console.error("DB Init Error: ", error); return false; }
+          // Migration: Add is_deleted if missing
+          tx.executeSql(`ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`, [], () => { }, () => false);
+
+          get().loadNotes();
+        }
       );
     });
   },
 
   loadNotes: () => {
+    log.info("Loading notes from DB...");
     db.transaction((tx) => {
       tx.executeSql(
         `SELECT * FROM notes ORDER BY updated_at DESC;`, [],
@@ -79,11 +74,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             pinned: row.pinned === 1,
             is_deleted: row.is_deleted === 1
           }));
+          log.info(`Loaded ${loadedNotes.length} notes`);
           set({ notes: loadedNotes, isLoaded: true });
         }
       );
     });
   },
+
 
   addNote: (note) => {
     const now = Date.now();
@@ -96,6 +93,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       is_deleted: false,
     };
 
+    log.info(`Adding new note: ${newNote.title}`);
     set((state) => ({ notes: [newNote, ...state.notes] }));
 
     db.transaction((tx) => {
@@ -117,19 +115,27 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       ),
     }));
 
-    const updatedNote = get().notes.find(n => n.id === id);
-    if (updatedNote) {
+    const n = get().notes.find(x => x.id === id);
+    if (n) {
       db.transaction((tx) => {
         tx.executeSql(
           `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
-          [updatedNote.title, updatedNote.body, updatedNote.tag, updatedNote.updated_at, updatedNote.pinned ? 1 : 0, id]
+          [n.title, n.body, n.tag, n.updated_at, n.pinned ? 1 : 0, id]
         );
       });
     }
   },
 
+
+  getNotesFilteredByTag: (tag) => {
+    const { notes } = get();
+    const activeNotes = notes.filter(n => !n.is_deleted);
+    if (tag === ALL_TAG_ID) return [...activeNotes].sort((a, b) => b.updated_at - a.updated_at);
+    return activeNotes.filter((n) => n.tag === tag).sort((a, b) => b.updated_at - a.updated_at);
+  },
+
+
   deleteNote: (id) => {
-    // Soft delete
     set((state) => ({
       notes: state.notes.map((n) => n.id === id ? { ...n, is_deleted: true } : n)
     }));
@@ -139,7 +145,6 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   restoreNote: (id) => {
-    // Undelete
     set((state) => ({
       notes: state.notes.map((n) => n.id === id ? { ...n, is_deleted: false } : n)
     }));
@@ -149,31 +154,26 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   permanentlyDeleteNote: (id) => {
-    // Hard delete
     set((state) => ({ notes: state.notes.filter((n) => n.id !== id) }));
     db.transaction((tx) => {
       tx.executeSql(`DELETE FROM notes WHERE id = ?;`, [id]);
     });
   },
 
-  getNotesFilteredByTag: (tag) => {
-    const { notes } = get();
-    // Only return notes that are NOT deleted
-    const activeNotes = notes.filter(n => !n.is_deleted);
-    if (tag === ALL_TAG_ID) return [...activeNotes].sort((a, b) => b.updated_at - a.updated_at);
-    return activeNotes.filter((n) => n.tag === tag).sort((a, b) => b.updated_at - a.updated_at);
-  },
-
   getDeletedNotes: () => {
-    const { notes } = get();
-    // Return ONLY deleted notes
-    return notes.filter(n => n.is_deleted).sort((a, b) => b.updated_at - a.updated_at);
+    return get().notes.filter(n => n.is_deleted).sort((a, b) => b.updated_at - a.updated_at);
   },
 
   getUniqueTags: () => {
-    const { notes } = get();
-    // Only get tags from active, undeleted notes
-    const tags = new Set(notes.filter(n => !n.is_deleted).map((n) => n.tag).filter(Boolean));
+    const tags = new Set(get().notes.filter(n => !n.is_deleted).map((n) => n.tag).filter(Boolean));
     return Array.from(tags).sort();
+  },
+
+  resetDB: () => {
+    set({ notes: [], isLoaded: false });
+    // Re-initialize and load notes from the newly restored/replaced database file
+    setTimeout(() => {
+      get().initDB();
+    }, 200);
   },
 }));

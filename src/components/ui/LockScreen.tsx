@@ -15,6 +15,7 @@ export function LockScreen() {
     const lang = settings.language;
     const loc = strings[lang] || strings['En'];
     const [errorText, setErrorText] = useState('');
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     const colors = theme.colors;
     const font = theme.font;
@@ -30,8 +31,12 @@ export function LockScreen() {
     }, []);
 
     const authenticate = async () => {
+        if (isAuthenticating) return;
+
         console.log("LockScreen: authenticate triggered");
         setErrorText('');
+        setIsAuthenticating(true);
+
         try {
             // Check if hardware is actually available right now
             const hasHardware = await LocalAuthentication.hasHardwareAsync();
@@ -39,6 +44,7 @@ export function LockScreen() {
 
             if (!hasHardware || !isEnrolled) {
                 setErrorText("Biometrics not available on this device.");
+                setIsAuthenticating(false);
                 return;
             }
 
@@ -58,13 +64,19 @@ export function LockScreen() {
         } catch (e) {
             console.warn(e);
             setErrorText(loc.lockScreen.authError);
+        } finally {
+            setIsAuthenticating(false);
         }
     };
 
     // Attempt auto-auth when this mounts and app is locked
     useEffect(() => {
         if (isBiometricEnabled && !isUnlocked) {
-            authenticate();
+            // Small delay to ensure UI is ready
+            const timer = setTimeout(() => {
+                authenticate();
+            }, 500);
+            return () => clearTimeout(timer);
         }
     }, [isBiometricEnabled, isUnlocked]);
 
@@ -93,7 +105,7 @@ export function LockScreen() {
             </View>
 
             {errorText ? (
-                <Text style={{ fontFamily: font.mono, fontSize: 12, color: colors.accent, marginBottom: 24 }}>{errorText}</Text>
+                <Text style={{ fontFamily: font.mono, fontSize: 12, color: colors.accent, marginBottom: 24, paddingHorizontal: 20, textAlign: 'center' }}>{errorText}</Text>
             ) : <View style={{ height: 40 }} />}
 
             <Pressable
@@ -101,17 +113,18 @@ export function LockScreen() {
                     console.log("LockScreen: Unlock button pressed");
                     authenticate();
                 }}
+                disabled={isAuthenticating}
                 style={({ pressed }) => [{
                     backgroundColor: colors.accent,
                     paddingHorizontal: 32,
                     paddingVertical: 14,
                     borderRadius: theme.radius.pill,
-                    opacity: pressed ? 0.8 : 1,
+                    opacity: (pressed || isAuthenticating) ? 0.8 : 1,
                     ...theme.shadow.soft
                 }]}
             >
                 <Text style={{ fontFamily: font.sansSemi, fontSize: 16, color: colors.white }}>
-                    {loc.lockScreen.unlockBtn}
+                    {isAuthenticating ? loc.plusFeatures.isSyncing : loc.lockScreen.unlockBtn}
                 </Text>
             </Pressable>
         </Animated.View>

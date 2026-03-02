@@ -15,6 +15,12 @@ import { BentoCard } from '../../components/ui/BentoCard';
 import { TagPill } from '../../components/ui/TagPill';
 import { AppFontType } from '../../store/settingsStore';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import { useTypography } from '../../store/typographyStore';
+import { APP_CHANGELOG } from '../../constants/changelog';
+import { log } from '../../utils/Logger';
+
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -35,9 +41,12 @@ const PREMIUM_THEMES: { id: ThemeName; label: string }[] = [
 ];
 
 const FONT_OPTIONS: { id: AppFontType; label: string }[] = [
-    { id: 'sans', label: 'Sans Serif' },
-    { id: 'serif', label: 'Serif (Playfair)' },
-    { id: 'mono', label: 'Mono (JetBrains)' },
+    { id: 'poppins', label: 'Poppins' },
+    { id: 'notoSans', label: 'Noto Sans' },
+    { id: 'baloo2', label: 'Baloo 2' },
+    { id: 'yantramanav', label: 'Yantramanav' },
+    { id: 'tiro', label: 'Tiro Devanagari' },
+    { id: 'hind', label: 'Hind (Original)' },
 ];
 
 const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
@@ -47,16 +56,6 @@ const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
     { id: 'Te', label: 'తెలుగు' },
     { id: 'Mr', label: 'मराठी' },
     { id: 'Ta', label: 'தமிழ்' },
-];
-
-const SEED_COLORS = [
-    '#FF5722', // Tippani Orange
-    '#2196F3', // Material Blue
-    '#4CAF50', // Material Green
-    '#9C27B0', // Material Purple
-    '#E91E63', // Material Pink
-    '#FFEB3B', // Material Yellow
-    '#00BCD4', // Material Cyan
 ];
 
 const FONT_SIZE_STEPS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
@@ -73,8 +72,10 @@ export default function SettingsScreen() {
     const sync = useSyncStore();
     const notes = useNotesStore();
     const loc = strings[settings.language] || strings['En'];
+    const type = useTypography();
 
     const [showFontModal, setShowFontModal] = React.useState(false);
+    const [showChangelog, setShowChangelog] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
 
@@ -96,7 +97,10 @@ export default function SettingsScreen() {
         if (!sync.googleToken) return;
         sync.setIsSyncing(true);
         try {
-            await GoogleDriveService.backupDatabase(sync.googleToken);
+            // Refresh the token before every API call to avoid 401 errors
+            const freshToken = await GoogleDriveService.getFreshToken();
+            sync.setGoogleTokens(freshToken, sync.googleEmail || '');
+            await GoogleDriveService.backupDatabase(freshToken);
             sync.setLastSync(Date.now());
             setSyncAlert({ visible: true, title: "Backup Complete", sub: "Your notes were safely uploaded to Google Drive." });
         } catch (e: any) {
@@ -110,14 +114,46 @@ export default function SettingsScreen() {
         if (!sync.googleToken) return;
         sync.setIsSyncing(true);
         try {
-            await GoogleDriveService.restoreDatabase(sync.googleToken);
-            notes.loadNotes(); // Reload Zustand state from the newly downloaded DB file
+            // Refresh the token before every API call to avoid 401 errors
+            const freshToken = await GoogleDriveService.getFreshToken();
+            sync.setGoogleTokens(freshToken, sync.googleEmail || '');
+            await GoogleDriveService.restoreDatabase(freshToken);
+            // Sequence: Reset DB -> Refresh Settings (if any changed) -> Notify
+            notes.resetDB();
             sync.setLastSync(Date.now());
-            setSyncAlert({ visible: true, title: "Restore Complete", sub: "Your notes were successfully restored from Google Drive." });
+            setSyncAlert({ visible: true, title: loc.plusFeatures.syncRestore, sub: loc.plusFeatures.syncRestore });
         } catch (e: any) {
             setSyncAlert({ visible: true, title: "Restore Failed", sub: e.message || "An error occurred during download." });
         } finally {
             sync.setIsSyncing(false);
+        }
+    };
+
+    const handleReportBug = async () => {
+        try {
+            const debugInfo = log.getDebugInfo();
+            const logsText = log.getLogsAsString();
+            const fullReport = `${debugInfo}\n\n${logsText}`;
+
+            const filename = `saral_lekhan_debug_${Date.now()}.txt`;
+            const uri = `${FileSystem.cacheDirectory}${filename}`;
+            await FileSystem.writeAsStringAsync(uri, fullReport);
+
+            if (!(await Sharing.isAvailableAsync())) {
+                Alert.alert("Error", "Sharing is not available on this device");
+                return;
+            }
+
+            await Sharing.shareAsync(uri, {
+                dialogTitle: 'Saral Lekhan Bug Report',
+                mimeType: 'text/plain',
+                UTI: 'public.plain-text',
+            });
+
+            log.info("Bug report shared successfully");
+        } catch (e) {
+            console.error("Failed to share bug report", e);
+            Alert.alert("Error", "Failed to generate bug report");
         }
     };
 
@@ -162,8 +198,8 @@ export default function SettingsScreen() {
             borderBottomColor: colors.strokeDim,
         },
         listItemNoBorder: { borderBottomWidth: 0 },
-        listLabel: { fontFamily: font.sansMed, fontSize: 16, color: colors.ink },
-        listSub: { fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginTop: 2 },
+        listLabel: { ...type.titleLarge, fontSize: type.titleLarge.fontSize - 2, fontFamily: font.sansBold, color: colors.ink, marginBottom: 2 },
+        listSub: { ...type.labelMedium, fontFamily: font.sans, color: colors.inkMid },
         listContent: { flex: 1, marginRight: 12 },
 
         // Control buttons
@@ -195,6 +231,7 @@ export default function SettingsScreen() {
         themeLineLong: { height: 4, borderRadius: 2, width: '80%', marginBottom: 6 },
         themeLineShort: { height: 4, borderRadius: 2, width: '50%', marginBottom: 12 },
         themeLabel: { fontFamily: font.sans, fontSize: 11, textAlign: 'center' },
+        listDivider: { height: 1, backgroundColor: colors.strokeDim, marginLeft: 16 },
     }), [colors, font, theme.radius, theme.isDark, settings.nightMode, settings.themeId]);
 
     return (
@@ -203,27 +240,62 @@ export default function SettingsScreen() {
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-                    <Svg viewBox="0 0 24 24" width={24} height={24}>
-                        <Line x1="19" y1="12" x2="5" y2="12" stroke={colors.ink} strokeWidth={2.5} strokeLinecap="round" />
-                        <Polyline points="12 19 5 12 12 5" stroke={colors.ink} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <Path d="M5 12l14 0" />
+                        <Path d="M5 12l6 6" />
+                        <Path d="M5 12l6 -6" />
                     </Svg>
                 </Pressable>
                 <Text style={s.title}>{loc.settings}</Text>
+                <View style={{ flex: 1 }} />
+
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                    <Pressable
+                        onPress={handleReportBug}
+                        style={({ pressed }) => ({
+                            width: 38, height: 38, borderRadius: 99,
+                            borderWidth: 1.5, borderColor: colors.strokeDim,
+                            backgroundColor: colors.bgRaised,
+                            justifyContent: 'center', alignItems: 'center',
+                            opacity: pressed ? 0.7 : 1,
+                            ...theme.shadow.gentle
+                        })}
+                    >
+                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M9 9v-1a3 3 0 0 1 6 0v1" />
+                            <Path d="M8 9h8a6 6 0 0 1 1 3v3a5 5 0 0 1 -10 0v-3a6 6 0 0 1 1 -3" />
+                            <Path d="M3 13l4 0" />
+                            <Path d="M17 13l4 0" />
+                            <Path d="M12 20l0 -6" />
+                            <Path d="M4 19l3.35 -2" />
+                            <Path d="M20 19l-3.35 -2" />
+                            <Path d="M4 7l3.75 2.4" />
+                            <Path d="M20 7l-3.75 2.4" />
+                        </Svg>
+                    </Pressable>
+
+                    <Pressable
+                        onPress={() => setShowChangelog(true)}
+                        style={({ pressed }) => ({
+                            width: 38, height: 38, borderRadius: 99,
+                            borderWidth: 1.5, borderColor: colors.strokeDim,
+                            backgroundColor: colors.bgRaised,
+                            justifyContent: 'center', alignItems: 'center',
+                            opacity: pressed ? 0.7 : 1,
+                            ...theme.shadow.gentle
+                        })}
+                    >
+                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M12 8l0 4l2 2" />
+                            <Path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                        </Svg>
+                    </Pressable>
+                </View>
             </View>
 
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-                {/* Live Preview */}
-                <Text style={[s.sectionTitle, { marginTop: 0 }]}>{loc.settingsScreen.livePreview}</Text>
-                <View style={s.previewBox} pointerEvents="none">
-                    <BentoCard
-                        title={loc.settingsScreen.previewTitle}
-                        preview={loc.settingsScreen.previewSub}
-                        date={loc.settingsScreen.justNow}
-                        tag={loc.settingsScreen.aesthetics}
-                        pinned
-                    />
-                </View>
+
 
                 {/* PLUS FEATURES */}
                 <Text style={s.sectionTitle}>{loc.plusFeatures.title}</Text>
@@ -241,7 +313,7 @@ export default function SettingsScreen() {
                             disabled={!auth.isSupported}
                             value={auth.isBiometricEnabled}
                             onValueChange={(val: boolean) => auth.enableBiometric(val)}
-                            trackColor={{ false: colors.strokeDim, true: colors.accent }}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
                             thumbColor={colors.white}
                         />
                     </View>
@@ -314,21 +386,21 @@ export default function SettingsScreen() {
 
                                     <View style={{ flexDirection: 'row', gap: 8 }}>
                                         <Pressable
-                                            style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
+                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
                                             onPress={handleBackup}
                                             disabled={sync.isSyncing}
                                         >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13 }}>
+                                            <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
                                                 {sync.isSyncing ? loc.plusFeatures.isSyncing : loc.plusFeatures.syncBackup}
                                             </Text>
                                         </Pressable>
 
                                         <Pressable
-                                            style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
+                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
                                             onPress={handleRestore}
                                             disabled={sync.isSyncing}
                                         >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13 }}>
+                                            <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
                                                 {sync.isSyncing ? 'Wait...' : loc.plusFeatures.syncRestore}
                                             </Text>
                                         </Pressable>
@@ -390,7 +462,21 @@ export default function SettingsScreen() {
                         <Switch
                             value={settings.amoledMode}
                             onValueChange={settings.setAmoledMode}
-                            trackColor={{ false: colors.strokeDim, true: colors.accent }}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
+
+                    {/* Auto-save Toggle */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.autoSave}</Text>
+                            <Text style={s.listSub}>Automatically save notes as you type</Text>
+                        </View>
+                        <Switch
+                            value={settings.autoSave}
+                            onValueChange={settings.setAutoSave}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
                             thumbColor={colors.white}
                         />
                     </View>
@@ -406,7 +492,7 @@ export default function SettingsScreen() {
                             <Text style={s.listSub}>{loc.typography.appFontDesc}</Text>
                         </View>
                     </View>
-                    <View style={[s.pillRow, { paddingTop: 0, paddingBottom: 16 }]}>
+                    <View style={[s.pillRow, { paddingTop: 20, paddingBottom: 24 }]}>
                         {FONT_OPTIONS.map(f => (
                             <TagPill key={f.id} label={f.label} active={settings.appFont === f.id} onPress={() => settings.setAppFont(f.id)} />
                         ))}
@@ -507,35 +593,100 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Font Size Modal (Metrolist style) */}
+                {/* Font Size Modal (Material 3 Slider) */}
                 <Modal visible={showFontModal} transparent animationType="fade">
-                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                        <View style={{ backgroundColor: colors.bg, borderRadius: 28, width: '100%', padding: 24, ...theme.shadow.soft }}>
-                            <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.ink, marginBottom: 8 }}>{loc.settingsScreen.textSize}</Text>
-                            <Text style={{ fontFamily: font.sans, fontSize: 14, color: colors.inkMid, marginBottom: 32 }}>{loc.settingsScreen.textSizeSub}</Text>
+                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                        <View style={{ backgroundColor: colors.bg, borderRadius: 32, width: '100%', padding: 28, ...theme.shadow.soft, borderWidth: 1, borderColor: colors.strokeDim }}>
+                            <Text style={{ fontFamily: font.sansBold, fontSize: 20, color: colors.ink, marginBottom: 4 }}>{loc.settingsScreen.textSize}</Text>
+                            <Text style={{ fontFamily: font.sans, fontSize: 14, color: colors.inkMid, marginBottom: 24 }}>{loc.settingsScreen.textSizeSub}</Text>
 
-                            <View style={{ alignItems: 'center' }}>
-                                <Text style={{ fontFamily: font.mono, fontSize: 24, color: colors.accent, marginBottom: 32 }}>
-                                    {(settings.fontSize * 16).toFixed(1)} pt
+                            {/* Live Preview Area */}
+                            <View style={{
+                                backgroundColor: colors.bgRaised,
+                                borderRadius: 16,
+                                padding: 20,
+                                marginBottom: 32,
+                                alignItems: 'center',
+                                borderWidth: 1,
+                                borderColor: colors.strokeDim,
+                                minHeight: 120,
+                                justifyContent: 'center'
+                            }}>
+                                <Text style={{
+                                    fontFamily: font.sans,
+                                    fontSize: type.bodyLarge.fontSize,
+                                    color: colors.ink,
+                                    textAlign: 'center'
+                                }}>
+                                    {settings.language === 'Hi' ? "नमस्ते, सरल लेखन।" : settings.language === 'Mr' ? "नमस्कार, सरल लेखन।" : "The quick brown fox jumps over the lazy dog."}
                                 </Text>
+                                <Text style={{ fontFamily: font.mono, fontSize: 12, color: colors.accent, marginTop: 12 }}>
+                                    {Math.round(settings.fontSize * 100)}% ({settings.appFont})
+                                </Text>
+                            </View>
 
-                                <View style={{ width: '100%', paddingHorizontal: 12 }}>
-                                    {/* The Horizontal Line */}
-                                    <View style={{ height: 4, backgroundColor: colors.strokeDim, borderRadius: 2, position: 'absolute', top: 10, left: 12, right: 12 }} />
+                            <View style={{ alignItems: 'center', paddingBottom: 20 }}>
+                                <View style={{ width: '100%', height: 48, justifyContent: 'center' }}>
+                                    {/* M3 Slider Track */}
+                                    <View style={{
+                                        height: 16,
+                                        backgroundColor: colors.accentBg,
+                                        borderRadius: 8,
+                                        width: '100%',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}>
+                                        {/* Filled portion */}
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            top: 0,
+                                            bottom: 0,
+                                            width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`,
+                                            backgroundColor: colors.accent
+                                        }} />
+                                    </View>
 
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 24 }}>
+                                    {/* Interactive Steps */}
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        paddingHorizontal: 0
+                                    }}>
                                         {FONT_SIZE_STEPS.map((step) => {
                                             const isActive = settings.fontSize === step;
                                             return (
                                                 <Pressable
                                                     key={step}
                                                     onPress={() => settings.setFontSize(step)}
-                                                    style={{ width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}
+                                                    style={{
+                                                        width: 44,
+                                                        height: 44,
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                    }}
                                                 >
-                                                    {isActive ? (
-                                                        <View style={{ width: 4, height: 24, backgroundColor: colors.accent, borderRadius: 2 }} />
-                                                    ) : (
-                                                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.inkDim }} />
+                                                    <View style={{
+                                                        width: 4,
+                                                        height: 4,
+                                                        borderRadius: 2,
+                                                        backgroundColor: isActive ? colors.white : colors.accent,
+                                                        opacity: isActive ? 1 : 0.4
+                                                    }} />
+
+                                                    {isActive && (
+                                                        <View style={{
+                                                            position: 'absolute',
+                                                            width: 12,
+                                                            height: 32,
+                                                            borderRadius: 6,
+                                                            backgroundColor: colors.accent,
+                                                            zIndex: -1
+                                                        }} />
                                                     )}
                                                 </Pressable>
                                             );
@@ -544,20 +695,42 @@ export default function SettingsScreen() {
                                 </View>
                             </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 40, gap: 12 }}>
-                                <Pressable onPress={() => { settings.setFontSize(1.0); setShowFontModal(false); }} style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-                                    <Text style={{ color: colors.accent, fontFamily: font.sansSemi }}>{loc.settingsScreen.reset}</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16, gap: 8 }}>
+                                <Pressable onPress={() => { settings.setFontSize(1.0); setShowFontModal(false); }} style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
+                                    <Text style={{ color: colors.inkMid, fontFamily: font.sansSemi, fontSize: 14 }}>{loc.settingsScreen.reset}</Text>
                                 </Pressable>
-                                <Pressable onPress={() => setShowFontModal(false)} style={{ backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 20 }}>
-                                    <Text style={{ color: colors.white, fontFamily: font.sansSemi }}>{loc.settingsScreen.ok}</Text>
+                                <Pressable
+                                    onPress={() => setShowFontModal(false)}
+                                    style={{
+                                        backgroundColor: colors.accent,
+                                        paddingHorizontal: 32,
+                                        paddingVertical: 12,
+                                        borderRadius: 24,
+                                        ...theme.shadow.gentle
+                                    }}
+                                >
+                                    <Text style={{ color: colors.white, fontFamily: font.sansBold, fontSize: 15 }}>{loc.settingsScreen.ok}</Text>
                                 </Pressable>
                             </View>
                         </View>
                     </View>
                 </Modal>
 
-                {/* Back to Home Hint */}
-                <View style={{ height: 40 }} />
+
+
+                {/* About Developer Section */}
+                <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>
+                    <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>
+                        {loc.settingsScreen.aboutDeveloper}
+                    </Text>
+                    <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.accent, marginTop: 4 }}>
+                        {loc.settingsScreen.developerNames}
+                    </Text>
+                    <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
+                    </Text>
+                </View>
+
+                <View style={{ height: 80 }} />
 
             </ScrollView >
 
@@ -570,6 +743,34 @@ export default function SettingsScreen() {
                     { label: "OK", style: "default", onPress: () => setSyncAlert(prev => ({ ...prev, visible: false })) }
                 ]}
             />
-        </View >
+
+            <ThemedModal
+                visible={showChangelog}
+                title={loc.settingsScreen.whatsNew}
+                onClose={() => setShowChangelog(false)}
+                actions={[
+                    { label: loc.settingsScreen.ok, style: "default", onPress: () => setShowChangelog(false) }
+                ]}
+                customContent={
+                    <View style={{ height: 400 }}>
+                        <ScrollView showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+                            {APP_CHANGELOG.map((item, idx) => (
+                                <View key={item.version} style={{ marginBottom: 24, borderBottomWidth: idx === APP_CHANGELOG.length - 1 ? 0 : 1, borderBottomColor: colors.strokeDim, paddingBottom: 16 }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                        <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.accent }}>v{item.version}</Text>
+                                        <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.inkDim }}>{item.date}</Text>
+                                    </View>
+                                    {item.changes[settings.language.toLowerCase() as 'en' | 'hi' | 'mr']?.map((change, cIdx) => (
+                                        <Text key={cIdx} style={{ fontFamily: font.sans, fontSize: 14, color: colors.ink, marginBottom: 6, lineHeight: 20 }}>
+                                            • {change}
+                                        </Text>
+                                    ))}
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </View>
+                }
+            />
+        </View>
     );
 }

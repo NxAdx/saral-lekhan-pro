@@ -3,7 +3,7 @@
     "name": "saral-lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "0.1.0",
+    "version": "2.9.3",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -20,6 +20,7 @@
     ],
     "android": {
       "package": "com.sarallekhan",
+      "versionCode": 34,
       "softwareKeyboardLayoutMode": "resize",
       "intentFilters": [
         {
@@ -41,6 +42,9 @@
       "eas": {
         "projectId": "d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
     },
     "plugins": [
       "@react-native-google-signin/google-signin"

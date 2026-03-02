@@ -45,9 +45,23 @@ Testing & CI recommendations
 - CI: run `npm run lint`, `npx tsc --noEmit`, `npm test`, and build checks on pull requests.
 
 Next dev tasks (short)
-- Implement editor formatting toolbar and autosave.
-- Wire SQLite DB queries and migrations (`src/db/queries.ts`).
-- Implement Tag manager screen and Settings.
-- Add accessibility labels and reduced-motion fallbacks.
+- App is feature complete up to Phase 14 (Cloud Sync, I18n, AI, Biometrics, Premium Themes).
+- Maintenance only: Weblate translation synchronization.
 
 Done: `NoteList` (Home) is wired to `notesStore` with tag filter, search, FAB → new note, and edit via `/editor/[id]`. Components: `TagPill`, `FAB`; store has `getNotesFilteredByTag`, `getUniqueTags`, `updateNote`, `deleteNote`.
+
+Google Sign-In & Native Builds
+- The app uses `@react-native-google-signin/google-signin` for authentication.
+- **This native library will crash in Expo Go.** You MUST build a standalone APK or Development Build to test it.
+- **Local Building (Recommended)**: Follow [BUILD_OFFLINE.md](./BUILD_OFFLINE.md) to generate a production APK locally using JDK 20 + Java 17 compatibility.
+- **EAS Cloud Builds**: If you have an Expo account and want to build in the cloud:
+```bash
+npx eas-cli build -p android --profile production
+```
+- **Drive REST API**: Ensure you use the **Web Application Client ID** in `webClientId` for REST access.
+
+## Telemetry & Production Monitoring
+- **Crash Reporting (Sentry)**: For production online builds, you must integrate `@sentry/react-native`. Sentry provides stack traces that map back to your TypeScript code rather than obfuscated Java errors.
+  1. `npx expo install @sentry/react-native`
+  2. Map your DSN in `app.json` under the `plugins` array.
+- **Over-The-Air (OTA) Updates**: The `updates` key has been added to `app.json`. To push a hotfix without a new Play Store release, run `eas update --branch production`.

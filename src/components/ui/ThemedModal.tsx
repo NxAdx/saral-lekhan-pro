@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Modal, View, Text, StyleSheet, Pressable, Platform, ScrollView } from 'react-native';
 import { useTheme } from '../../store/themeStore';
+import { useTypography } from '../../store/typographyStore';
+import { sharedTokens } from '../../tokens';
 
 interface ModalAction {
     label: string;
@@ -18,8 +20,10 @@ interface ThemedModalProps {
     onClose: () => void;
 }
 
-export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtitle, customContent, actions, onClose }) => {
-    const { colors, font, radius, shadow, fontSize } = useTheme();
+export const ThemedModal = ({ visible, title, subtitle, onClose, actions, customContent }: ThemedModalProps) => {
+    const theme = useTheme();
+    const { colors, font, radius, shadow } = theme;
+    const type = useTypography();
 
     const s = useMemo(() => StyleSheet.create({
         overlay: {
@@ -46,17 +50,18 @@ export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtit
             alignItems: 'center',
         },
         title: {
+            ...type.titleLarge,
             fontFamily: font.sansBold,
-            fontSize: 20 * fontSize,
             color: colors.ink,
             textAlign: 'center',
             marginBottom: subtitle ? 8 : 0,
         },
         subtitle: {
+            ...type.labelMedium,
             fontFamily: font.sans,
-            fontSize: 14 * fontSize,
-            color: colors.inkDim,
+            color: colors.inkMid,
             textAlign: 'center',
+            marginBottom: 24,
         },
         actionsContainer: {
             paddingHorizontal: 16,
@@ -71,30 +76,32 @@ export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtit
             paddingHorizontal: 20,
             borderRadius: radius.md,
             backgroundColor: colors.bgDeep,
+            borderWidth: 1.5,
+            borderColor: colors.stroke,
             gap: 8,
+            ...shadow.hard,
+            shadowColor: colors.shadow,
         },
         btnCancel: {
-            backgroundColor: 'transparent',
-            borderWidth: 1,
+            backgroundColor: colors.bgRaised,
             borderColor: colors.strokeDim,
         },
         btnDestructive: {
             backgroundColor: colors.accentBg,
-            borderWidth: 1,
-            borderColor: colors.accentDim,
+            borderColor: colors.accent,
         },
         btnLabel: {
+            ...type.labelMedium,
             fontFamily: font.sansSemi,
-            fontSize: 15 * fontSize,
             color: colors.ink,
         },
         btnLabelCancel: {
             color: colors.inkMid,
         },
         btnLabelDestructive: {
-            color: colors.accentDark,
+            color: theme.isDark ? colors.white : '#FFFFFF',
         }
-    }), [colors, font, radius, shadow, subtitle, fontSize]);
+    }), [colors, font, radius, shadow, subtitle, type]);
 
     if (!visible) return null;
 

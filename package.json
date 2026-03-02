@@ -1,6 +1,5 @@
 {
   "name": "saral-lekhan",
-  "version": "0.1.0",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
@@ -11,11 +10,16 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.20.0",
+    "@expo-google-fonts/baloo-2": "^0.4.2",
     "@expo-google-fonts/dm-mono": "^0.2.3",
     "@expo-google-fonts/hind": "^0.2.3",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/noto-sans": "^0.4.2",
     "@expo-google-fonts/playfair-display": "^0.4.2",
+    "@expo-google-fonts/poppins": "^0.4.1",
+    "@expo-google-fonts/tiro-devanagari-hindi": "^0.4.0",
     "@expo-google-fonts/vesper-libre": "^0.2.3",
+    "@expo-google-fonts/yantramanav": "^0.4.1",
     "@expo/cli": "0.10.17",
     "@google/generative-ai": "^0.24.1",
     "@material/material-color-utilities": "^0.4.0",
@@ -49,7 +53,8 @@
     "react-native-svg": "13.9.0",
     "react-native-view-shot": "3.7.0",
     "react-native-webview": "13.2.2",
-    "zustand": "^4.5.7"
+    "zustand": "^4.5.7",
+    "expo-image-picker": "~14.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -57,5 +62,6 @@
     "@types/react-native": "~0.72.6",
     "node-fetch": "^2.6.7",
     "typescript": "^5.1.3"
-  }
+  },
+  "version": "1.0.0"
 }

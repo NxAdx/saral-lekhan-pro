@@ -20,20 +20,26 @@
     "editor": {
         "titlePlaceholder": "शीर्षक...",
         "bodyPlaceholder": "यहाँ लिखना शुरू करें...",
-        "done": "हो गया ✓",
-        "saved": "सहेजा ✓",
+        "done": "हो गया",
+        "saved": "सहेजा",
         "deleteNote": "नोट हटाएं",
         "deleteNoteSub": "इस नोट को हटाना चाहते हैं?",
         "cancel": "रद्द",
         "delete": "हटाएं",
         "chars": "अक्षर",
         "words": "शब्द",
-        "notFound": "नोट नहीं मिला",
-        "tagPlaceholder": "टैग (जोड़ने के लिए एंटर दबाएं)",
-        "thinking": "✨ सोच रहा है...",
-        "exportPdf": "PDF के रूप में सहेजें",
-        "exportTxt": "टेक्स्ट (.txt) के रूप में सहेजें",
-        "exportMd": "मार्कडाउन (.md) के रूप में सहेजें"
+        "mdOnly": "केवल मार्कडाउन फ़ाइलें",
+        "unsavedChanges": "अनसहेजे बदलाव",
+        "unsavedChangesSub": "क्या आप बाहर निकलने से पहले इस नोट में किए गए बदलावों को सहेजना चाहते हैं?",
+        "save": "सहेजें",
+        "discard": "हटा दें",
+        "insertLink": "लिंक जोड़ें",
+        "linkUrl": "लिंक URL (जैसे, https://...)",
+        "insertImage": "चित्र जोड़ें",
+        "imageUrl": "चित्र का URL (जैसे, https://...)",
+        "pickGallery": "गैलरी से चुनें",
+        "enterUrl": "चित्र का URL दर्ज करें",
+        "selectSource": "चित्र का स्रोत चुनें"
     },
     "settingsScreen": {
         "colorPalette": "रंग पैलेट (Color Palette)",
@@ -52,14 +58,21 @@
         "textSize": "टेक्स्ट का आकार",
         "textSizeSub": "अपनी सुविधा के अनुसार टेक्स्ट बदलें",
         "dynamicColors": "डायनामिक रंग",
-        "dynamicColorsSub": "वॉलपेपर के साथ सिंक करें (Android 12+)",
+        "dynamicColorsSub": "अनुकूलनीय थीम इंजन",
+        "seedColorLabel": "मुख्य रंग चयन",
+        "seedColorSub": "विशिष्ट रंग से थीम बनाएं",
         "displayLanguage": "डिस्प्ले भाषा",
         "displayLanguageSub": "अपनी पसंद की भाषा चुनें",
         "reset": "रीसेट (Reset)",
         "ok": "ठीक (OK)",
         "cancel": "रद्द करें",
         "dataStorage": "डेटा और स्टोरेज",
-        "trashDesc": "हटाए गए नोट्स देखें या पुनर्स्थापित करें"
+        "trashDesc": "हटाए गए नोट्स देखें या पुनर्स्थापित करें",
+        "autoSave": "नोट्स ऑटो-सेव्ह करें",
+        "whatsNew": "नया क्या है",
+        "changelog": "ऐप्लिकेशन अपडेट और इतिहास",
+        "aboutDeveloper": "द्वारा डिजाइन और विकसित",
+        "developerNames": "आदर्श लोखंडे और Antigravity"
     },
     "plusFeatures": {
         "title": "सरल लेखन प्लस ⭐",
@@ -96,10 +109,11 @@
     },
     "home": {
         "importTitle": "नोट आयात करें",
-        "importSub": "पुराने दस्तावेज़ों को सरल लेखन प्लस में लाने के लिए, कृपया अपने मोबाइल से एक टेक्स्ट (.txt) या मार्कडाउन (.md) फ़ाइल चुनें।",
+        "importSub": "पुराने दस्तावेज़ों को सरल लेखन प्लस में लाने के लिए, कृपया अपने मोबाइल से एक मार्कडाउन (.md) या PDF फ़ाइल चुनें।",
         "importChoose": "फ़ाइल चुनें",
         "importFailedTitle": "आयात विफल",
-        "importFailedSub": "चुनी गई फ़ाइल को पढ़ा नहीं जा सका।"
+        "importFailedSub": "चुनी गई फ़ाइल को पढ़ा नहीं जा सका।",
+        "yesterday": "कल"
     },
     "typography": {
         "title": "कस्टम टाइपोग्राफी (Typography)",

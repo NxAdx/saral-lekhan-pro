@@ -1,0 +1,58 @@
+name: Production Android Build
+
+on:
+  push:
+    branches: [ "main", "release/*" ]
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  build:
+    name: Build Android App Bundle (AAB)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 3. Setup Java Environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 4. Secure Secrets Injection
+        run: |
+          mkdir -p android/app
+          # Inject google-services.json to fix mqt_native_modules crash
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+          
+          # Decode Base64 Keystore into binary file
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+          
+      - name: 5. Install Dependencies & Native Prebuild
+        run: |
+          npm ci
+          npx expo prebuild --platform android --clean
+
+      - name: 6. Build Production Bundle (AAB)
+        working-directory: ./android
+        run: ./gradlew bundleRelease --no-daemon
+        env:
+          MYAPP_UPLOAD_STORE_FILE: release.keystore
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: 7. Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: saral-lekhan-production-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 7

@@ -37,3 +37,61 @@ Important errors, logs and resolutions encountered during setup
 
 Notes
 - Most problems encountered were package-version mismatches and Windows path encoding edge cases. These are documented above and in `IMPLEMENTATION-GUIDE.md` with recommended commands.
+
+7) Google Auth `400: invalid_request`
+- Symptom: Expo AuthSession throws a 400 error when trying to log in with Google on an Android build.
+- Cause: Google's security policy blocks web-based OAuth flows from redirecting back to mobile apps on Android.
+- Resolution: Migrated from `expo-auth-session` to `@react-native-google-signin/google-signin` to trigger the native Android account picker overlay instead of a web browser. Note: this library only works in standalone APK/AAB builds, NOT Expo Go.
+
+8) Google Sign-in `DEVELOPER_ERROR` (Error 10)
+- Symptom: React Native Google Sign-in crashes instantly on button press.
+- Cause: Either the EAS Android SHA-1 fingerprint does not match the Google Cloud Console, OR the codebase inadvertently passes the Android Client ID into the `webClientId` parameter.
+- Resolution: Removed the `webClientId` parameter. Ensure the SHA-1 from `npx eas credentials -p android` exactly matches the Android Client ID in Google Cloud.
+
+9) Google Drive API `401 Unauthorized`
+- Symptom: Google login succeeds, but `fetch()` requests to `googleapis.com/drive` return 401 Unauthenticated.
+- Cause: Google refuses to grant REST API access tokens to pure Android identity tokens. 
+- Resolution: Generated a separate "Web application" OAuth Client ID in the exact same Google Cloud project, and passed *that* ID into the `webClientId` parameter of `GoogleSignin.configure()`. This bridges the native Android login with REST web permissions.
+
+10) React Native WebView image loading failures
+- Symptom: Inserted gallery images from `ImagePicker` do not render in the `RichEditor` WebView.
+- Cause: Webview permission and security constraints on local `file://` URIs picked from the gallery.
+- Resolution: Converted picked image URIs to Base64 data URIs (`data:image/...;base64,...`) using `expo-file-system` before insertion.
+
+11) Note Editor Crashes on Concurrent Re-entry
+61: 11) Note Editor Crashes on Concurrent Re-entry
+62: - Symptom: App crashes or hangs when opening the same note multiple times or navigating quickly.
+63: - Cause: Race conditions in script injection and layout thrashing while re-using the `RichEditor` instance.
+64: - Resolution: Assigned a unique `key` to the `RichEditor` to force a clean re-mount on re-entry, disabled `useContainer` to prevent nested scroll conflicts, and implemented mount guards (`isMounted` ref) for all `injectJavascript` and state updates.
+65: 
+12) App Compilation throws Unsupported class file major version 64
+- Symptom: `D8: java.lang.IllegalArgumentException: Unsupported class file major version 64`
+- Cause: Java 20 compiles class files with major version 64. However, the legacy Android Jetifier tool (responsible for migrating older support libraries to AndroidX) crashes when it encounters bytecode newer than Java 11.
+- Resolution: Added `android.enableJetifier=false` to `gradle.properties`. Since modern React Native libraries (0.60+) are already AndroidX compatible, Jetifier is no longer strictly needed and bypassing it immediately fixes the Java 20 compilation crash.
+
+13) Gradle Timeout waiting to lock Artifact transforms cache
+- Symptom: `Timeout waiting to lock Artifact transforms cache (transforms-3). It is currently in use by another Gradle instance.`
+- Cause: A previous Gradle compilation daemon crashed or was abandoned, leaving a file system lock actively held on the `.gradle/caches/transforms-3` directory.
+- Resolution: Terminated all hanging Java daemons globally using `taskkill /F /IM java.exe /T` and explicitly deleted the `transforms-3.lock` file via terminal. Initiating the next build with the `--no-daemon` flag prevents future lockups on memory-constrained systems.
+
+14) React Native CLI Empty Project Detection (project:[:])
+- Symptom: `npx react-native config` returns `project: {}` or an error, leading to `native_modules.gradle` crashing with `Cannot get property 'packageName' on null object`.
+- Cause: React Native CLI v11.3.10 and earlier can fail to auto-detect the Android project structure in Expo-managed "prebuild" environments, or when the `namespace` is defined in `build.gradle` but the `package` attribute is missing from `AndroidManifest.xml`.
+- Resolution: 
+  - Patched `node_modules/@react-native-community/cli-platform-android/native_modules.gradle` to include a null-project fallback: `if (project == null) { project = [packageName: "com.sarallekhan", sourceDir: "./android"] }`.
+  - Added `package="com.sarallekhan"` back to the `<manifest>` tag in `android/app/src/main/AndroidManifest.xml`.
+
+15) Missing Expo Modules on App Classpath
+- Symptom: `package expo.modules does not exist` or `cannot find symbol: ApplicationLifecycleDispatcher` during Java compilation.
+- Cause: The `android/app/build.gradle` was missing the Expo autolinking dependency registration calls.
+- Resolution: Added the following to the end of `android/app/build.gradle`:
+  ```groovy
+  apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
+  addExpoModulesDependencies(dependencies, project)
+  generateExpoModulesPackageList()
+  ```
+
+16) Missing Splash Screen Background Color
+- Symptom: `AAPT: error: resource color/splashscreen_background not found`.
+- Cause: The `splashscreen.xml` drawable references `@color/splashscreen_background`, but the `colors.xml` resource file was overwritten or missing that entry.
+- Resolution: Manually added `<color name="splashscreen_background">#ffffff</color>` to `android/app/src/main/res/values/colors.xml`.

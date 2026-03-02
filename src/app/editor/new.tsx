@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
-  Platform, StatusBar, ScrollView,
+  Platform, StatusBar, ScrollView, BackHandler, Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -9,18 +9,20 @@ import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
-import { Svg, Path } from 'react-native-svg';
+import { Svg, Path, Circle, Rect } from 'react-native-svg';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
 import { useAiStore } from '../../store/aiStore';
 import { AiService } from '../../services/aiService';
 import { ThemedModal } from '../../components/ui/ThemedModal';
-import { Alert } from 'react-native';
+import { useTypography } from '../../store/typographyStore';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function NewNoteScreen() {
   const router = useRouter();
   const theme = useTheme();
   const settings = useSettingsStore(); // to get fonts & language
   const { colors, font, radius, shadow } = theme;
+  const type = useTypography();
   const loc = strings[settings.language] || strings['En'];
 
   const addNote = useNotesStore((s) => s.addNote);
@@ -35,22 +37,88 @@ export default function NewNoteScreen() {
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const noteId = useRef<number | null>(null);
 
   const ai = useAiStore();
 
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
 
-  const handleDone = useCallback(async () => {
+  useEffect(() => {
+    const onBackPress = () => {
+      if (isDirty && !settings.autoSave) {
+        setShowExitModal(true);
+        return true;
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  }, [isDirty, settings.autoSave]);
+
+  const handleSave = useCallback(async () => {
     const html = await richText.current?.getContentHtml();
     if (title.trim() || (html && html.trim())) {
-      addNote({ title: title.trim(), body: html || '', tag: tag.trim(), pinned: false });
+      if (noteId.current) {
+        useNotesStore.getState().updateNote(noteId.current, { title: title.trim(), body: html || '', tag: tag.trim() });
+      } else {
+        const id = addNote({ title: title.trim(), body: html || '', tag: tag.trim(), pinned: false });
+        noteId.current = id;
+      }
+      setIsDirty(false);
     }
+  }, [title, tag, addNote]);
+
+  const handleDone = useCallback(async () => {
+    await handleSave();
     router.back();
-  }, [title, tag, addNote, router]);
+  }, [handleSave, router]);
+
+  const handleBack = useCallback(() => {
+    if (isDirty && !settings.autoSave) {
+      setShowExitModal(true);
+    } else {
+      router.back();
+    }
+  }, [isDirty, settings.autoSave, router]);
 
   const insertHindiPunctuation = (char: string) => {
     richText.current?.insertText(char);
+  };
+
+  const handleInsertLink = () => {
+    if (linkUrl.trim()) {
+      richText.current?.insertLink(title || 'Link', linkUrl.trim());
+      setLinkUrl('');
+      setShowLinkModal(false);
+    }
+  };
+
+  const handleInsertImage = () => {
+    if (imageUrl.trim()) {
+      richText.current?.insertImage(imageUrl.trim());
+      setImageUrl('');
+      setShowImageModal(false);
+    }
+  };
+
+  const handlePickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0].uri) {
+      richText.current?.insertImage(result.assets[0].uri);
+      setShowImageModal(false);
+    }
   };
 
   const handleAiTitle = async () => {
@@ -131,10 +199,10 @@ export default function NewNoteScreen() {
 
     tagRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.strokeDim + '55' },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
-    tagInput: { flex: 1, fontFamily: font.mono, fontSize: 13, color: colors.inkMid, padding: 0 },
+    tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
 
-    bottomBar: { backgroundColor: colors.bgRaised, borderTopWidth: 1, borderTopColor: colors.strokeDim + '66', paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    bottomBarText: { fontFamily: font.mono, fontSize: 11, color: colors.inkDim },
+    bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
+    bottomBarText: { ...type.labelMedium, fontFamily: font.mono, color: colors.inkDim },
 
     // Toolbar custom
     toolbarRoot: {
@@ -152,7 +220,7 @@ export default function NewNoteScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
-        <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12}>
+        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
           <Svg viewBox="0 0 20 20" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={1.8} strokeLinecap="round">
             <Path d="M15 10H5M10 5l-5 5 5 5" />
           </Svg>
@@ -175,7 +243,7 @@ export default function NewNoteScreen() {
             placeholder={loc.editor.titlePlaceholder}
             placeholderTextColor={colors.inkDim}
             value={title}
-            onChangeText={setTitle}
+            onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
             multiline blurOnSubmit returnKeyType="next"
           />
 
@@ -192,21 +260,32 @@ export default function NewNoteScreen() {
                 placeholderColor: colors.inkDim,
                 // Apply dynamic settings fonts globally to editor via CSS
                 cssText: `
-                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.8; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
-                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: 2em !important; color: ${colors.ink}; }
-                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: 1.6em !important; color: ${colors.ink}; }
-                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; }
+                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.6; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
+                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
+                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
+                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
+                  ul, ol { padding-left: 20px; font-size: 1em !important; }
+                  li { font-size: 1em !important; }
                 `
               }}
               onChange={(html) => {
-                // Strip HTML roughly to estimate word count without saving to state unnecessarily
                 const stripped = html.replace(/<[^>]*>?/gm, ' ');
                 setBodyText(stripped);
+                setIsDirty(true);
+                if (settings.autoSave && (title.trim() || stripped.trim())) {
+                  if (noteId.current) {
+                    useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag });
+                  } else {
+                    const id = addNote({ title, body: html, tag, pinned: false });
+                    noteId.current = id;
+                  }
+                }
               }}
               scrollEnabled={false}
               useContainer={false}
             />
           </View>
+
 
           <View style={s.tagRow}>
             <Text style={s.tagHash}>#</Text>
@@ -215,7 +294,7 @@ export default function NewNoteScreen() {
               placeholder={loc.editor.tagPlaceholder}
               placeholderTextColor={colors.inkDim}
               value={tag}
-              onChangeText={(t) => setTag(t.replace(/\s/g, ''))}
+              onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
               autoCapitalize="none"
               onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
             />
@@ -240,15 +319,32 @@ export default function NewNoteScreen() {
             actions.insertBulletsList,
             actions.insertOrderedList,
             actions.blockquote,
+            actions.insertLink,
+            actions.insertImage,
             'insertPurnaViram',
             'insertDoublePurnaViram'
           ]}
           iconMap={{
             [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
             [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
+            [actions.insertLink]: ({ tintColor }: any) => (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </Svg>
+            ),
+            [actions.insertImage]: ({ tintColor }: any) => (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <Circle cx="8.5" cy="8.5" r="1.5" />
+                <Path d="M21 15l-5-5L5 21" />
+              </Svg>
+            ),
             'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>।</Text>,
             'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>॥</Text>,
           }}
+          onInsertLink={() => setShowLinkModal(true)}
+          onPressAddImage={() => setShowImageModal(true)}
           insertPurnaViram={() => insertHindiPunctuation('।')}
           insertDoublePurnaViram={() => insertHindiPunctuation('॥')}
         />
@@ -261,7 +357,10 @@ export default function NewNoteScreen() {
               disabled={isGenerating}
               style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.accent + '22', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.sm, opacity: isGenerating ? 0.5 : 1 }}
             >
-              <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>{isGenerating ? '...' : '✨ Spark AI'}</Text>
+              <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
+              </Svg>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>{isGenerating ? '...' : 'Spark AI'}</Text>
             </Pressable>
           )}
         </View>
@@ -371,6 +470,86 @@ export default function NewNoteScreen() {
             }
           }
         ]}
+      />
+
+      <ThemedModal
+        visible={showExitModal}
+        title={loc.editor.unsavedChanges}
+        subtitle={loc.editor.unsavedChangesSub}
+        onClose={() => setShowExitModal(false)}
+        actions={[
+          {
+            label: loc.editor.save,
+            style: 'default',
+            onPress: handleDone
+          },
+          {
+            label: loc.editor.discard,
+            style: 'destructive',
+            onPress: () => router.back()
+          },
+          {
+            label: loc.editor.cancel,
+            style: 'cancel',
+            onPress: () => setShowExitModal(false)
+          }
+        ]}
+      />
+
+      <ThemedModal
+        visible={showLinkModal}
+        title={loc.editor.insertLink}
+        onClose={() => setShowLinkModal(false)}
+        actions={[
+          { label: loc.editor.save, style: 'default', onPress: handleInsertLink },
+          { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowLinkModal(false) }
+        ]}
+        customContent={
+          <View style={{ gap: 12 }}>
+            <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>{loc.editor.linkUrl}</Text>
+            <TextInput
+              style={{ backgroundColor: colors.bg, padding: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              placeholder="https://..."
+              placeholderTextColor={colors.inkDim}
+              value={linkUrl}
+              onChangeText={setLinkUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+        }
+      />
+
+      <ThemedModal
+        visible={showImageModal}
+        title={loc.editor.selectSource}
+        onClose={() => setShowImageModal(false)}
+        actions={[
+          {
+            label: loc.editor.pickGallery, style: 'default', onPress: handlePickImage, icon: (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2}>
+                <Rect x="3" y="3" width="18" height="18" rx="2" />
+                <Circle cx="8.5" cy="8.5" r="1.5" />
+                <Path d="M21 15l-5-5L5 21" />
+              </Svg>
+            )
+          },
+          { label: loc.editor.enterUrl, style: 'cancel', onPress: () => { /* Simplified */ } },
+        ]}
+        customContent={
+          <View style={{ gap: 12, marginTop: 8 }}>
+            <TextInput
+              style={{ backgroundColor: colors.bg, padding: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              placeholder={loc.editor.imageUrl}
+              placeholderTextColor={colors.inkDim}
+              value={imageUrl}
+              onChangeText={setImageUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onSubmitEditing={handleInsertImage}
+            />
+          </View>
+        }
       />
 
     </View>

@@ -17,19 +17,34 @@ import {
   DMMono_400Regular,
 } from '@expo-google-fonts/dm-mono';
 import {
-  PlayfairDisplay_400Regular,
-  PlayfairDisplay_500Medium,
-  PlayfairDisplay_600SemiBold,
-  PlayfairDisplay_700Bold,
-} from '@expo-google-fonts/playfair-display';
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
 import {
-  JetBrainsMono_400Regular,
-  JetBrainsMono_500Medium,
-  JetBrainsMono_600SemiBold,
-  JetBrainsMono_700Bold,
-} from '@expo-google-fonts/jetbrains-mono';
+  NotoSans_400Regular,
+  NotoSans_500Medium,
+  NotoSans_600SemiBold,
+  NotoSans_700Bold,
+} from '@expo-google-fonts/noto-sans';
+import {
+  Baloo2_400Regular,
+  Baloo2_500Medium,
+  Baloo2_600SemiBold,
+  Baloo2_700Bold,
+} from '@expo-google-fonts/baloo-2';
+import {
+  Yantramanav_400Regular,
+  Yantramanav_500Medium,
+  Yantramanav_700Bold,
+} from '@expo-google-fonts/yantramanav';
+import {
+  TiroDevanagariHindi_400Regular,
+} from '@expo-google-fonts/tiro-devanagari-hindi';
 
 import { useAiStore } from '../store/aiStore';
+import { log } from '../utils/Logger';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,14 +56,22 @@ export default function RootLayout() {
     'Hind-Bold': Hind_700Bold,
     'VesperLibre-Black': VesperLibre_900Black,
     'DMMono-Regular': DMMono_400Regular,
-    'Playfair': PlayfairDisplay_400Regular,
-    'Playfair-Medium': PlayfairDisplay_500Medium,
-    'Playfair-SemiBold': PlayfairDisplay_600SemiBold,
-    'Playfair-Bold': PlayfairDisplay_700Bold,
-    'JetBrains': JetBrainsMono_400Regular,
-    'JetBrains-Medium': JetBrainsMono_500Medium,
-    'JetBrains-SemiBold': JetBrainsMono_600SemiBold,
-    'JetBrains-Bold': JetBrainsMono_700Bold,
+    'Poppins': Poppins_400Regular,
+    'Poppins-Medium': Poppins_500Medium,
+    'Poppins-SemiBold': Poppins_600SemiBold,
+    'Poppins-Bold': Poppins_700Bold,
+    'NotoSans': NotoSans_400Regular,
+    'NotoSans-Medium': NotoSans_500Medium,
+    'NotoSans-SemiBold': NotoSans_600SemiBold,
+    'NotoSans-Bold': NotoSans_700Bold,
+    'Baloo2': Baloo2_400Regular,
+    'Baloo2-Medium': Baloo2_500Medium,
+    'Baloo2-SemiBold': Baloo2_600SemiBold,
+    'Baloo2-Bold': Baloo2_700Bold,
+    'Yantramanav': Yantramanav_400Regular,
+    'Yantramanav-Medium': Yantramanav_500Medium,
+    'Yantramanav-Bold': Yantramanav_700Bold,
+    'TiroDevanagari': TiroDevanagariHindi_400Regular,
   });
 
   useEffect(() => {

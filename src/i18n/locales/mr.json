@@ -20,20 +20,26 @@
     "editor": {
         "titlePlaceholder": "शीर्षक...",
         "bodyPlaceholder": "येथे लिहिण्यास सुरुवात करा...",
-        "done": "झाले ✓",
-        "saved": "जतन केले ✓",
+        "done": "झाले",
+        "saved": "जतन केले",
         "deleteNote": "नोट हटवा",
         "deleteNoteSub": "तुम्हाला ही नोट हटवायची आहे का?",
         "cancel": "रद्द करा",
         "delete": "हटवा",
         "chars": "अक्षरे",
         "words": "शब्द",
-        "notFound": "नोट सापडली नाही",
-        "tagPlaceholder": "टॅग (जोडण्यासाठी एंटर दाबा)",
-        "thinking": "✨ विचार करत आहे...",
-        "exportPdf": "PDF म्हणून निर्यात करा",
-        "exportTxt": "टेक्स्ट (.txt) म्हणून निर्यात करा",
-        "exportMd": "मार्कडाउन (.md) म्हणून निर्यात करा"
+        "mdOnly": "केवळ मार्कडाउन फायली",
+        "unsavedChanges": "जतन न केलेले बदल",
+        "unsavedChangesSub": "बाहेर पडण्यापूर्वी तुम्हाला या नोटमधील बदल जतन करायचे आहेत का?",
+        "save": "जतन करा",
+        "discard": "रद्द करा",
+        "insertLink": "लिंक जोडा",
+        "linkUrl": "लिंक URL (उदा. https://...)",
+        "insertImage": "प्रतिमा जोडा",
+        "imageUrl": "प्रतिमेचा URL (उदा. https://...)",
+        "pickGallery": "गॅलरीमधून निवडा",
+        "enterUrl": "प्रतिमेचा URL प्रविष्ट करा",
+        "selectSource": "प्रतिमेचे स्त्रोत निवडा"
     },
     "settingsScreen": {
         "colorPalette": "रंग पॅलेट (Color Palette)",
@@ -52,14 +58,21 @@
         "textSize": "मजकूर आकार",
         "textSizeSub": "तुमच्या सोयीनुसार मजकूर आकार बदला",
         "dynamicColors": "डायनॅमिक रंग",
-        "dynamicColorsSub": "वॉलपेपरसह सिंक करा (Android 12+)",
+        "dynamicColorsSub": "अनुकूलनक्षम थीम इंजिन",
+        "seedColorLabel": "मुख्य रंग निवड",
+        "seedColorSub": "विशिष्ट रंगातून थीम तयार करा",
         "displayLanguage": "डिस्प्ले भाषा",
         "displayLanguageSub": "तुमची पसंतीची भाषा निवडा",
         "reset": "रीसेट (Reset)",
         "ok": "ठीक (OK)",
         "cancel": "रद्द करा",
         "dataStorage": "डेटा आणि स्टोरेज",
-        "trashDesc": "हटवलेल्या नोट्स पहा किंवा परत आणा"
+        "trashDesc": "हटवलेल्या नोट्स पहा किंवा परत आणा",
+        "autoSave": "नोट्स ऑटो-सेव्ह करा",
+        "whatsNew": "नवीन काय आहे",
+        "changelog": "अॅप अपडेट्स आणि इतिहास",
+        "aboutDeveloper": "डिझाइन आणि विकसित केले आहे",
+        "developerNames": "आदर्श लोखंडे आणि Antigravity"
     },
     "plusFeatures": {
         "title": "सरल लेखन प्लस ⭐",
@@ -99,7 +112,8 @@
         "importSub": "विद्यमान कागदपत्रे सरल लेखन प्लसमध्ये आणण्यासाठी, कृपया तुमच्या डिव्हाइसवरून एक टेक्स्ट (.txt) किंवा मार्कडाउन (.md) फाइल निवडा.",
         "importChoose": "फाइल निवडा",
         "importFailedTitle": "आयात अयशस्वी",
-        "importFailedSub": "निवडलेली फाइल वाचता आली नाही."
+        "importFailedSub": "निवডलेली फाइल वाचता आली नाही.",
+        "yesterday": "काल"
     },
     "typography": {
         "title": "कस्टम टायपोग्राफी",

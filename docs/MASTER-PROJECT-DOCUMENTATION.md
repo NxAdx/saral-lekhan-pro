@@ -75,6 +75,24 @@ The editor features a custom toolbar for quick access to formatting and specific
 ### Robust Local Storage
 Uses SQLite via `expo-sqlite` for persistence. The `notesStore` (Zustand) acts as the bridge between the UI and the database, ensuring reactive updates and fast performance.
 
+### 6. Phase 12-14: Saral Lekhan Plus Features
+
+#### Biometric Security & AuthStore
+Implemented `expo-local-authentication` to secure the app. The core lock logic is separated into a strict `authStore.ts` (Zustand) that listens to device `AppState` changes (Active vs Background) and forces a global `LockScreen.tsx` modal overlay upon return.
+
+#### Spark AI Integration
+Integrated `@google/generative-ai` to power the Editor's smart tools. Using a Bring-Your-Own-Key (BYOK) architecture, the `aiService.ts` handles:
+1. Contextual Title Generation based on body text.
+2. Note Summarization using localized prompts.
+3. Free-hand Prompts ("Format Note", "Write a poem") directly returning compiled Markdown-to-HTML back into the rich-text view.
+
+#### File I/O & Cloud Sync (Google Drive)
+- **Local Imports**: Uses `expo-document-picker` to parse `.txt` and `.md` files directly into SQLite.
+- **Google Drive Backup**: Uses `@react-native-google-signin/google-signin` for native Cross-Platform authentication. Securely retrieves an Access Token via a Web Client ID, then executes raw multipart HTTP requests via the Google Drive REST API (`v3/files`) to silently push/pull the `saral_lekhan.db` database.
+
+#### I18n Multi-lingual Engine
+Utilizes `i18n-js` strictly bound to the `settingsStore`. Core translations reside in `src/i18n/locales/` (`en.json`, `hi.json`, `mr.json`, etc.), making the app fully open-source translation ready (via Weblate/Crowdin).
+
 ---
 
 ## 6. Build & Android Configuration (Critical)
@@ -112,4 +130,4 @@ cd android
 - **Database**: When modifying the data model, update both `src/db/schema.ts` and the `notesStore.ts`.
 
 ---
-*Generated: 2024-02-25 | Version 1.0*
+*Generated: 2026-02-28 | Version 2.0 (Plus Expansion)*

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, Alert,
-  KeyboardAvoidingView, Platform, StatusBar, ScrollView,
+  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -10,13 +10,16 @@ import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
-import { Svg, Path, Circle } from 'react-native-svg';
+import { Svg, Path, Circle, Rect } from 'react-native-svg';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { ThemedModal } from '../../components/ui/ThemedModal';
 import { useAiStore } from '../../store/aiStore';
+import { useTypography } from '../../store/typographyStore';
 import { AiService } from '../../services/aiService';
+import * as ImagePicker from 'expo-image-picker';
+import { log } from '../../utils/Logger';
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,6 +28,7 @@ export default function EditNoteScreen() {
   const theme = useTheme();
   const settings = useSettingsStore(); // to get fonts & language
   const { colors, font, radius, shadow } = theme;
+  const type = useTypography();
   const loc = strings[settings.language] || strings['En'];
 
   const notes = useNotesStore((s) => s.notes);
@@ -45,35 +49,102 @@ export default function EditNoteScreen() {
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-
+  const [isDirty, setIsDirty] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const ai = useAiStore();
 
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
+    log.info(`Opening note: ${id}`);
+
     if (note) {
       setTitle(note.title);
       setTag(note.tag || '');
-      // We set the initial body into the RichEditor component via prop, rather than state
       const stripped = note.body.replace(/<[^>]*>?/gm, ' ');
       setBodyText(stripped || '');
     }
-  }, [note?.id]);
+
+    // Inject List & Quote Breakout Script
+    const script = `
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          const selection = window.getSelection();
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            let node = range.startContainer;
+            while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') { 
+              node = node.parentNode; 
+            }
+            if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
+              e.preventDefault();
+              document.execCommand('outdent', false, null);
+            }
+          }
+        }
+      });
+      true;
+    `;
+
+    const timer = setTimeout(() => {
+      if (isMounted.current) {
+        // @ts-ignore - Pell library uses lowercase 's'
+        richText.current?.injectJavascript(script);
+      }
+    }, 800);
+
+    return () => {
+      isMounted.current = false;
+      clearTimeout(timer);
+    };
+  }, [id, note?.id]);
 
   const showSaved = useCallback(() => {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   }, []);
 
-  const handleDone = useCallback(async () => {
+  useEffect(() => {
+    const onBackPress = () => {
+      if (isDirty && !settings.autoSave) {
+        setShowExitModal(true);
+        return true;
+      }
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  }, [isDirty, settings.autoSave]);
+
+  const handleSave = useCallback(async () => {
     const html = await richText.current?.getContentHtml();
     if (note) {
       updateNote(note.id, { title: title.trim(), body: html?.trim() || '', tag: tag.trim() });
+      setIsDirty(false);
       showSaved();
     }
+  }, [note, title, tag, updateNote, showSaved]);
+
+  const handleDone = useCallback(async () => {
+    await handleSave();
     router.back();
-  }, [note, title, tag, updateNote, router, showSaved]);
+  }, [handleSave, router]);
+
+  const handleBack = useCallback(() => {
+    if (isDirty && !settings.autoSave) {
+      setShowExitModal(true);
+    } else {
+      router.back();
+    }
+  }, [isDirty, settings.autoSave, router]);
 
   const handleDelete = useCallback(() => {
     setShowDeleteModal(true);
@@ -81,6 +152,47 @@ export default function EditNoteScreen() {
 
   const insertHindiPunctuation = (char: string) => {
     richText.current?.insertText(char);
+  };
+
+  const handleInsertLink = () => {
+    if (linkUrl.trim()) {
+      richText.current?.insertLink(title || 'Link', linkUrl.trim());
+      setLinkUrl('');
+      setShowLinkModal(false);
+    }
+  };
+
+  const handleInsertImage = () => {
+    if (imageUrl.trim()) {
+      richText.current?.insertImage(imageUrl.trim());
+      setImageUrl('');
+      setShowImageModal(false);
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7, // Slightly lower for performance with base64
+      });
+
+      if (!result.canceled && result.assets[0].uri) {
+        const uri = result.assets[0].uri;
+
+        // Read file as Base64 to ensure persistence and compatibility
+        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+        const type = uri.split('.').pop() || 'png';
+        const dataUri = `data:image/${type};base64,${base64}`;
+
+        richText.current?.insertImage(dataUri);
+        setShowImageModal(false);
+        log.info("Image inserted as Base64 data URI");
+      }
+    } catch (e) {
+      console.error("Failed to pick image", e);
+      Alert.alert("Error", "Could not load image.");
+    }
   };
 
   const handleExportPDF = useCallback(async () => {
@@ -215,6 +327,7 @@ export default function EditNoteScreen() {
     doneBtn: { backgroundColor: colors.accent, paddingVertical: 8, paddingHorizontal: 14, borderRadius: radius.pill, ...shadow.gentle, shadowColor: colors.accentDark },
     doneBtnActive: { transform: [{ translateY: 2 }], shadowOffset: { width: 0, height: 1 }, elevation: 1 },
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
+    exportBtnText: { color: colors.white }, // High contrast for share/export
 
     scroll: { flex: 1 },
     content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 60 },
@@ -225,10 +338,9 @@ export default function EditNoteScreen() {
 
     tagRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.strokeDim + '55' },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
-    tagInput: { flex: 1, fontFamily: font.mono, fontSize: 13, color: colors.inkMid, padding: 0 },
-
-    bottomBar: { backgroundColor: colors.bgRaised, borderTopWidth: 1, borderTopColor: colors.strokeDim + '66', paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    bottomBarText: { fontFamily: font.mono, fontSize: 11, color: colors.inkDim },
+    tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
+    bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
+    bottomBarText: { ...type.labelMedium, fontFamily: font.mono, color: colors.inkDim },
 
     notFound: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
     notFoundText: { fontFamily: font.sansSemi, fontSize: 14, color: colors.inkMid },
@@ -264,25 +376,34 @@ export default function EditNoteScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
-        <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12}>
-          <Svg viewBox="0 0 20 20" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={1.8} strokeLinecap="round">
-            <Path d="M15 10H5M10 5l-5 5 5 5" />
+        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
+          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M5 12l14 0" />
+            <Path d="M5 12l6 6" />
+            <Path d="M5 12l6 -6" />
           </Svg>
         </Pressable>
+
         <View style={s.headerMid}>
           <Text style={s.headerDate}>{dateStr}</Text>
           {saved && <Text style={s.savedBadge}>{loc.editor.saved}</Text>}
           {isGenerating && <Text style={[s.savedBadge, { color: colors.accent }]}>✨ {loc.editor.thinking}</Text>}
         </View>
+
         <View style={s.headerRight}>
-          <Pressable onPress={handleExportMenu} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
-              <Path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
+          <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
+            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
+              <Path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v5m-5 6h7m-3 -3l3 3l-3 3" />
             </Svg>
           </Pressable>
           <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
-              <Path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
+            <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M4 7l16 0" />
+              <Path d="M10 11l0 6" />
+              <Path d="M14 11l0 6" />
+              <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+              <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
             </Svg>
           </Pressable>
           <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
@@ -300,12 +421,13 @@ export default function EditNoteScreen() {
                 placeholder={loc.editor.titlePlaceholder}
                 placeholderTextColor={colors.inkDim}
                 value={title}
-                onChangeText={setTitle}
+                onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
                 multiline blurOnSubmit returnKeyType="next"
               />
 
               <View style={s.editorContainer}>
                 <RichEditor
+                  key={id}
                   ref={richText}
                   initialContentHTML={note.body}
                   placeholder={loc.editor.bodyPlaceholder}
@@ -315,24 +437,32 @@ export default function EditNoteScreen() {
                     backgroundColor: colors.bg,
                     color: colors.inkMid,
                     placeholderColor: colors.inkDim,
-                    // Apply dynamic settings fonts globally to editor via CSS
                     cssText: `
                   body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.6; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
                   h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
                   h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                  ul, ol { padding-left: 20px; }
+                  ul, ol { padding-left: 20px; font-size: 1em !important; }
+                  li { font-size: 1em !important; }
+                  img { max-width: 100%; height: auto; border-radius: 12px; margin: 10px 0; }
                 `
                   }}
                   onChange={(html) => {
+                    if (!isMounted.current) return;
                     const stripped = html.replace(/<[^>]*>?/gm, ' ');
                     setBodyText(stripped);
+                    setIsDirty(true);
+                    if (settings.autoSave) {
+                      updateNote(Number(id), { title, body: html, tag });
+                    }
                   }}
                   scrollEnabled={false}
                   useContainer={false}
+                  onCursorPosition={(y) => {
+                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 50), animated: true });
+                  }}
                 />
               </View>
-
             </View>
 
             <View style={s.tagRow}>
@@ -342,14 +472,16 @@ export default function EditNoteScreen() {
                 placeholder={loc.editor.tagPlaceholder}
                 placeholderTextColor={colors.inkDim}
                 value={tag}
-                onChangeText={(t) => setTag(t.replace(/\s/g, ''))}
+                onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
                 autoCapitalize="none"
                 onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
               />
             </View>
+            <Text style={{ fontFamily: font.sans, fontSize: 11, color: colors.inkDim, marginLeft: 34, marginTop: -8, marginBottom: 12 }}>
+              {loc.editor.tagHint || "Add a tag to organize your notes"}
+            </Text>
           </ScrollView>
 
-          {/* Dynamic Rich Toolbar */}
           <RichToolbar
             editor={richText}
             style={s.toolbarRoot}
@@ -367,15 +499,32 @@ export default function EditNoteScreen() {
               actions.insertBulletsList,
               actions.insertOrderedList,
               actions.blockquote,
+              actions.insertLink,
+              actions.insertImage,
               'insertPurnaViram',
               'insertDoublePurnaViram'
             ]}
             iconMap={{
               [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
               [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
+              [actions.insertLink]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </Svg>
+              ),
+              [actions.insertImage]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <Circle cx="8.5" cy="8.5" r="1.5" />
+                  <Path d="M21 15l-5-5L5 21" />
+                </Svg>
+              ),
               'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>।</Text>,
               'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>॥</Text>,
             }}
+            onInsertLink={() => setShowLinkModal(true)}
+            onPressAddImage={() => setShowImageModal(true)}
             insertPurnaViram={() => insertHindiPunctuation('।')}
             insertDoublePurnaViram={() => insertHindiPunctuation('॥')}
           />
@@ -388,7 +537,10 @@ export default function EditNoteScreen() {
                 disabled={isGenerating}
                 style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.accent + '22', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.sm, opacity: isGenerating ? 0.5 : 1 }}
               >
-                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>{isGenerating ? '...' : '✨ Spark AI'}</Text>
+                <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                  <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
+                </Svg>
+                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>{isGenerating ? '...' : 'Spark AI'}</Text>
               </Pressable>
             )}
           </View>
@@ -420,18 +572,27 @@ export default function EditNoteScreen() {
         onClose={() => setShowExportModal(false)}
         actions={[
           {
-            label: loc.editor.exportPdf,
+            label: loc.exportPdf,
             style: 'default',
+            icon: (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                <Path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                <Path d="M9 15l2 2l4 -4" />
+              </Svg>
+            ),
             onPress: handleExportPDF
           },
           {
-            label: loc.editor.exportTxt,
+            label: loc.exportMd || "Save as MD",
             style: 'default',
-            onPress: () => handleExportTextFile('txt')
-          },
-          {
-            label: loc.editor.exportMd,
-            style: 'default',
+            icon: (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                <Path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                <Path d="M10 12l4 4m0 -4l-4 4" />
+              </Svg>
+            ),
             onPress: () => handleExportTextFile('md')
           },
           {
@@ -520,7 +681,6 @@ export default function EditNoteScreen() {
         ]}
       />
 
-
       <ThemedModal
         visible={showSummaryModal}
         title={loc.plusFeatures.aiSummaryTitle}
@@ -549,6 +709,86 @@ export default function EditNoteScreen() {
         ]}
       />
 
+      <ThemedModal
+        visible={showExitModal}
+        title={loc.editor.unsavedChanges}
+        subtitle={loc.editor.unsavedChangesSub}
+        onClose={() => setShowExitModal(false)}
+        actions={[
+          {
+            label: loc.editor.save,
+            style: 'default',
+            onPress: handleDone
+          },
+          {
+            label: loc.editor.discard,
+            style: 'destructive',
+            onPress: () => router.back()
+          },
+          {
+            label: loc.editor.cancel,
+            style: 'cancel',
+            onPress: () => setShowExitModal(false)
+          }
+        ]}
+      />
+
+      <ThemedModal
+        visible={showLinkModal}
+        title={loc.editor.insertLink}
+        onClose={() => setShowLinkModal(false)}
+        actions={[
+          { label: loc.editor.save, style: 'default', onPress: handleInsertLink },
+          { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowLinkModal(false) }
+        ]}
+        customContent={
+          <View style={{ gap: 12 }}>
+            <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>{loc.editor.linkUrl}</Text>
+            <TextInput
+              style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              placeholder="https://..."
+              placeholderTextColor={colors.inkDim}
+              value={linkUrl}
+              onChangeText={setLinkUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+        }
+      />
+
+      <ThemedModal
+        visible={showImageModal}
+        title={loc.editor.selectSource}
+        onClose={() => setShowImageModal(false)}
+        actions={[
+          {
+            label: loc.editor.pickGallery, style: 'default', onPress: handlePickImage, icon: (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M15 8h.01" />
+                <Path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
+                <Path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
+                <Path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
+              </Svg>
+            )
+          },
+          { label: loc.editor.enterUrl, style: 'cancel', onPress: () => { /* Handle toggle to URL input if needed, but keeping it simple with direct actions */ } },
+        ]}
+        customContent={
+          <View style={{ gap: 12, marginTop: 8 }}>
+            <TextInput
+              style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              placeholder={loc.editor.imageUrl}
+              placeholderTextColor={colors.inkDim}
+              value={imageUrl}
+              onChangeText={setImageUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onSubmitEditing={handleInsertImage}
+            />
+          </View>
+        }
+      />
     </View>
   );
 }

@@ -17,12 +17,16 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:8.1.4')
+        classpath('com.android.tools.build:gradle:7.4.2')
         classpath('com.facebook.react:react-native-gradle-plugin')
     }
 }
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     repositories {
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -37,17 +41,17 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
     }
+}
 
-    tasks.withType(Task).configureEach { task ->
-        if (task.name.toLowerCase().contains("compile") && task.name.toLowerCase().contains("kotlin")) {
-            if (task.hasProperty("kotlinOptions")) {
-                task.kotlinOptions.jvmTarget = "11"
-            }
-        }
-        if (task.name.toLowerCase().contains("compilejava")) {
-            if (task.hasProperty("targetCompatibility")) {
-                task.targetCompatibility = JavaVersion.VERSION_11
-                task.sourceCompatibility = JavaVersion.VERSION_11
+// Force ALL Kotlin compilation tasks across ALL subprojects to target JVM 17.
+// This runs after ALL project evaluation is complete, guaranteeing we catch every task.
+gradle.taskGraph.whenReady {
+    allprojects.each { proj ->
+        proj.tasks.findAll { task ->
+            task.name.contains('ompileKotlin')
+        }.each { task ->
+            if (task.hasProperty('kotlinOptions')) {
+                task.kotlinOptions.jvmTarget = '17'
             }
         }
     }

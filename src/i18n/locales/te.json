@@ -33,7 +33,18 @@
         "thinking": "✨ ఆలోచిస్తోంది...",
         "exportPdf": "PDF గా ఎగుమతి చేయి",
         "exportTxt": "టెక్స్ట్ (.txt) గా ఎగుమతి చేయి",
-        "exportMd": "మార్క్ డౌన్ (.md) గా ఎగుమతి చేయి"
+        "exportMd": "మార్క్ డౌన్ (.md) గా ఎగుమతి చేయి",
+        "unsavedChanges": "భద్రపరచని మార్పులు",
+        "unsavedChangesSub": "మీరు నిష్క్రమించే ముందు ఈ గమనికలో చేసిన మార్పులను సేవ్ చేయాలనుకుంటున్నారా?",
+        "save": "సేవ్ చేయి",
+        "discard": "విస్మరించు",
+        "insertLink": "లింక్ ని చొప్పించు",
+        "linkUrl": "లింక్ URL (ఉదా: https://...)",
+        "insertImage": "చిత్రాన్ని చొప్పించు",
+        "imageUrl": "చిత్రం URL (ఉదా: https://...)",
+        "pickGallery": "గ్యాలరీ నుండి ఎంచుకోండి",
+        "enterUrl": "చిత్రం URL ని నమోదు చేయండి",
+        "selectSource": "చిత్ర మూలాన్ని ఎంచుకోండి"
     },
     "settingsScreen": {
         "colorPalette": "రంగు పాలెట్ (Color Palette)",
@@ -59,7 +70,10 @@
         "ok": "సరే",
         "cancel": "రద్దు చేయి",
         "dataStorage": "డేటా మరియు స్టోరేజ్",
-        "trashDesc": "తొలగించిన నోట్స్ చూడండి లేదా తిరిగి పొందండి"
+        "trashDesc": "తొలగించిన నోట్స్ చూడండి లేదా తిరిగి పొందండి",
+        "autoSave": "నోట్స్‌ని ఆటో సేవ్ చేయండి",
+        "whatsNew": "కొత్తగా ఏముంది",
+        "changelog": "యాప్ అప్‌డేట్లు మరియు చరిత్ర"
     },
     "plusFeatures": {
         "title": "సరళ్ లేఖన్ ప్లస్ ⭐",
@@ -79,27 +93,28 @@
         "syncRestore": "డేటాబేస్ పునరుద్ధరణ",
         "syncDisconnect": "ఖాతాను డిస్‌కనెక్ట్ చేయి",
         "lastSync": "చివరి సమకాలీకరణ",
-        "isSyncing": "సమకాలీకరిస్తోంది..."
+        "isSyncing": "సమకాలీకరిస్తోంది...",
+        "aiDialogTitle": "✨ స్పార్క్ AI",
+        "aiDialogSub": "ఈ నోట్ కోసం AI చర్యను ఎంచుకోండి.",
+        "aiFormat": "ఈ నోట్‌ను ఫార్మాట్ చేయండి",
+        "aiSmartTitle": "స్మార్ట్ శీర్షికను రూపొందించండి",
+        "aiSummarize": "నోట్‌ను సారాంశం చేయండి",
+        "aiWriteForMe": "నా కోసం రాయండి (Prompt)",
+        "aiWriteTitle": "✨ నా కోసం రాయండి",
+        "aiWriteSub": "ఏమి రూపొందించాలో స్పార్క్ AI కి చెప్పండి.",
+        "aiWritePlaceholder": "ఉదాహరణకు, దీని గురించి కవిత రాయండి...",
+        "aiGenerateBtn": "కంటెంట్‌ను రూపొందించండి",
+        "aiSummaryTitle": "✨ AI సారాంశం",
+        "aiSummaryInsert": "నోట్‌లో చేర్చు",
+        "aiSummaryPrefix": "✨ AI సారాంశం:"
     },
-    "aiDialogTitle": "✨ స్పార్క్ AI",
-    "aiDialogSub": "ఈ నోట్ కోసం AI చర్యను ఎంచుకోండి.",
-    "aiFormat": "ఈ నోట్‌ను ఫార్మాట్ చేయండి",
-    "aiSmartTitle": "స్మార్ట్ శీర్షికను రూపొందించండి",
-    "aiSummarize": "నోట్‌ను సారాంశం చేయండి",
-    "aiWriteForMe": "నా కోసం రాయండి (Prompt)",
-    "aiWriteTitle": "✨ నా కోసం రాయండి",
-    "aiWriteSub": "ఏమి రూపొందించాలో స్పార్క్ AI కి చెప్పండి.",
-    "aiWritePlaceholder": "ఉదాహరణకు, దీని గురించి కవిత రాయండి...",
-    "aiGenerateBtn": "కంటెంట్‌ను రూపొందించండి",
-    "aiSummaryTitle": "✨ AI సారాంశం",
-    "aiSummaryInsert": "నోట్‌లో చేర్చు",
-    "aiSummaryPrefix": "✨ AI సారాంశం:",
     "home": {
         "importTitle": "నోట్‌ను దిగుమతి చేయండి",
         "importSub": "మీ పరికరంలోని టెక్స్ట్ (.txt) లేదా మార్క్‌డౌన్ (.md) ఫైల్‌లను సరల్ లేఖన్ ప్లస్‌లోకి దిగుమతి చేయడానికి ఫైల్‌ను ఎంచుకోండి.",
         "importChoose": "ఫైల్‌ను ఎంచుకోండి",
         "importFailedTitle": "దిగుమతి విఫలమైంది",
-        "importFailedSub": "ఎంచుకున్న ఫైల్‌ను చదవలేకపోయాము."
+        "importFailedSub": "ఎంచుకున్న ఫైల్‌ను చదవలేకపోయాము.",
+        "yesterday": "నిన్న"
     },
     "typography": {
         "title": "కస్టమ్ టైపోగ్రఫీ",

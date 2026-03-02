@@ -1,16 +1,38 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import * as FileSystem from 'expo-file-system';
 
-const WEB_CLIENT_ID = "1021975293117-ql3fac9mrc79oi2stc6tecr3ua47p722.apps.googleusercontent.com";
+// CRITICAL: This MUST be a "Web application" Client ID from Google Cloud Console.
+// It CANNOT be your Android Client ID, otherwise you get DEVELOPER_ERROR (Error 10).
+// Without a Web Client ID, Google will give you a 401 Unauthorized error when accessing Google Drive API.
+const WEB_CLIENT_ID = "1021975293117-ompp70m5ehcg614a02fannpnj52v4r94.apps.googleusercontent.com";
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
 
-GoogleSignin.configure({
-    scopes: SCOPES,
-    webClientId: WEB_CLIENT_ID,
-    offlineAccess: true,
-});
+try {
+    GoogleSignin.configure({
+        scopes: SCOPES,
+        webClientId: WEB_CLIENT_ID,
+    });
+} catch (e) {
+    console.warn("Google Sign-in not available in this environment:", e);
+}
 
 export class GoogleDriveService {
+    /**
+     * Silently refresh the OAuth access token.
+     * Access tokens expire after ~1 hour; this must be called before every API call.
+     */
+    static async getFreshToken(): Promise<string> {
+        try {
+            // silentSignIn refreshes the session without showing UI
+            await GoogleSignin.signInSilently();
+            const tokens = await GoogleSignin.getTokens();
+            return tokens.accessToken;
+        } catch (error) {
+            // If silent sign-in fails, the user needs to re-authenticate
+            throw new Error("Session expired. Please sign in again.");
+        }
+    }
+
     static async signIn() {
         try {
             await GoogleSignin.hasPlayServices();

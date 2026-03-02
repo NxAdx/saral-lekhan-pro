@@ -69,9 +69,10 @@ export default function TrashScreen() {
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-                    <Svg viewBox="0 0 24 24" width={24} height={24}>
-                        <Line x1="19" y1="12" x2="5" y2="12" stroke={colors.ink} strokeWidth={2.5} strokeLinecap="round" />
-                        <Polyline points="12 19 5 12 12 5" stroke={colors.ink} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <Path d="M5 12l14 0" />
+                        <Path d="M5 12l6 6" />
+                        <Path d="M5 12l6 -6" />
                     </Svg>
                 </Pressable>
                 <Text style={s.title}>{loc.trash}</Text>
@@ -85,10 +86,8 @@ export default function TrashScreen() {
                 renderItem={({ item }) => (
                     <View style={s.noteContainer}>
                         <BentoCard
-                            title={item.title}
-                            preview={item.body}
+                            note={item}
                             date={new Date(item.updated_at).toLocaleDateString()}
-                            tag={item.tag || undefined}
                             onPress={() => handleNotePress(item.id)}
                         />
                     </View>

@@ -5,22 +5,27 @@ Completed:
 - Extracted design system (DOCX + HTML) and created `src/tokens.ts`.
 - Created prototype `saral-lekhan-sample.html`.
 - Installed dependencies and resolved peer conflicts to get Metro bundler running.
-- Started Metro and connected Android device via Expo Go (after installing matching Expo Go).
-- **NoteList (Home) screen**: header (सरल लेखन / Saral Lekhan), pill search, tag rail (सभी / All + dynamic tags), `NotePill` list from `notesStore`, FAB → new note.
-- **Create flow**: FAB opens `/editor/new`; New Note screen with title/body/tag and Done saves via `notesStore.addNote` and navigates back.
-- **Edit flow**: Tapping a note opens `/editor/[id]`; Edit screen loads note and `updateNote` on Done.
-- **Store**: `getNotesFilteredByTag`, `getUniqueTags`, `updateNote`, `deleteNote`; exported `Note` type and `ALL_TAG_ID`.
-- **UI components**: `TagPill`, `FAB`; `NotePill` extended with optional `tag` and meta row.
-- **Layouts**: `src/app/_layout.tsx` and `src/app/(main)/_layout.tsx` (Stack, headerShown: false).
+- **NoteList (Home) screen**: header, search, tag rail, `NotePill` list from `notesStore`, FAB.
+- **Editor**: Rich text formatting toolbar, autosave, meta bar, and Hindi optimizations.
+- **Store**: SQLite persistent database integration (`expo-sqlite`) for zero-data-loss logic.
+- **UI components**: `TagPill`, `FAB`, `HardShadow`, `BentoCard`, `ThemedModal`.
+- **Phase 7+ UI Overhaul**: Dynamic Theme Engine, Live Settings Preview, Metrolist font slider.
+- **Phase 12 (Plus Features)**: Globabl Biometric Authentication lock screen (`expo-local-authentication`).
+- **Phase 12 (Style Studio)**: Custom embedded Google Fonts (Playfair, JetBrains, Vesper Libre) and 8 Premium AMOLED-ready Palettes.
+- **Phase 12 (Spark AI)**: Integrated `@google/generative-ai` for Title Generation, Note Summarization, and Prompt-driven content generation.
+- **Phase 13 (Expansion)**: `.txt` and `.md` file imports via `expo-document-picker` with auto HTML compilation.
+- **Phase 14 (Cloud Sync)**: Full SQLite Backup/Restore engine using Google Drive REST API and Native Google Sign-In (`@react-native-google-signin/google-signin`).
+- **Phase 14 (I18n)**: Fully localized UI in English, Hindi, Marathi, Bengali, Tamil, and Telugu.
+- **Phase 5 (Reliability)**: Persistent high-frequency logging system, crash survival storage, and global JS exception catching.
+- **Phase 6 (Production Refinements)**: Base64 image rendering fix, Home screen toolbar integration (Report Bug / History), and UI accessibility enhancements (Modal contrast).
+- Built and published successful EAS Production Android APK.
+- **Phase 10 (Aesthetics)**: Full Icon System Migration to Tabler Icons (v2.9.1) with unified 2px stroke across all main screens.
+- **Phase 10 (Stability)**: Resolved `BentoCard` prop mismatch in Trash screen causing potential crashes.
 
 In progress:
-- None.
+- None. App is in a mature, production-ready state.
 
-Next actions (priority order):
-1. ~~Implement `NoteList` screen bound to `notesStore` with create flow (FAB → new note screen).~~ ✓
-2. Build Editor with format toolbar, autosave indicator, and meta bar.
-3. Wire SQLite DB queries and persist notes; implement tag manager.
-4. Add accessibility labels, reduced motion support, and tests.
-5. Create CI pipeline and prepare EAS / store builds.
-
-If you want me to continue now, say which item to implement next (2–5) or "follow the list" for item 2.
+Next actions (Future Roadmap):
+1. Prepare Google Play Store submission assets.
+2. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
+3. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.

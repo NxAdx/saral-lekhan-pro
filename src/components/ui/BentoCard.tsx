@@ -1,30 +1,33 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../store/themeStore';
+import { useTypography } from '../../store/typographyStore';
 import { stripMarkdown } from '../../utils/markdown';
 
+import { Note } from '../../store/notesStore';
+
 interface BentoCardProps {
-    title: string;
-    preview: string;
+    note: Note;
     date: string;
-    tag?: string;
-    pinned?: boolean;
+    selected?: boolean;
     onPress?: () => void;
+    onLongPress?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function BentoCard({
-    title,
-    preview,
+    note,
     date,
-    tag,
-    pinned = false,
+    selected = false,
     onPress,
+    onLongPress,
 }: BentoCardProps) {
-    const { colors, radius, shadow, font, fontSize } = useTheme();
+    if (!note) return null;
+    const { title, body: preview, tag, pinned } = note;
+    const { colors, radius, shadow, font } = useTheme();
+    const type = useTypography();
     const cleanPreview = stripMarkdown(preview);
     const pressed = useSharedValue(0);
 
@@ -32,29 +35,31 @@ export function BentoCard({
         card: {
             marginVertical: 6,
             overflow: 'hidden',
-            backgroundColor: colors.bgRaised,
-            borderColor: pinned ? colors.accent : colors.strokeDim,
-            borderWidth: pinned ? 2 : 1,
+            backgroundColor: selected ? colors.accentBg : colors.bgRaised,
+            borderColor: selected ? colors.accent : (pinned ? colors.accent : colors.strokeDim),
+            borderWidth: (selected || pinned) ? 2 : 1,
             borderRadius: radius.lg,
             ...shadow.soft,
-            shadowColor: colors.shadow
+            shadowColor: colors.shadow,
+            elevation: 2,
         },
         content: {
             paddingVertical: 18,
             paddingHorizontal: 20,
         },
         title: {
-            fontSize: 18 * fontSize,
-            fontFamily: font.sansSemi,
-            fontWeight: '600',
-            color: pinned ? colors.accent : colors.ink,
-            marginBottom: 6,
+            ...type.titleLarge,
+            fontFamily: font.sansBold,
+            color: (selected || pinned) ? colors.accent : colors.ink,
+            marginBottom: 4,
+            letterSpacing: -0.2,
         },
         preview: {
-            fontSize: 14 * fontSize,
-            lineHeight: 22 * fontSize,
+            ...type.bodyLarge,
             fontFamily: font.sans,
             color: colors.inkMid,
+            lineHeight: type.bodyLarge.fontSize * 1.4,
+            opacity: 0.85,
         },
         metaRow: {
             flexDirection: 'row',
@@ -63,7 +68,7 @@ export function BentoCard({
             marginTop: 12,
         },
         date: {
-            fontSize: 11 * fontSize,
+            ...type.bodySmall,
             fontFamily: font.mono,
             color: colors.inkDim,
         },
@@ -76,12 +81,26 @@ export function BentoCard({
             borderRadius: radius.md,
         },
         tagText: {
-            fontSize: 11 * fontSize,
-            fontWeight: '600',
-            fontFamily: font.sansSemi,
+            ...type.labelMedium,
+            fontFamily: font.sansBold,
             color: colors.accent,
+            fontSize: 10,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
         },
-    }), [colors, radius, shadow, font, fontSize, pinned]);
+        selectionIcon: {
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            width: 20,
+            height: 20,
+            borderRadius: 10,
+            backgroundColor: colors.accent,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10,
+        }
+    }), [colors, radius, shadow, font, pinned, type, selected]);
 
     const animStyle = useAnimatedStyle(() => {
         return {
@@ -95,10 +114,17 @@ export function BentoCard({
     return (
         <AnimatedPressable
             onPress={onPress}
+            onLongPress={onLongPress}
             onPressIn={() => { pressed.value = 1; }}
             onPressOut={() => { pressed.value = 0; }}
             style={[s.card, animStyle]}
+            delayLongPress={300}
         >
+            {selected && (
+                <View style={s.selectionIcon}>
+                    <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+                </View>
+            )}
             <View style={s.content}>
                 <Text style={s.title} numberOfLines={1}>
                     {pinned ? '★ ' : ''}
@@ -113,11 +139,13 @@ export function BentoCard({
 
                 <View style={s.metaRow}>
                     <Text style={s.date}>{date}</Text>
-                    {tag ? (
-                        <View style={s.tagChip}>
-                            <Text style={s.tagText}>{tag}</Text>
-                        </View>
-                    ) : null}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        {tag ? (
+                            <View style={s.tagChip}>
+                                <Text style={s.tagText}>{tag}</Text>
+                            </View>
+                        ) : null}
+                    </View>
                 </View>
             </View>
         </AnimatedPressable>

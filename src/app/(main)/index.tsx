@@ -13,11 +13,16 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { BentoCard } from '../../components/ui/BentoCard';
 import { TagPill } from '../../components/ui/TagPill';
+import { HomeSkeleton } from '../../components/ui/HomeSkeleton';
+import { useTypography } from '../../store/typographyStore';
 import { FAB } from '../../components/ui/FAB';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import * as Sharing from 'expo-sharing';
+import { log } from '../../utils/Logger';
+import { APP_CHANGELOG } from '../../constants/changelog';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 
-function formatDate(ts: number): string {
+function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
   const now = new Date();
   if (d.toDateString() === now.toDateString()) {
@@ -25,7 +30,7 @@ function formatDate(ts: number): string {
   }
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  if (d.toDateString() === yesterday.toDateString()) return 'कल';
+  if (d.toDateString() === yesterday.toDateString()) return loc.home.yesterday || 'Yesterday';
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
 }
 
@@ -35,7 +40,8 @@ export default function HomeScreen() {
   const lang = useSettingsStore(s => s.language);
   // Fallback to English if the cached language from an older version doesn't exist anymore
   const loc = strings[lang] || strings['En'];
-  const { colors, font, radius, shadow } = theme;
+  const { colors, font, radius, shadow, spacing } = theme;
+  const type = useTypography();
 
   const [selectedTag, setSelectedTag] = useState<string>(ALL_TAG_ID);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,15 +49,16 @@ export default function HomeScreen() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
 
+  // Selection Mode State
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
   const initDB = useNotesStore((s) => s.initDB);
   const isLoaded = useNotesStore((s) => s.isLoaded);
   const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
   const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
   const addNote = useNotesStore((s) => s.addNote);
-
-  useEffect(() => {
-    initDB();
-  }, [initDB]);
+  const deleteNote = useNotesStore((s) => s.deleteNote);
 
   const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 
@@ -66,42 +73,99 @@ export default function HomeScreen() {
     );
   }, [notes, searchQuery]);
 
+  const toggleSelection = useCallback((id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+
+      if (next.size === 0) setIsSelectionMode(false);
+      return next;
+    });
+  }, []);
+
+  const handleLongPress = useCallback((id: number) => {
+    setIsSelectionMode(true);
+    setSelectedIds(new Set([id]));
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setIsSelectionMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleBulkDelete = useCallback(() => {
+    Alert.alert(
+      loc.editor.deleteNote,
+      `${loc.home.deleteConfirm || "Delete"} ${selectedIds.size} ${loc.home.notesTitle || "notes"}?`,
+      [
+        { text: loc.editor.cancel, style: 'cancel' },
+        {
+          text: loc.editor.delete,
+          style: 'destructive',
+          onPress: () => {
+            selectedIds.forEach(id => deleteNote(id));
+            clearSelection();
+          }
+        }
+      ]
+    );
+  }, [selectedIds, deleteNote, clearSelection, loc]);
+
+  const handleBulkExport = useCallback(async () => {
+    const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
+    if (selectedNotes.length === 0) return;
+
+    try {
+      const content = selectedNotes.map(n => `## ${n.title}\n\n${n.body}`).join('\n\n---\n\n');
+      const filename = `saral_export_${Date.now()}.md`;
+      const uri = `${FileSystem.cacheDirectory}${filename}`;
+      await FileSystem.writeAsStringAsync(uri, content);
+      const { shareAsync } = await import('expo-sharing');
+      await shareAsync(uri, { dialogTitle: 'Bulk Export' });
+      clearSelection();
+    } catch (e) {
+      console.warn(e);
+    }
+  }, [selectedIds, filteredNotes, clearSelection]);
+
+  useEffect(() => {
+    initDB();
+  }, [initDB]);
+
   const onNewNote = useCallback(() => router.push('/editor/new'), [router]);
   const onNotePress = useCallback((id: number) => router.push(`/editor/${id}`), [router]);
 
-  const executeImport = async () => {
+  const handleImportFile = useCallback(async () => {
     setShowImportModal(false);
     try {
-      const res = await DocumentPicker.getDocumentAsync({
-        type: ['text/plain', 'text/markdown', '*/*'],
-        copyToCacheDirectory: true,
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['text/markdown', 'text/plain'],
+        copyToCacheDirectory: true
       });
 
-      if (res.canceled || !res.assets || res.assets.length === 0) return;
-
-      const file = res.assets[0];
+      if (result.canceled || !result.assets || result.assets.length === 0) return;
+      const file = result.assets[0];
       const ext = file.name.split('.').pop()?.toLowerCase();
 
-      if (ext !== 'txt' && ext !== 'md') {
-        setAppAlert({ visible: true, title: "Invalid File", subtitle: "Only .txt and .md files are supported for import." });
+      if (ext !== 'md' && ext !== 'txt') {
+        setAppAlert({ visible: true, title: loc.home.importFailedTitle, subtitle: loc.editor.mdOnly || "Only Markdown files supported" });
         return;
       }
 
       let content = await FileSystem.readAsStringAsync(file.uri);
-
       if (ext === 'md') {
         content = markdownToHtml(content);
       }
 
-      const newTitle = file.name.replace(/\.[^/.]+$/, ""); // strip extension
+      const newTitle = file.name.replace(/\.[^/.]+$/, "");
       const generatedId = addNote({ title: newTitle, body: content, tag: '', pinned: false });
-
       router.push(`/editor/${generatedId}`);
     } catch (e) {
       console.warn("Import failed", e);
       setAppAlert({ visible: true, title: loc.home.importFailedTitle, subtitle: loc.home.importFailedSub });
     }
-  };
+  }, [addNote, loc, router]);
 
   const handleImport = useCallback(() => {
     setShowImportModal(true);
@@ -116,14 +180,42 @@ export default function HomeScreen() {
     },
     listContent: { paddingBottom: 100 },
     noteContainer: { paddingHorizontal: 20 },
-    header: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16, flexDirection: 'row', alignItems: 'center' },
-    appName: { fontFamily: font.display, fontSize: 32 * theme.fontSize, fontWeight: '900', color: colors.ink, letterSpacing: -0.03 * 32 * theme.fontSize },
-    appSub: { fontFamily: font.mono, fontSize: 10 * theme.fontSize, color: colors.accent, letterSpacing: 0.1 * 10 * theme.fontSize, marginTop: 2 },
+    headerLeft: {
+      flex: 1,
+    },
+    appName: {
+      ...type.headlineLarge,
+      fontFamily: font.sansBold, // Reverted to sansBold as per older UI
+      color: colors.ink,
+      fontSize: 32, // Adjusted for scale
+    },
+    appSub: {
+      ...type.labelMedium,
+      fontFamily: font.mono, // Spaced mono look
+      color: colors.inkDim,
+      letterSpacing: 2.5,
+      textTransform: 'uppercase',
+      marginTop: -2,
+    },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.bgRaised,
+      marginRight: 8,
+      borderWidth: 1,
+      borderColor: colors.strokeDim,
+    },
+    chipText: {
+      ...type.labelMedium,
+      fontFamily: font.sansBold,
+      color: colors.inkMid
+    },
     searchWrap: {
-      marginHorizontal: 20, marginBottom: 12, backgroundColor: colors.bgRaised,
-      borderRadius: radius.pill, borderWidth: 1.5, borderColor: searchFocused ? colors.accent : colors.stroke,
-      paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center',
-      ...shadow.gentle, shadowColor: colors.shadow, gap: 10
+      marginHorizontal: 20, marginBottom: spacing[4], backgroundColor: colors.bgRaised,
+      borderRadius: radius.pill, borderWidth: 1, borderColor: searchFocused ? colors.accent : colors.strokeDim,
+      paddingHorizontal: 16, height: 52, flexDirection: 'row', alignItems: 'center',
+      ...shadow.gentle, shadowColor: colors.shadow, gap: 12
     },
     searchInput: { flex: 1, fontFamily: font.sans, fontSize: 15 * theme.fontSize, color: colors.ink, padding: 0 },
     clearBtn: { fontSize: 13 * theme.fontSize, color: colors.inkDim, paddingHorizontal: 4 },
@@ -132,6 +224,14 @@ export default function HomeScreen() {
     empty: { paddingTop: 60, alignItems: 'center' },
     emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
     emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingTop: 32,
+      paddingBottom: 20
+    },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     fabWrap: { position: 'absolute', bottom: 32, right: 28 },
     circleBtn: {
@@ -144,37 +244,73 @@ export default function HomeScreen() {
   const ListHeader = useMemo(() => (
     <View>
       <View style={s.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={s.appName}>{loc.appName}</Text>
-          <Text style={s.appSub}>{loc.appSub}</Text>
-        </View>
-        <View style={s.headerRight}>
-          <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <Path d="M14 2v6h6" />
-              <Line x1="12" y1="18" x2="12" y2="12" />
-              <Line x1="9" y1="15" x2="15" y2="15" />
-            </Svg>
-          </Pressable>
-          <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
-              <Path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-            </Svg>
-          </Pressable>
-          <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
-              <Path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-              <Path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </Svg>
-          </Pressable>
-        </View>
+        {isSelectionMode ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 16 }}>
+            <Pressable onPress={clearSelection} style={s.circleBtn} hitSlop={12}>
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <Path d="M10 10l4 4m0 -4l-4 4" />
+              </Svg>
+            </Pressable>
+            <Text style={[s.appName, { fontSize: 24 }]}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
+            <View style={{ flex: 1 }} />
+            <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                <Path d="M7 11l5 5l5 -5" />
+                <Path d="M12 4l0 12" />
+              </Svg>
+            </Pressable>
+            <Pressable onPress={handleBulkDelete} style={[s.circleBtn, { borderColor: colors.accent }]} hitSlop={12}>
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M4 7l16 0" />
+                <Path d="M10 11l0 6" />
+                <Path d="M14 11l0 6" />
+                <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+              </Svg>
+            </Pressable>
+          </View>
+        ) : (
+          <>
+            <View style={s.headerLeft}>
+              <Text style={s.appName}>{loc.appName}</Text>
+              <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
+            </View>
+            <View style={s.headerRight}>
+              <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={12}>
+                <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <Path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                  <Path d="M7 16.5l3 3l3 -3" />
+                  <Path d="M10 20.2V12" />
+                  <Path d="M20 18v1a2 2 0 0 1 -2 2h-1" />
+                </Svg>
+              </Pressable>
+              <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={12}>
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M4 7l16 0" />
+                  <Path d="M10 11l0 6" />
+                  <Path d="M14 11l0 6" />
+                  <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                  <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                </Svg>
+              </Pressable>
+              <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={12}>
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37a1.724 1.724 0 0 0 2.572 -1.065z" />
+                  <Path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                </Svg>
+              </Pressable>
+            </View>
+          </>
+        )}
       </View>
 
       <View style={s.searchWrap}>
-        <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2}>
-          <Circle cx="11" cy="11" r="8" />
-          <Line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+          <Path d="M21 21l-6 -6" />
         </Svg>
         <TextInput
           style={s.searchInput}
@@ -199,10 +335,10 @@ export default function HomeScreen() {
           <TagPill key={tag} label={tag} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
         ))}
       </ScrollView>
-    </View>
+    </View >
   ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors]);
 
-  if (!isLoaded) return null;
+  if (!isLoaded) return <HomeSkeleton />;
 
   return (
     <View style={s.root}>
@@ -218,12 +354,11 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <View style={s.noteContainer}>
             <BentoCard
-              title={item.title}
-              preview={item.body}
-              date={formatDate(item.updated_at)}
-              tag={item.tag || undefined}
-              pinned={item.pinned}
-              onPress={() => onNotePress(item.id)}
+              note={item}
+              onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
+              onLongPress={() => handleLongPress(item.id)}
+              date={formatDate(item.updated_at, loc)}
+              selected={selectedIds.has(item.id)}
             />
           </View>
         )}
@@ -255,7 +390,7 @@ export default function HomeScreen() {
           {
             label: loc.home.importChoose,
             style: 'default',
-            onPress: executeImport
+            onPress: handleImportFile
           },
           {
             label: loc.editor.cancel,
