@@ -104,9 +104,30 @@ You have uploaded the code and locked the secrets in the vault. The cloud builde
 3. On the left side, click **Production Android Build**.
 4. On the right side of the screen, click the **Run workflow** dropdown, then click the green **Run workflow** button.
 
-### Step 8: Download your App!
-1. A yellow circle will appear. It is now building a pristine Linux server, downloading node 18 and Java 17, injecting your secrets, and building your app bundle.
-2. Wait 10-15 minutes.
-3. When it turns into a **Green Checkmark ✅**, click on the completed job.
-4. Scroll to the very bottom to the "Artifacts" section.
-5. Click on **`saral-lekhan-production-aab`** to download your highly-optimized Google Play ready file!
+## Phase 5: Google Sign-In & Production Go-Live
+
+If you see a `DEVELOPER_ERROR` or `Error 10`, it means your Cloud Build is using a "Signature" that Google doesn't recognize yet. Follow these steps to link them.
+
+### Step 9: Register your Release Fingerprints
+1. **The Fingerprints:** Here are the unique signatures for your new `release.keystore`. You will need these in the next steps:
+   - **SHA-1:** `D1:53:DF:86:B2:FC:A9:E0:B5:F7:50:45:CE:EC:F3:92:FF:63:C7:28`
+   - **SHA-256:** `26:A8:7D:91:81:42:C0:BF:77:DA:15:CF:0A:22:1E:B2:82:76:A5:C7:8D:EA:A6:C1:5E:5F:19:8B:13:37:21:F9`
+2. Go to the [Firebase Console](https://console.firebase.google.com).
+3. Open your project -> **Project settings** -> **General** tab.
+4. Scroll to "Your apps" (com.sarallekhan) and click **Add fingerprint**.
+5. Paste the **SHA-1** string and click Save. Repeat for the **SHA-256** string.
+6. (Optional but Recommended): Re-download `google-services.json` and update your GitHub Secret if the fingerprints change the file contents.
+
+### Step 10: Switch to Production Mode (GCP)
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials/consent).
+2. Ensure you have the **Saral Lekhan** project selected at the top.
+3. Click on the **OAuth consent screen** on the left menu.
+4. Under "Publishing status", you will see "Testing". Click the **PUBLISH APP** button.
+5. Confirm that you want to move to Production. This removes the "Only invited users can login" restriction.
+
+### Step 11: Final Client ID Check
+1. Go to the [Credentials](https://console.cloud.google.com/apis/credentials) page in GCP.
+2. Ensure you have an **OAuth 2.0 Client ID** of type **Web application**.
+3. Copy its **Client ID** (it looks like `12345-abcde.apps.googleusercontent.com`).
+4. In your code, check `src/services/googleDriveService.ts`. Ensure the `WEB_CLIENT_ID` variable matches this exact string.
+5. Push any code changes to GitHub and let the Cloud Build run one last time!

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppState } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
@@ -48,7 +49,12 @@ import { log } from '../utils/Logger';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+Sentry.init({
+  dsn: "https://your_sentry_dsn_placeholder@sentry.io/123456",
+  debug: __DEV__,
+});
+
+export function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     'Hind': Hind_400Regular,
     'Hind-Medium': Hind_500Medium,
@@ -104,3 +110,5 @@ export default function RootLayout() {
     </>
   );
 }
+
+export default Sentry.wrap(RootLayout);

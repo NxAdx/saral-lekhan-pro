@@ -54,7 +54,8 @@
     "react-native-view-shot": "3.7.0",
     "react-native-webview": "13.2.2",
     "zustand": "^4.5.7",
-    "expo-image-picker": "~14.3.2"
+    "expo-image-picker": "~14.3.2",
+    "@sentry/react-native": "5.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
