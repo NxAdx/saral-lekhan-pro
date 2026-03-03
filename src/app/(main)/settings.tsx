@@ -22,8 +22,9 @@ import { log } from '../../utils/Logger';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
-import appJson from '../../../app.json';
-const APP_VERSION = appJson.expo.version;
+
+// Hardcoded to match app.json — update this when bumping version
+const APP_VERSION = '2.9.4';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -343,7 +344,7 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
                 {/* APP UPDATER */}
-                <BentoCard delay={100} style={{ marginBottom: 24, padding: 16 }}>
+                <View style={{ marginBottom: 24, padding: 16, backgroundColor: colors.bgRaised, borderRadius: theme.radius.lg, borderWidth: 1, borderColor: colors.strokeDim }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flex: 1 }}>
                             <Text style={s.listLabel}>App Version</Text>
@@ -382,7 +383,7 @@ export default function SettingsScreen() {
                             </Pressable>
                         )}
                     </View>
-                </BentoCard>
+                </View>
 
                 {/* PLUS FEATURES */}
                 <Text style={s.sectionTitle}>{loc.plusFeatures.title}</Text>

@@ -1,11 +1,12 @@
 import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { Platform } from 'react-native';
-import appJson from '../../app.json';
+
+// Hardcoded to match app.json — update when bumping version
+const APP_VERSION = '2.9.4';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
-const APP_VERSION = appJson.expo.version;
 
 export interface UpdateInfo {
     hasUpdate: boolean;
