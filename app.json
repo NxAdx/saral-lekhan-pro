@@ -3,7 +3,7 @@
     "name": "saral-lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.9.3",
+    "version": "2.9.4",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -26,7 +26,7 @@
     ],
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 34,
+      "versionCode": 35,
       "softwareKeyboardLayoutMode": "resize",
       "intentFilters": [
         {
