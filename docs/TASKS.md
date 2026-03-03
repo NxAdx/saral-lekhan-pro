@@ -24,19 +24,24 @@ Completed:
 - **Phase 14 (Auth Debugging)**: Diagnosed `DEVELOPER_ERROR` via Firebase App Signing Fingerprint mismatches and GCP project mismatch. Corrected `WEB_CLIENT_ID` to correctly target the Firebase instance. Added SHA-1 printout step in GitHub CI.
 - **Phase 10 (Visual Polish)**: Extinguished the 1ms "White Flash" on app resume by permanently locking the root window background to `#171513` using `expo-system-ui`.
 
-In progress:
-- None. App is in a mature, production-ready state.
-
 ## Phase 15: Deep Root Edge Cases (Auth & Flashes)
-- [ ] Eradicate Cold Boot White Flash via `styles.xml` CI patch
-- [ ] Eradicate React Navigation white transition flashes via Theme injection
-- [ ] Diagnose and eliminate the persisting `DEVELOPER_ERROR`
+- [x] Eradicate Cold Boot White Flash via `styles.xml` CI patch
+- [x] Eradicate React Navigation white transition flashes via Theme injection
+- [x] Wrap `_layout.tsx` in `View` + `onLayoutRootView` to mask React startup frame
+- [ ] Final verification: Diagnose and eliminate the persisting `DEVELOPER_ERROR` (requires updated `GOOGLE_SERVICES_JSON` GitHub Secret)
 
-## Phase 16: Feature Additions
-- [ ] Investigate and design In-App Updater for direct APK downloads
+## Phase 16: In-App Updater
+- [x] Create `src/utils/githubUpdater.ts` (GitHub Releases API + APK download + intent launcher)
+- [x] Add silent update check on Home Screen launch (`index.tsx`)
+- [x] Add "Check for Updates" BentoCard UI in Settings
+- [x] Configure CI pipeline to attach APK to GitHub Releases on tag push
+- [x] Downgrade `expo-intent-launcher` to ~10.7.0 for SDK 49 compatibility
+- [x] Version bumped to `2.9.4` (versionCode 35)
+
+In progress:
+- User verification of v2.9.4 APK features
 
 Next actions (Future Roadmap):
-1. **Cold Boot Flash**: Aggressively force the native `android:windowBackground` setting via an injected XML patch (`sed`) during GitHub Actions prebuild to eliminate the 5ms white frame entirely on initial cold boot.
-2. Prepare Google Play Store submission assets.
-3. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
-4. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
+1. Prepare Google Play Store submission assets.
+2. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
+3. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
