@@ -21,6 +21,8 @@ import { log } from '../../utils/Logger';
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import Constants from 'expo-constants';
+import { checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -79,10 +81,54 @@ export default function SettingsScreen() {
     const [tempKey, setTempKey] = React.useState('');
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
 
+    // Updater State
+    const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
+    const [isCheckingUpdate, setIsCheckingUpdate] = React.useState(false);
+    const [isDownloadingUpdate, setIsDownloadingUpdate] = React.useState(false);
+    const [downloadProgress, setDownloadProgress] = React.useState(0);
+
     // Load sync state payload on mount
     React.useEffect(() => {
         sync.loadSyncState();
+        handleCheckUpdate(false);
     }, []);
+
+    const handleCheckUpdate = async (isManual = true) => {
+        setIsCheckingUpdate(true);
+        const info = await checkForUpdate();
+        if (info && info.hasUpdate) {
+            setUpdateInfo(info);
+            // We only need the Alert from the settings screen if they explicitly pressed check, 
+            // since the Home screen will handle the global app-launch notification
+            if (isManual) {
+                Alert.alert("Update Available", `Version ${info.version} is available. Do you want to download it now?`, [
+                    { text: "Later", style: "cancel" },
+                    { text: "Download", onPress: handleDownloadUpdate }
+                ]);
+            }
+        } else if (isManual) {
+            setSyncAlert({ visible: true, title: "Up to date", sub: "You are already on the latest version." });
+        }
+        setIsCheckingUpdate(false);
+    };
+
+    const handleDownloadUpdate = async () => {
+        if (!updateInfo?.downloadUrl) return;
+        setIsDownloadingUpdate(true);
+        setDownloadProgress(0);
+
+        const success = await downloadAndInstallApk(
+            updateInfo.downloadUrl,
+            updateInfo.version,
+            (prog) => setDownloadProgress(prog)
+        );
+
+        if (!success) {
+            setSyncAlert({ visible: true, title: "Update Failed", sub: "Could not download or install the latest APK." });
+            setIsDownloadingUpdate(false);
+        }
+        // If success, the OS takes over and installs it, closing the app inherently.
+    };
 
     const handleGoogleLogin = async () => {
         try {
@@ -295,7 +341,38 @@ export default function SettingsScreen() {
 
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-
+                {/* APP UPDATER */}
+                <BentoCard delay={100} style={{ marginBottom: 24, padding: 16 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={s.listLabel}>App Version</Text>
+                            <Text style={s.listSub}>
+                                Current: v{Constants.expoConfig?.version || 'Unknown'}
+                                {updateInfo?.hasUpdate ? ` • Latest: v${updateInfo.version}` : ' • Up to date'}
+                            </Text>
+                        </View>
+                        {isCheckingUpdate ? (
+                            <Text style={[s.listSub, { color: colors.accent }]}>Checking...</Text>
+                        ) : updateInfo?.hasUpdate ? (
+                            <Pressable
+                                onPress={handleDownloadUpdate}
+                                disabled={isDownloadingUpdate}
+                                style={{ backgroundColor: colors.accent, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm }}
+                            >
+                                <Text style={{ color: colors.white, fontFamily: font.sansBold }}>
+                                    {isDownloadingUpdate ? `Downloading ${Math.round(downloadProgress * 100)}%` : 'Update Now'}
+                                </Text>
+                            </Pressable>
+                        ) : (
+                            <Pressable onPress={() => handleCheckUpdate(true)}>
+                                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.accent} strokeWidth={2}>
+                                    <Path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                                    <Path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                                </Svg>
+                            </Pressable>
+                        )}
+                    </View>
+                </BentoCard>
 
                 {/* PLUS FEATURES */}
                 <Text style={s.sectionTitle}>{loc.plusFeatures.title}</Text>

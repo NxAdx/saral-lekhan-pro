@@ -21,6 +21,7 @@ import * as Sharing from 'expo-sharing';
 import { log } from '../../utils/Logger';
 import { APP_CHANGELOG } from '../../constants/changelog';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
+import { checkForUpdate } from '../../utils/githubUpdater';
 
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
@@ -60,6 +61,24 @@ export default function HomeScreen() {
   const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
+
+  // Global App Update Checker
+  useEffect(() => {
+    const runUpdateCheck = async () => {
+      const info = await checkForUpdate();
+      if (info && info.hasUpdate) {
+        Alert.alert(
+          "Update Available",
+          `Version ${info.version} is available! Head to Settings to download it directly.`,
+          [
+            { text: "Later", style: "cancel" },
+            { text: "Update Now", onPress: () => router.push('/settings') }
+          ]
+        );
+      }
+    };
+    runUpdateCheck();
+  }, [router]);
 
   const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 

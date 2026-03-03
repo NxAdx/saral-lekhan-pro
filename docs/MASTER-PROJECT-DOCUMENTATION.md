@@ -88,7 +88,8 @@ Integrated `@google/generative-ai` to power the Editor's smart tools. Using a Br
 
 #### File I/O & Cloud Sync (Google Drive)
 - **Local Imports**: Uses `expo-document-picker` to parse `.txt` and `.md` files directly into SQLite.
-- **Google Drive Backup**: Uses `@react-native-google-signin/google-signin` for native Cross-Platform authentication. Securely retrieves an Access Token via a Web Client ID, then executes raw multipart HTTP requests via the Google Drive REST API (`v3/files`) to silently push/pull the `saral_lekhan.db` database.
+- **Google Drive Backup**: Uses `@react-native-google-signin/google-signin` for native Cross-Platform authentication. Securely retrieves an Access Token via a Web Client ID, then executes raw multipart HTTP requests via the Google Drive REST API (`v3/files`) to silently push/pull the `saral_lekhan.db` database. 
+- **Critical Auth Context**: The `WEB_CLIENT_ID` must strictly align with the specific Firebase project where the APK's SHA-1 signing certificates (including Google Play App Signing keys) are registered. Mismatches or dropped JSON injects will trigger `DEVELOPER_ERROR` (Error 10).
 
 #### I18n Multi-lingual Engine
 Utilizes `i18n-js` strictly bound to the `settingsStore`. Core translations reside in `src/i18n/locales/` (`en.json`, `hi.json`, `mr.json`, etc.), making the app fully open-source translation ready (via Weblate/Crowdin).

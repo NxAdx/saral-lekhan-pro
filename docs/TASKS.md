@@ -21,11 +21,22 @@ Completed:
 - Built and published successful EAS Production Android APK.
 - **Phase 10 (Aesthetics)**: Full Icon System Migration to Tabler Icons (v2.9.1) with unified 2px stroke across all main screens.
 - **Phase 10 (Stability)**: Resolved `BentoCard` prop mismatch in Trash screen causing potential crashes.
+- **Phase 14 (Auth Debugging)**: Diagnosed `DEVELOPER_ERROR` via Firebase App Signing Fingerprint mismatches and GCP project mismatch. Corrected `WEB_CLIENT_ID` to correctly target the Firebase instance. Added SHA-1 printout step in GitHub CI.
+- **Phase 10 (Visual Polish)**: Extinguished the 1ms "White Flash" on app resume by permanently locking the root window background to `#171513` using `expo-system-ui`.
 
 In progress:
 - None. App is in a mature, production-ready state.
 
+## Phase 15: Deep Root Edge Cases (Auth & Flashes)
+- [ ] Eradicate Cold Boot White Flash via `styles.xml` CI patch
+- [ ] Eradicate React Navigation white transition flashes via Theme injection
+- [ ] Diagnose and eliminate the persisting `DEVELOPER_ERROR`
+
+## Phase 16: Feature Additions
+- [ ] Investigate and design In-App Updater for direct APK downloads
+
 Next actions (Future Roadmap):
-1. Prepare Google Play Store submission assets.
-2. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
-3. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
+1. **Cold Boot Flash**: Aggressively force the native `android:windowBackground` setting via an injected XML patch (`sed`) during GitHub Actions prebuild to eliminate the 5ms white frame entirely on initial cold boot.
+2. Prepare Google Play Store submission assets.
+3. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
+4. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
