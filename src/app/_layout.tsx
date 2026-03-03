@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { AppState, useColorScheme } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { AppState, useColorScheme, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -87,11 +87,7 @@ export function RootLayout() {
     'TiroDevanagari': TiroDevanagariHindi_400Regular,
   });
 
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
+  // Removed explicit hideAsync here, moved to onLayoutRootView below
 
   useEffect(() => {
     useAuthStore.getState().initialize();
@@ -125,12 +121,20 @@ export function RootLayout() {
     },
   };
 
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
   if (!fontsLoaded && !fontError) return null;
 
   return (
     <ThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
-      <LockScreen />
+      <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
+        <LockScreen />
+      </View>
     </ThemeProvider>
   );
 }

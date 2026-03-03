@@ -364,11 +364,20 @@ export default function SettingsScreen() {
                                 </Text>
                             </Pressable>
                         ) : (
-                            <Pressable onPress={() => handleCheckUpdate(true)}>
-                                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.accent} strokeWidth={2}>
-                                    <Path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                                    <Path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                                </Svg>
+                            <Pressable
+                                onPress={() => handleCheckUpdate(true)}
+                                style={{
+                                    backgroundColor: colors.bgRaised,
+                                    borderWidth: 1,
+                                    borderColor: colors.strokeDim,
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 8,
+                                    borderRadius: theme.radius.sm
+                                }}
+                            >
+                                <Text style={{ color: colors.ink, fontFamily: font.sansSemi, fontSize: 13 }}>
+                                    Check for Updates
+                                </Text>
                             </Pressable>
                         )}
                     </View>
