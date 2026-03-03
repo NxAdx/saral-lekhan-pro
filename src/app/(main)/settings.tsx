@@ -21,8 +21,9 @@ import { log } from '../../utils/Logger';
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import Constants from 'expo-constants';
 import { checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
+import appJson from '../../../app.json';
+const APP_VERSION = appJson.expo.version;
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -347,7 +348,7 @@ export default function SettingsScreen() {
                         <View style={{ flex: 1 }}>
                             <Text style={s.listLabel}>App Version</Text>
                             <Text style={s.listSub}>
-                                Current: v{Constants.expoConfig?.version || 'Unknown'}
+                                Current: v{APP_VERSION}
                                 {updateInfo?.hasUpdate ? ` • Latest: v${updateInfo.version}` : ' • Up to date'}
                             </Text>
                         </View>

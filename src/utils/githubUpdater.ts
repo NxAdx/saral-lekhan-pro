@@ -1,10 +1,11 @@
 import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
-import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import appJson from '../../app.json';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
+const APP_VERSION = appJson.expo.version;
 
 export interface UpdateInfo {
     hasUpdate: boolean;
@@ -33,7 +34,7 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
 
         const data = await response.json();
         const latestVersionTag = data.tag_name; // e.g., 'v2.9.4'
-        const currentVersion = Constants.expoConfig?.version || '0.0.0';
+        const currentVersion = APP_VERSION;
 
         // Strip 'v' if present for clean comparison
         const cleanLatest = latestVersionTag.replace(/^v/, '');
