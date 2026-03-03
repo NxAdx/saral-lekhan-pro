@@ -24,7 +24,7 @@ import * as FileSystem from 'expo-file-system';
 import { checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
 
 // Hardcoded to match app.json — update this when bumping version
-const APP_VERSION = '2.9.4';
+const APP_VERSION = '2.9.4-HOTFIX-GREEN';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -344,7 +344,7 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
                 {/* APP UPDATER */}
-                <View style={{ marginBottom: 24, padding: 16, backgroundColor: colors.bgRaised, borderRadius: theme.radius.lg, borderWidth: 1, borderColor: colors.strokeDim }}>
+                <View style={{ marginBottom: 24, padding: 16, backgroundColor: colors.bgRaised, borderRadius: theme.radius.lg, borderWidth: 4, borderColor: '#00FF00' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flex: 1 }}>
                             <Text style={s.listLabel}>App Version</Text>
