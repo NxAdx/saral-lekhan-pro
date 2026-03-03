@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
+import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
+import { useSettingsStore } from '../store/settingsStore';
+import { themes } from '../tokens';
 import {
   useFonts,
   Hind_400Regular,
@@ -56,6 +59,9 @@ Sentry.init({
 });
 
 export function RootLayout() {
+  const { themeId, nightMode, amoledMode } = useSettingsStore();
+  const systemColor = useColorScheme();
+
   const [fontsLoaded, fontError] = useFonts({
     'Hind': Hind_400Regular,
     'Hind-Medium': Hind_500Medium,
@@ -97,21 +103,35 @@ export function RootLayout() {
       }
     });
 
-    // Fix the 1ms white-flash on resume by pinning the root window background to our dark theme
-    SystemUI.setBackgroundColorAsync('#171513');
-
     return () => {
       subscription.remove();
     };
   }, []);
 
+  const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
+  const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
+  const finalBgColor = isDark && amoledMode ? '#000000' : coreColors.bg;
+
+  useEffect(() => {
+    // Fix the 1ms white-flash on resume and keep root window tracking active theme
+    SystemUI.setBackgroundColorAsync(finalBgColor);
+  }, [finalBgColor]);
+
+  const navTheme = {
+    dark: isDark,
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      background: finalBgColor,
+    },
+  };
+
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false }} />
+    <ThemeProvider value={navTheme}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
       <LockScreen />
-    </>
+    </ThemeProvider>
   );
 }
 

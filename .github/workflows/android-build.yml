@@ -45,6 +45,9 @@ jobs:
           # Patch MainApplication.java for production bundler
           sed -i 's/return ".expo\/.virtual-metro-entry";/return "index";/' android/app/src/main/java/com/sarallekhan/MainApplication.java
           
+          # Patch styles.xml to eliminate cold boot 5ms white flash by natively forcing the base window
+          sed -i 's/<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">/<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">\n        <item name="android:windowBackground">@color\/splashscreen_background<\/item>/' android/app/src/main/res/values/styles.xml
+          
           # Patch android/build.gradle to enforce Java 17 compilation and add Google Services classpath
           sed -i '/allprojects {/a \    tasks.withType(JavaCompile).configureEach {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }' android/build.gradle
           sed -i '/dependencies {/a \        classpath("com.google.gms:google-services:4.4.1")' android/build.gradle
