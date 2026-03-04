@@ -10,6 +10,126 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.9.9",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "Drive 403 errors now show clear action steps (including API-disabled guidance).",
+                "Release pipeline and update packaging reliability improved.",
+                "Stability fixes in startup/auth flow for production builds."
+            ],
+            hi: [
+                "Drive 403 errors now show clear action steps (including API-disabled guidance).",
+                "Release pipeline and update packaging reliability improved.",
+                "Stability fixes in startup/auth flow for production builds."
+            ],
+            mr: [
+                "Drive 403 errors now show clear action steps (including API-disabled guidance).",
+                "Release pipeline and update packaging reliability improved.",
+                "Stability fixes in startup/auth flow for production builds."
+            ]
+        }
+    },
+    {
+        version: "2.9.8",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "Drive re-auth fallback improved for expired sessions.",
+                "Removed hardcoded updater UI color to follow active app theme.",
+                "Sync and account reconnect messaging made clearer."
+            ],
+            hi: [
+                "Drive re-auth fallback improved for expired sessions.",
+                "Removed hardcoded updater UI color to follow active app theme.",
+                "Sync and account reconnect messaging made clearer."
+            ],
+            mr: [
+                "Drive re-auth fallback improved for expired sessions.",
+                "Removed hardcoded updater UI color to follow active app theme.",
+                "Sync and account reconnect messaging made clearer."
+            ]
+        }
+    },
+    {
+        version: "2.9.7",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "Fixed startup crash caused by undefined catch handling in early boot path.",
+                "Improved startup guardrails for edge-case init failures."
+            ],
+            hi: [
+                "Fixed startup crash caused by undefined catch handling in early boot path.",
+                "Improved startup guardrails for edge-case init failures."
+            ],
+            mr: [
+                "Fixed startup crash caused by undefined catch handling in early boot path.",
+                "Improved startup guardrails for edge-case init failures."
+            ]
+        }
+    },
+    {
+        version: "2.9.6",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "Startup catch-path hardening to avoid app boot failures on some builds.",
+                "Versioning and release metadata consistency updates."
+            ],
+            hi: [
+                "Startup catch-path hardening to avoid app boot failures on some builds.",
+                "Versioning and release metadata consistency updates."
+            ],
+            mr: [
+                "Startup catch-path hardening to avoid app boot failures on some builds.",
+                "Versioning and release metadata consistency updates."
+            ]
+        }
+    },
+    {
+        version: "2.9.5",
+        date: "2026-03-03",
+        changes: {
+            en: [
+                "Entrypoint and updater installer flow improvements.",
+                "Build pipeline fix for Android Gradle wrapper execution in CI.",
+                "General release hardening and packaging cleanup."
+            ],
+            hi: [
+                "Entrypoint and updater installer flow improvements.",
+                "Build pipeline fix for Android Gradle wrapper execution in CI.",
+                "General release hardening and packaging cleanup."
+            ],
+            mr: [
+                "Entrypoint and updater installer flow improvements.",
+                "Build pipeline fix for Android Gradle wrapper execution in CI.",
+                "General release hardening and packaging cleanup."
+            ]
+        }
+    },
+    {
+        version: "2.9.4",
+        date: "2026-03-03",
+        changes: {
+            en: [
+                "Startup and auth stability refinements.",
+                "Updater integration and release notes flow improvements.",
+                "Internal reliability fixes across settings and sync surfaces."
+            ],
+            hi: [
+                "Startup and auth stability refinements.",
+                "Updater integration and release notes flow improvements.",
+                "Internal reliability fixes across settings and sync surfaces."
+            ],
+            mr: [
+                "Startup and auth stability refinements.",
+                "Updater integration and release notes flow improvements.",
+                "Internal reliability fixes across settings and sync surfaces."
+            ]
+        }
+    },
+    {
         version: "2.9.3",
         date: "2026-03-02",
         changes: {

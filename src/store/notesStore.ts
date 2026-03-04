@@ -4,7 +4,18 @@ import * as Sentry from '@sentry/react-native';
 import { log } from '../utils/Logger';
 
 // Open (or create) the SQLite database
-const db = SQLite.openDatabase('saral_lekhan.db');
+const DB_NAME = 'saral_lekhan.db';
+let db = SQLite.openDatabase(DB_NAME);
+
+function reopenDatabaseConnection() {
+  try {
+    (db as any)?.closeAsync?.();
+  } catch (error) {
+    // Ignore close errors and still attempt to reopen.
+    log.warn("SQLite close before reopen failed", error as any);
+  }
+  db = SQLite.openDatabase(DB_NAME);
+}
 
 export interface Note {
   id: number;
@@ -56,9 +67,22 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         );`, [],
         () => {
           // Migration: Add is_deleted if missing
-          tx.executeSql(`ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`, [], () => { }, () => false);
-
-          get().loadNotes();
+          tx.executeSql(
+            `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
+            [],
+            () => {
+              get().loadNotes();
+            },
+            (_, error) => {
+              // Existing installs already have this column; this should not fail init.
+              const msg = String(error?.message || '').toLowerCase();
+              if (msg.includes('duplicate') || msg.includes('already exists')) {
+                get().loadNotes();
+                return true;
+              }
+              return false;
+            }
+          );
         }
       );
     }, (err) => {
@@ -185,8 +209,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   resetDB: () => {
     set({ notes: [], isLoaded: false });
     // Re-initialize and load notes from the newly restored/replaced database file
-    setTimeout(() => {
-      get().initDB();
-    }, 200);
+    reopenDatabaseConnection();
+    get().initDB();
   },
 }));

@@ -112,10 +112,16 @@ try {
         scopes: SCOPES,
         webClientId: WEB_CLIENT_ID,
         offlineAccess: true,
-        forceCodeForRefreshToken: true,
+        // Avoid forcing repeated consent prompts after the first successful login.
+        forceCodeForRefreshToken: false,
     });
 } catch (e) {
     console.warn("Google Sign-in not available in this environment:", e);
+}
+
+function getEmailFromUserInfo(userInfo: any): string {
+    // Handles shape differences across Google Sign-In package versions.
+    return userInfo?.data?.user?.email || userInfo?.user?.email || 'Unknown';
 }
 
 export class GoogleDriveService {
@@ -157,11 +163,27 @@ export class GoogleDriveService {
     static async signIn() {
         try {
             await GoogleSignin.hasPlayServices();
+
+            // Prefer silent sign-in if a previous session exists to avoid re-prompting OAuth UI.
+            const hasPrevious = await GoogleSignin.hasPreviousSignIn();
+            if (hasPrevious) {
+                try {
+                    const silentUser = await GoogleSignin.signInSilently();
+                    const silentTokens = await GoogleSignin.getTokens();
+                    if (silentTokens?.accessToken) {
+                        return {
+                            accessToken: silentTokens.accessToken,
+                            email: getEmailFromUserInfo(silentUser),
+                        };
+                    }
+                } catch {
+                    // Fall through to interactive sign-in.
+                }
+            }
+
             const userInfo = await GoogleSignin.signIn();
             const tokens = await GoogleSignin.getTokens();
-            // @ts-ignore - version differences in GoogleSignin library
-            const email = userInfo.data?.user?.email || userInfo.user?.email || 'Unknown';
-            return { accessToken: tokens.accessToken, email };
+            return { accessToken: tokens.accessToken, email: getEmailFromUserInfo(userInfo) };
         } catch (error: any) {
             throw mapGoogleSignInError(error);
         }

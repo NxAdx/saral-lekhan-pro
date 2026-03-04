@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { AppState, useColorScheme, View } from 'react-native';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, AppState, Text, useColorScheme, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -66,6 +66,9 @@ try {
 export function RootLayout() {
   const { themeId, nightMode, amoledMode } = useSettingsStore();
   const systemColor = useColorScheme();
+  const hasHiddenSplash = useRef(false);
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const [showBootLoader, setShowBootLoader] = useState(true);
 
   const [fontsLoaded, fontError] = useFonts({
     'Hind': Hind_400Regular,
@@ -127,19 +130,69 @@ export function RootLayout() {
     },
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
+  const startContentFadeIn = useCallback(() => {
+    contentOpacity.setValue(0);
+    Animated.timing(contentOpacity, {
+      toValue: 1,
+      duration: 280,
+      useNativeDriver: true,
+    }).start();
+  }, [contentOpacity]);
 
-  if (!fontsLoaded && !fontError) return null;
+  const onLayoutRootView = useCallback(async () => {
+    if ((fontsLoaded || fontError) && !hasHiddenSplash.current) {
+      hasHiddenSplash.current = true;
+      await SplashScreen.hideAsync().catch(() => { });
+      setShowBootLoader(false);
+      startContentFadeIn();
+    }
+  }, [fontsLoaded, fontError, startContentFadeIn]);
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, backgroundColor: finalBgColor, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={coreColors.accent} />
+        <Text style={{ marginTop: 12, color: coreColors.inkMid, fontSize: 14 }}>
+          Loading Saral Lekhan...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ThemeProvider value={navTheme}>
       <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView}>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
-        <LockScreen />
+        {showBootLoader && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              backgroundColor: finalBgColor,
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2,
+            }}
+          >
+            <ActivityIndicator color={coreColors.accent} />
+            <Text style={{ marginTop: 12, color: coreColors.inkMid, fontSize: 14 }}>
+              Loading Saral Lekhan...
+            </Text>
+          </View>
+        )}
+
+        <Animated.View style={{ flex: 1, opacity: contentOpacity }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              contentStyle: { backgroundColor: finalBgColor }
+            }}
+          />
+          <LockScreen />
+        </Animated.View>
       </View>
     </ThemeProvider>
   );
