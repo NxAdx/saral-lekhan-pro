@@ -51,7 +51,8 @@ import {
 import { useAiStore } from '../store/aiStore';
 import { log } from '../utils/Logger';
 
-SplashScreen.preventAutoHideAsync().catch(() => { });
+const splashPreventResult = SplashScreen.preventAutoHideAsync();
+(splashPreventResult as any)?.catch?.(() => { });
 
 try {
   Sentry.init({
@@ -114,7 +115,8 @@ export function RootLayout() {
 
   useEffect(() => {
     // Fix the 1ms white-flash on resume and keep root window tracking active theme
-    SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => { });
+    const bgResult = SystemUI.setBackgroundColorAsync(finalBgColor);
+    (bgResult as any)?.catch?.(() => { });
   }, [finalBgColor]);
 
   const navTheme = {
