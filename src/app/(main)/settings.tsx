@@ -116,17 +116,30 @@ export default function SettingsScreen() {
         setIsDownloadingUpdate(true);
         setDownloadProgress(0);
 
-        const success = await downloadAndInstallApk(
-            updateInfo.downloadUrl,
-            updateInfo.version,
-            (prog) => setDownloadProgress(prog)
-        );
+        try {
+            const success = await downloadAndInstallApk(
+                updateInfo.downloadUrl,
+                updateInfo.version,
+                (prog) => setDownloadProgress(prog)
+            );
 
-        if (!success) {
-            setSyncAlert({ visible: true, title: "Update Failed", sub: "Could not download or install the latest APK." });
+            if (!success) {
+                setSyncAlert({
+                    visible: true,
+                    title: "Update Failed",
+                    sub: "Could not download or open installer. Check install permissions and try again."
+                });
+                setIsDownloadingUpdate(false);
+            }
+            // If success, the OS takes over and installs it, closing the app inherently.
+        } catch (e: any) {
+            setSyncAlert({
+                visible: true,
+                title: "Update Failed",
+                sub: e?.message || "Something went wrong while preparing the installer."
+            });
             setIsDownloadingUpdate(false);
         }
-        // If success, the OS takes over and installs it, closing the app inherently.
     };
 
     const handleGoogleLogin = async () => {

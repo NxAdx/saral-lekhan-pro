@@ -3,7 +3,7 @@ import * as IntentLauncher from 'expo-intent-launcher';
 import { Platform } from 'react-native';
 
 // Hardcoded to match app.json — update when bumping version
-export const APP_VERSION = '2.9.4';
+export const APP_VERSION = '2.9.5';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
@@ -107,17 +107,21 @@ export async function downloadAndInstallApk(
             fileUri,
             {},
             (downloadProgress) => {
-                const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+                const expected = downloadProgress.totalBytesExpectedToWrite || 0;
+                const progress = expected > 0
+                    ? downloadProgress.totalBytesWritten / expected
+                    : 0;
                 if (onProgress) onProgress(progress);
             }
         );
 
         const result = await downloadResumable.downloadAsync();
         if (!result) return false;
+        const contentUri = await FileSystem.getContentUriAsync(result.uri);
 
         // Trigger Android Native Package Installer
         await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-            data: result.uri,
+            data: contentUri,
             flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
             type: 'application/vnd.android.package-archive',
         });
