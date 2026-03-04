@@ -52,12 +52,15 @@ import { useAiStore } from '../store/aiStore';
 import { log } from '../utils/Logger';
 
 SplashScreen.preventAutoHideAsync().catch(() => { });
-SystemUI.setBackgroundColorAsync('#171513').catch(() => { });
 
-Sentry.init({
-  dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",
-  debug: __DEV__,
-});
+try {
+  Sentry.init({
+    dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",
+    debug: __DEV__,
+  });
+} catch {
+  // Guard startup in case Sentry native init fails on specific builds.
+}
 
 export function RootLayout() {
   const { themeId, nightMode, amoledMode } = useSettingsStore();
@@ -111,7 +114,7 @@ export function RootLayout() {
 
   useEffect(() => {
     // Fix the 1ms white-flash on resume and keep root window tracking active theme
-    SystemUI.setBackgroundColorAsync(finalBgColor);
+    SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => { });
   }, [finalBgColor]);
 
   const navTheme = {
