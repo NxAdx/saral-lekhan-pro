@@ -50,3 +50,11 @@ Next actions (Future Roadmap):
 1. Prepare Google Play Store submission assets.
 2. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
 3. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
+
+## Phase 18: Post-v2.9.9 Stabilization (March 2026)
+- [x] Capture startup loop regression and restore stable baseline startup layout.
+- [x] Document Google Sign-In mismatch runbook in `docs/ERRORS-LOGS.md` and CI guide.
+- [x] Add release notes for `v2.9.9`.
+- [x] Verify repository Actions permission is `Read and write` and confirm release publish succeeds on next tag.
+- [x] Re-validate Google Sign-In on clean install after refreshing Firebase SHA + `google-services.json` secret.
+- [ ] Re-test in-app updater against a real published GitHub release (v2.9.9).
