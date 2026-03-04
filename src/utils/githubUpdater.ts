@@ -3,7 +3,7 @@ import * as IntentLauncher from 'expo-intent-launcher';
 import { Platform } from 'react-native';
 
 // Hardcoded to match app.json — update when bumping version
-export const APP_VERSION = '2.9.8';
+export const APP_VERSION = '2.9.9';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';

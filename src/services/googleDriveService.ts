@@ -9,6 +9,13 @@ const WEB_CLIENT_ID = "871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.google
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
 const APP_PACKAGE = 'com.sarallekhan';
 
+interface ParsedGoogleApiError {
+    code?: number;
+    message?: string;
+    reason?: string;
+    projectNumber?: string;
+}
+
 function isDeveloperConfigError(error: any): boolean {
     const rawCode = error?.code;
     const normalizedCode = String(rawCode ?? '').toUpperCase();
@@ -44,6 +51,60 @@ function mapGoogleSignInError(error: any): Error {
     return error instanceof Error
         ? error
         : new Error(error?.message || "Google Sign-In failed unexpectedly.");
+}
+
+function parseGoogleApiErrorPayload(raw: string): ParsedGoogleApiError {
+    try {
+        const payload = JSON.parse(raw);
+        const err = payload?.error || {};
+        const reason = err?.errors?.[0]?.reason || err?.details?.[0]?.reason;
+        const containerInfo = err?.details?.[0]?.metadata?.containerInfo || err?.details?.[0]?.metadata?.consumer;
+
+        let projectNumber: string | undefined;
+        if (typeof containerInfo === 'string') {
+            const match = containerInfo.match(/projects\/(\d+)/);
+            if (match) projectNumber = match[1];
+        }
+
+        return {
+            code: err?.code,
+            message: err?.message,
+            reason,
+            projectNumber,
+        };
+    } catch {
+        return {};
+    }
+}
+
+function mapDriveApiError(status: number, raw: string, fallbackMessage: string): Error {
+    const parsed = parseGoogleApiErrorPayload(raw);
+    const reason = String(parsed.reason || '').toLowerCase();
+    const message = String(parsed.message || '').toLowerCase();
+
+    if (status === 401) {
+        return new Error("Session expired. Please sign in again.");
+    }
+
+    const isApiDisabled = status === 403 && (
+        reason.includes('accessnotconfigured') ||
+        reason.includes('service_disabled') ||
+        message.includes('has not been used') ||
+        message.includes('is disabled')
+    );
+
+    if (isApiDisabled) {
+        const projectHint = parsed.projectNumber ? ` (project ${parsed.projectNumber})` : '';
+        return new Error(
+            `Google Drive API is disabled${projectHint}. Enable it in Google Cloud Console, wait a few minutes, then retry.`
+        );
+    }
+
+    if (parsed.message) {
+        return new Error(parsed.message);
+    }
+
+    return new Error(`${fallbackMessage} (${status})`);
 }
 
 try {
@@ -121,6 +182,12 @@ export class GoogleDriveService {
             const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw mapDriveApiError(res.status, errorText, "Drive query failed");
+            }
+
             const data = await res.json();
             if (data.files && data.files.length > 0) {
                 return data.files[0].id;
@@ -128,7 +195,7 @@ export class GoogleDriveService {
             return null;
         } catch (e) {
             console.warn("Failed to check for existing backup", e);
-            return null;
+            throw e;
         }
     }
 
@@ -185,8 +252,9 @@ export class GoogleDriveService {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                Sentry.captureMessage(`Drive upload failed: ${response.status}`, { level: 'error', extra: { errorText } });
-                throw new Error(`Drive upload failed: ${errorText}`);
+                const mappedError = mapDriveApiError(response.status, errorText, "Drive upload failed");
+                Sentry.captureMessage(`Drive upload failed: ${response.status}`, { level: 'error', extra: { errorText, mappedMessage: mappedError.message } });
+                throw mappedError;
             }
 
             Sentry.addBreadcrumb({ category: 'sync', message: 'Backup successful', level: 'info' });
@@ -220,7 +288,13 @@ export class GoogleDriveService {
 
             if (status !== 200) {
                 Sentry.captureMessage(`Restore download failed: ${status}`, { level: 'error' });
-                throw new Error("Download corrupted or failed.");
+                if (status === 401) {
+                    throw new Error("Session expired. Please sign in again.");
+                }
+                if (status === 403) {
+                    throw new Error("Google Drive access denied. Enable Drive API and sign in again.");
+                }
+                throw new Error(`Restore download failed with status ${status}.`);
             }
 
             Sentry.addBreadcrumb({ category: 'sync', message: 'Restore successful', level: 'info' });
