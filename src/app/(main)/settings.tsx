@@ -145,21 +145,39 @@ export default function SettingsScreen() {
     const handleGoogleLogin = async () => {
         try {
             const { accessToken, email } = await GoogleDriveService.signIn();
-            sync.setGoogleTokens(accessToken, email);
+            await sync.setGoogleTokens(accessToken, email);
         } catch (e: any) {
             setSyncAlert({ visible: true, title: "Login Failed", sub: e.message || "Could not authenticate with Google." });
         }
     };
 
+    const getAuthenticatedToken = async () => {
+        try {
+            const accessToken = await GoogleDriveService.getFreshToken();
+            return { accessToken, email: sync.googleEmail || '' };
+        } catch (e: any) {
+            const msg = String(e?.message || '').toLowerCase();
+            const shouldReauth =
+                msg.includes('session expired') ||
+                msg.includes('sign in') ||
+                msg.includes('sign-in');
+
+            if (!shouldReauth) throw e;
+
+            // Fallback: do one explicit native sign-in and continue.
+            const freshSession = await GoogleDriveService.signIn();
+            await sync.setGoogleTokens(freshSession.accessToken, freshSession.email);
+            return freshSession;
+        }
+    };
+
     const handleBackup = async () => {
-        if (!sync.googleToken) return;
         sync.setIsSyncing(true);
         try {
-            // Refresh the token before every API call to avoid 401 errors
-            const freshToken = await GoogleDriveService.getFreshToken();
-            sync.setGoogleTokens(freshToken, sync.googleEmail || '');
-            await GoogleDriveService.backupDatabase(freshToken);
-            sync.setLastSync(Date.now());
+            const { accessToken, email } = await getAuthenticatedToken();
+            await sync.setGoogleTokens(accessToken, email || sync.googleEmail || '');
+            await GoogleDriveService.backupDatabase(accessToken);
+            await sync.setLastSync(Date.now());
             setSyncAlert({ visible: true, title: "Backup Complete", sub: "Your notes were safely uploaded to Google Drive." });
         } catch (e: any) {
             setSyncAlert({ visible: true, title: "Backup Failed", sub: e.message || "An error occurred during upload." });
@@ -169,16 +187,14 @@ export default function SettingsScreen() {
     };
 
     const handleRestore = async () => {
-        if (!sync.googleToken) return;
         sync.setIsSyncing(true);
         try {
-            // Refresh the token before every API call to avoid 401 errors
-            const freshToken = await GoogleDriveService.getFreshToken();
-            sync.setGoogleTokens(freshToken, sync.googleEmail || '');
-            await GoogleDriveService.restoreDatabase(freshToken);
+            const { accessToken, email } = await getAuthenticatedToken();
+            await sync.setGoogleTokens(accessToken, email || sync.googleEmail || '');
+            await GoogleDriveService.restoreDatabase(accessToken);
             // Sequence: Reset DB -> Refresh Settings (if any changed) -> Notify
             notes.resetDB();
-            sync.setLastSync(Date.now());
+            await sync.setLastSync(Date.now());
             setSyncAlert({ visible: true, title: loc.plusFeatures.syncRestore, sub: loc.plusFeatures.syncRestore });
         } catch (e: any) {
             setSyncAlert({ visible: true, title: "Restore Failed", sub: e.message || "An error occurred during download." });
@@ -360,8 +376,8 @@ export default function SettingsScreen() {
                         padding: 16,
                         backgroundColor: colors.bgRaised,
                         borderRadius: theme.radius.lg,
-                        borderWidth: 2,
-                        borderColor: '#22C55E'
+                        borderWidth: 1,
+                        borderColor: colors.strokeDim
                     }}
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -389,14 +405,14 @@ export default function SettingsScreen() {
                                 onPress={() => handleCheckUpdate(true)}
                                 style={{
                                     backgroundColor: colors.bgRaised,
-                                    borderWidth: 1.5,
-                                    borderColor: '#22C55E',
+                                    borderWidth: 1,
+                                    borderColor: colors.strokeDim,
                                     paddingHorizontal: 16,
                                     paddingVertical: 8,
                                     borderRadius: theme.radius.sm
                                 }}
                             >
-                                <Text style={{ color: '#15803D', fontFamily: font.sansSemi, fontSize: 13 }}>
+                                <Text style={{ color: colors.ink, fontFamily: font.sansSemi, fontSize: 13 }}>
                                     Check for Updates
                                 </Text>
                             </Pressable>

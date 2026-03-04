@@ -64,13 +64,32 @@ export class GoogleDriveService {
      */
     static async getFreshToken(): Promise<string> {
         try {
-            // silentSignIn refreshes the session without showing UI
+            // Fast path: if a token is already available, use it directly.
+            const directTokens = await GoogleSignin.getTokens();
+            if (directTokens?.accessToken) {
+                return directTokens.accessToken;
+            }
+        } catch {
+            // Fall through to silent refresh logic.
+        }
+
+        try {
+            const hasPrevious = await GoogleSignin.hasPreviousSignIn();
+            if (!hasPrevious) {
+                throw new Error("Session expired. Please sign in again.");
+            }
+
             await GoogleSignin.signInSilently();
-            const tokens = await GoogleSignin.getTokens();
-            return tokens.accessToken;
-        } catch (error) {
-            // If silent sign-in fails, the user needs to re-authenticate
-            throw new Error("Session expired. Please sign in again.");
+            const refreshedTokens = await GoogleSignin.getTokens();
+            if (!refreshedTokens?.accessToken) {
+                throw new Error("Session expired. Please sign in again.");
+            }
+            return refreshedTokens.accessToken;
+        } catch (error: any) {
+            if (error?.code === (statusCodes as any).SIGN_IN_REQUIRED) {
+                throw new Error("Session expired. Please sign in again.");
+            }
+            throw mapGoogleSignInError(error);
         }
     }
 
