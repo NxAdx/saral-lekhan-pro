@@ -138,25 +138,29 @@ export async function downloadAndInstallApk(
         if (!result) return false;
         const contentUri = await FileSystem.getContentUriAsync(result.uri);
 
-        // Trigger Android Native Package Installer
-        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        // Trigger Android Native Package Installer (Fire and forget, do not await)
+        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
             data: contentUri,
             // FLAG_GRANT_READ_URI_PERMISSION | FLAG_ACTIVITY_NEW_TASK
             flags: 268435457,
             type: 'application/vnd.android.package-archive',
+        }).catch(async (intentError) => {
+            console.error("Intent Error:", intentError);
+            // Fallback: open installer permission settings and then release URL in browser.
+            try {
+                await IntentLauncher.startActivityAsync('android.settings.MANAGE_UNKNOWN_APP_SOURCES', {
+                    data: `package:${APP_PACKAGE}`,
+                });
+            } catch {
+                // No-op
+            }
+            Linking.openURL(downloadUrl).catch(() => {});
         });
 
+        // Resolve immediately so UI is not stuck at "Downloading 100%"
         return true;
     } catch (e) {
         console.error("Install App Error:", e);
-        // Fallback: open installer permission settings and then release URL in browser.
-        try {
-            await IntentLauncher.startActivityAsync('android.settings.MANAGE_UNKNOWN_APP_SOURCES', {
-                data: `package:${APP_PACKAGE}`,
-            });
-        } catch {
-            // No-op; continue fallback.
-        }
         try {
             await Linking.openURL(downloadUrl);
             return true;
