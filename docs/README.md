@@ -9,10 +9,11 @@ Files in this folder:
 - ERRORS-LOGS.md - Important errors, root causes, and fixes (including Google Sign-In mismatch and GitHub Release 403).
 - TASKS.md - Current task checklist and next actions.
 - MASTER-PROJECT-DOCUMENTATION.md - Canonical architecture and implementation context for agents.
-- RELEASES/ - Version-wise release notes (latest: `RELEASES/v2.9.9.md`).
+- RELEASES/ - Version-wise release notes (latest: `RELEASES/v2.10.1.md`).
 
 Recommended reading order for fast context restore:
-1. `MASTER-PROJECT-DOCUMENTATION.md`
-2. `RELEASES/v2.9.9.md`
-3. `ERRORS-LOGS.md`
-4. `CI-CD-GUIDE.md`
+- Master Project Documentation: `MASTER-PROJECT-DOCUMENTATION.md`
+- Latest Release Notes: `RELEASES/v2.10.1.md`
+- Error Logs & Fixes: `ERRORS-LOGS.md`
+- CI/CD Release Guide: `CI-CD-GUIDE.md`
+- Current Task Checklist: `TASKS.md`

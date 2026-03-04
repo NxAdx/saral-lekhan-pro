@@ -154,3 +154,11 @@ Notes
   1. Register SHA-1 and SHA-256 for every signing path you use (release, debug, and Play App Signing if distributed through Play).
   2. Download fresh `google-services.json` and update local file + `GOOGLE_SERVICES_JSON` secret.
   3. Uninstall app, remove old Google third-party access grant, reinstall latest signed APK, sign in again.
+
+25) Hidden keystore vs google-services mismatch in CI
+- Symptom: Firebase appears to have correct fingerprints, but release APK still throws `DEVELOPER_ERROR` on some devices.
+- Cause: CI secret `GOOGLE_SERVICES_JSON` can become stale and not match the exact keystore that signed the artifact, even when local files look correct.
+- Resolution:
+  1. CI now validates `APP_PACKAGE` and `WEB_CLIENT_ID` from `src/services/googleDriveService.ts` against injected `GOOGLE_SERVICES_JSON`.
+  2. CI now compares normalized release keystore SHA-1 to Android OAuth `certificate_hash` in injected `google-services.json`.
+  3. Build fails early if mismatch is detected, preventing broken auth artifacts from being published.

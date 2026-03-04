@@ -38,11 +38,14 @@ jobs:
       - name: 5. Secure Secrets Injection
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         run: |
           # Validate google-services secret before writing file to avoid broken OAuth builds.
           python3 - <<'PY'
           import json
           import os
+          import re
 
           payload = json.loads(os.environ["GOOGLE_SERVICES_JSON"])
           client = payload["client"][0]
@@ -54,6 +57,31 @@ jobs:
           has_web_client = any(item.get("client_type") == 3 for item in oauth_clients)
           if not has_web_client:
               raise SystemExit("GOOGLE_SERVICES_JSON is missing OAuth web client (client_type=3).")
+
+          # Validate app code constants against injected google-services payload.
+          with open("src/services/googleDriveService.ts", "r", encoding="utf-8") as f:
+              service_ts = f.read()
+
+          web_match = re.search(r'WEB_CLIENT_ID\s*=\s*"([^"]+)"', service_ts)
+          if not web_match:
+              raise SystemExit("Could not find WEB_CLIENT_ID in src/services/googleDriveService.ts")
+          code_web_client = web_match.group(1)
+
+          pkg_match = re.search(r"APP_PACKAGE\s*=\s*['\"]([^'\"]+)['\"]", service_ts)
+          if not pkg_match:
+              raise SystemExit("Could not find APP_PACKAGE in src/services/googleDriveService.ts")
+          code_package = pkg_match.group(1)
+
+          if code_package != package_name:
+              raise SystemExit(
+                  f"APP_PACKAGE mismatch: code={code_package}, google-services={package_name}"
+              )
+
+          web_client_ids = [c.get("client_id") for c in oauth_clients if c.get("client_type") == 3]
+          if code_web_client not in web_client_ids:
+              raise SystemExit(
+                  "WEB_CLIENT_ID in googleDriveService.ts is not present in GOOGLE_SERVICES_JSON"
+              )
           print("google-services.json validation passed.")
           PY
 
@@ -62,6 +90,53 @@ jobs:
           
           # Decode Base64 Keystore into binary file
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
+          # Verify that release keystore SHA-1 matches Android OAuth SHA-1 in injected google-services.json
+          RELEASE_SHA1=$(keytool -list -v -keystore android/app/release.keystore -alias "$ANDROID_KEY_ALIAS" -storepass "$ANDROID_STORE_PASSWORD" | sed -n 's/.*SHA1: //p' | head -n1 | tr '[:upper:]' '[:lower:]' | tr -d ':')
+          if [ -z "$RELEASE_SHA1" ]; then
+            echo "Failed to read release keystore SHA-1."
+            exit 1
+          fi
+
+          GS_SHA1_LIST=$(python3 - <<'PY'
+          import json
+          package = "com.sarallekhan"
+          with open("android/app/google-services.json", "r", encoding="utf-8") as f:
+              payload = json.load(f)
+          hashes = []
+          for client in payload.get("client", []):
+              pkg = (
+                  client.get("client_info", {})
+                  .get("android_client_info", {})
+                  .get("package_name")
+              )
+              if pkg != package:
+                  continue
+              for oauth in client.get("oauth_client", []):
+                  if oauth.get("client_type") != 1:
+                      continue
+                  h = oauth.get("android_info", {}).get("certificate_hash")
+                  if h:
+                      hashes.append(h.lower())
+          print("\n".join(sorted(set(hashes))))
+          PY
+          )
+
+          if [ -z "$GS_SHA1_LIST" ]; then
+            echo "No Android OAuth SHA-1 hash found in google-services.json for package com.sarallekhan."
+            exit 1
+          fi
+
+          echo "Release keystore SHA-1 (normalized): $RELEASE_SHA1"
+          echo "google-services Android OAuth SHA-1 values:"
+          echo "$GS_SHA1_LIST"
+
+          if ! echo "$GS_SHA1_LIST" | grep -qx "$RELEASE_SHA1"; then
+            echo "SHA-1 mismatch: release keystore fingerprint is not registered in google-services.json."
+            echo "Update Firebase fingerprints and refresh GOOGLE_SERVICES_JSON secret."
+            exit 1
+          fi
+          echo "Release keystore SHA-1 matches google-services Android OAuth config."
           
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android

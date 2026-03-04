@@ -10,6 +10,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.10.1",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "Updater fixed: Android installer now launches without hanging at 100%.",
+                "Added install permission support for Android package installer flow.",
+                "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
+                "Google Sign-In stability improved for production release builds."
+            ],
+            hi: [
+                "Updater fixed: Android installer now launches without hanging at 100%.",
+                "Added install permission support for Android package installer flow.",
+                "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
+                "Google Sign-In stability improved for production release builds."
+            ],
+            mr: [
+                "Updater fixed: Android installer now launches without hanging at 100%.",
+                "Added install permission support for Android package installer flow.",
+                "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
+                "Google Sign-In stability improved for production release builds."
+            ]
+        }
+    },
+    {
         version: "2.10.0",
         date: "2026-03-04",
         changes: {

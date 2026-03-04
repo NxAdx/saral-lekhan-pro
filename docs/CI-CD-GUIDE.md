@@ -108,6 +108,9 @@ You have uploaded the code and locked the secrets in the vault. The cloud builde
 The production workflow was hardened to avoid auth regressions:
 - It now builds from committed native Android files directly (no `expo prebuild --clean` in production CI).
 - It validates `GOOGLE_SERVICES_JSON` before build (must include package `com.sarallekhan` and an OAuth Web client entry).
+- It now validates that:
+  - `APP_PACKAGE` and `WEB_CLIENT_ID` in `src/services/googleDriveService.ts` match injected `GOOGLE_SERVICES_JSON`.
+  - Release keystore SHA-1 matches Android OAuth SHA-1 inside `google-services.json`.
 - Release signing is consumed from secrets via `MYAPP_UPLOAD_*`, so production artifacts use your release keystore fingerprints.
 
 ## Phase 5: Google Sign-In & Production Go-Live
@@ -115,12 +118,14 @@ The production workflow was hardened to avoid auth regressions:
 If you see a `DEVELOPER_ERROR` or `Error 10`, it means Firebase/GCP still does not trust the signing fingerprints used by the current release artifact. Follow these steps to link them.
 
 ### Step 9: Register your Release Fingerprints
-1. **Read the exact fingerprint from the current workflow run logs** (the build prints release keystore SHA values right before Gradle build starts).
+1. **Read BOTH fingerprints from the current workflow run logs** (the build prints both SHA-1 and SHA-256 values right before Gradle build starts).
 2. Go to the [Firebase Console](https://console.firebase.google.com).
 3. Open your project -> **Project settings** -> **General** tab.
 4. Scroll to "Your apps" (com.sarallekhan) and click **Add fingerprint**.
-5. Paste the **SHA-1** string and click Save. Repeat for **SHA-256**.
-6. (Optional but Recommended): Re-download `google-services.json` and update your GitHub Secret if the fingerprints change the file contents.
+5. Paste the **SHA-1** string and click Save. 
+6. Click **Add fingerprint** again, paste the **SHA-256** string and click Save.
+    - **Note:** SHA-256 is increasingly required by modern Google Sign-In and Play Integrity; missing it often allows login on some phones but fails on others with `Error 10`.
+7. (Optional but Recommended): Re-download `google-services.json` and update your GitHub Secret if the fingerprints change the file contents.
 
 #### If app shows: "Google Sign-In config mismatch for package com.sarallekhan"
 This means the installed APK signature does not match Firebase OAuth fingerprints.

@@ -59,9 +59,23 @@ Next actions (Future Roadmap):
 - [x] Re-validate Google Sign-In on clean install after refreshing Firebase SHA + `google-services.json` secret.
 - [x] Re-test in-app updater against a real published GitHub release (v2.9.9).
 
-## Phase 19: Loading Screen Fix + Final Build (v2.9.10)
-- [x] Root-cause stuck loading screen: `initDB()` and `loadNotes()` error paths in `notesStore.ts` never set `isLoaded = true`.
-- [x] Fix all three error callbacks to always set `isLoaded: true`.
-- [x] Bump version to 2.9.10 (versionCode 41).
-- [x] Document error #25 in ERRORS-LOGS.md.
-- [ ] User verification on fresh install.
+- **Phase 19: Loading Screen Fix (v2.9.10)**: Fixed stuck loading screen by ensuring `isLoaded` always sets to true. Documented Error #25.
+- **Phase 14 (Auth Hardening Final)**: Verified release SHA-1 matches Firebase config.
+- **Phase 20: Instant Launch Optimization (v2.10.0)**: Moved DB initialization to `_layout.tsx`. Eliminated pulsing gray skeleton for an instant-render experience.
+- **Phase 21: Updater & Auth Polish (v2.10.1)**: 
+    - Fixed 100% updater hang via fire-and-forget intents.
+    - Added `REQUEST_INSTALL_PACKAGES` permission for Android 11+.
+    - Updated CI to print SHA-256 fingerprints needed for full Google Auth stability.
+- **Phase 22: Auth Drift Guard (CI)**:
+    - Added CI validation to ensure `APP_PACKAGE` and `WEB_CLIENT_ID` in code match injected `GOOGLE_SERVICES_JSON`.
+    - Added CI SHA-1 congruence check between release keystore and Android OAuth `certificate_hash` in injected `google-services.json`.
+    - Build now fails early on config drift so broken Google Sign-In artifacts are not published.
+
+In progress:
+- None. (Project is in "Maintenance Mode" awaiting Play Store approval).
+
+Next actions (Future Roadmap):
+1. Prepare Google Play Store submission assets.
+2. Monitor user feedback on Devanagari font rendering (Noto Sans vs Hind vs Mukta).
+3. Connect Weblate/Crowdin to open-source the `src/i18n/locales/*.json` files for community translation.
+4. Implement the New Editor feature (Markdown Shortcuts/Toolbar enhancements).

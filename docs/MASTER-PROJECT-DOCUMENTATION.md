@@ -2,14 +2,15 @@
 
 > **Important for AI Agents**: This document provides the complete context, architecture, design philosophy, and technical implementation details of the Saral Lekhan app. Read this first to understand the project deeply.
 
-> **Hotfix Addendum (2026-03-04)**:
-> - Release signing now uses dedicated release keystore inputs in `android/app/build.gradle` (no debug-signing fallback for production artifacts).
-> - Production GitHub workflow now validates `GOOGLE_SERVICES_JSON` and no longer runs `expo prebuild --clean`.
-> - Startup background is unified to `#171513` across Expo splash and Android native resources to reduce cold-boot white flash.
-> - Updater version logic and Settings updater UI were refined (semantic comparison + green visual polish).
-> - Startup loading-loop regressions were rolled back to a stable baseline (`d3057e4`, `d8912b6`).
-> - Release publish failures with `Resource not accessible by integration` are tracked as Actions permission issues (repo setting + workflow permission must both allow write).
-> - Current production auth context: package `com.sarallekhan`, web client `871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.googleusercontent.com`.
+> **Handoff Addendum (v2.10.1 - 2026-03-04)**:
+> - **Instant Launch Optimized**: Database initialization moved to `_layout.tsx` (concurrent with splash/fonts). Home renders instantly without the `HomeSkeleton` overlay.
+> - **Updater Hang Fixed**: `githubUpdater.ts` now uses fire-and-forget intents and the `REQUEST_INSTALL_PACKAGES` permission to prevent the "Stuck at 100%" bug on Android 11+.
+> - **Auth Hardened**: GitHub CI now prints both **SHA-1 and SHA-256** fingerprints. Both must be registered in Firebase to prevent `DEVELOPER_ERROR` in production builds.
+> - **Version State**: Mainline is at **v2.10.1** (versionCode 43).
+
+> **Hotfix Addendum (v2.9.9/v2.10.0)**:
+> - Release signing now uses dedicated release keystore inputs in `android/app/build.gradle`.
+> - Production GitHub workflow validates `GOOGLE_SERVICES_JSON` and no longer runs `expo prebuild --clean`.
 
 ## 1. Project Overview & Idea
 **सरल लेखन (Saral Lekhan)** is a premium, tactile notes application designed primarily for Hindi (Devanagari) writers.
@@ -140,4 +141,4 @@ cd android
 - **Database**: When modifying the data model, update both `src/db/schema.ts` and the `notesStore.ts`.
 
 ---
-*Generated: 2026-03-04 | Version 2.9.9 (Audited & Hardened)*
+*Generated: 2026-03-04 | Version 2.10.1 (Production Ready & Optimized)*
