@@ -133,15 +133,24 @@ export default function SettingsScreen() {
                     title: "Update Failed",
                     sub: "Could not download or open installer. Check install permissions and try again."
                 });
-                setIsDownloadingUpdate(false);
+                return;
             }
-            // If success, the OS takes over and installs it, closing the app inherently.
+
+            // Installation intent was triggered. Clear spinner state even if OS installer
+            // does not foreground immediately on some OEM Android builds.
+            setDownloadProgress(1);
+            setSyncAlert({
+                visible: true,
+                title: "Installer Started",
+                sub: "If install prompt does not appear, allow 'Install unknown apps' for this app and tap Update Now again."
+            });
         } catch (e: any) {
             setSyncAlert({
                 visible: true,
                 title: "Update Failed",
                 sub: e?.message || "Something went wrong while preparing the installer."
             });
+        } finally {
             setIsDownloadingUpdate(false);
         }
     };
