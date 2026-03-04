@@ -44,7 +44,8 @@ function mapGoogleSignInError(error: any): Error {
     if (isDeveloperConfigError(error)) {
         return new Error(
             `Google Sign-In config mismatch for package ${APP_PACKAGE}. ` +
-            `Register this APK signing SHA-1/SHA-256 in Firebase and refresh google-services.json.`
+            `Register this APK signing SHA-1/SHA-256 in Firebase and refresh google-services.json. ` +
+            `Most common cause: this APK is signed with a different key (debug vs release).`
         );
     }
 

@@ -122,6 +122,25 @@ If you see a `DEVELOPER_ERROR` or `Error 10`, it means Firebase/GCP still does n
 5. Paste the **SHA-1** string and click Save. Repeat for **SHA-256**.
 6. (Optional but Recommended): Re-download `google-services.json` and update your GitHub Secret if the fingerprints change the file contents.
 
+#### If app shows: "Google Sign-In config mismatch for package com.sarallekhan"
+This means the installed APK signature does not match Firebase OAuth fingerprints.
+
+Use the same keystore that signed the APK and register BOTH SHA-1 and SHA-256:
+
+```powershell
+# Release keystore fingerprints
+keytool -list -v -keystore release.keystore -alias androidreleasekey
+
+# Debug keystore fingerprints (for local debug/dev builds)
+keytool -list -v -keystore "$env:USERPROFILE\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
+```
+
+Then:
+1. Add missing fingerprints in Firebase Android app `com.sarallekhan`.
+2. Download fresh `google-services.json`.
+3. Replace CI secret `GOOGLE_SERVICES_JSON` (and local file if building locally).
+4. Remove old app OAuth grant from Google Account -> Security -> Third-party access, then sign in again.
+
 ### Step 10: Switch to Production Mode (GCP)
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials/consent).
 2. Ensure you have the **Saral Lekhan** project selected at the top.

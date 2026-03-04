@@ -110,3 +110,13 @@ Notes
 - Symptom: On cold launch, app shows a brief white frame before themed UI renders.
 - Cause: Startup backgrounds were not unified between Expo splash config, Android `AppTheme`, and light/night native color resources.
 - Resolution: Forced `#171513` across `app.json` splash, Android `values` + `values-night`, `AppTheme android:windowBackground`, and early `SystemUI.setBackgroundColorAsync()` call.
+
+20) "Login Failed: Google Sign-In config mismatch for package com.sarallekhan"
+- Symptom: Settings -> Google Drive Sync -> "Sign in with Google" shows a modal saying config mismatch and asks for SHA-1/SHA-256 registration.
+- Cause: Installed APK is signed with a certificate that is not registered in Firebase for Android app `com.sarallekhan` (usually debug-vs-release key mismatch, or old `google-services.json`).
+- Resolution:
+  1. Extract SHA-1 and SHA-256 from the keystore that signed the installed APK.
+  2. Add both fingerprints in Firebase -> Project Settings -> Android app `com.sarallekhan`.
+  3. Download a fresh `google-services.json` and update local file + CI secret.
+  4. Remove old OAuth grant from Google Account -> Security -> Third-party access.
+  5. Reinstall APK and sign in again.
