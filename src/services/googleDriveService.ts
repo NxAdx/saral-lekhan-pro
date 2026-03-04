@@ -7,11 +7,51 @@ import * as Sentry from '@sentry/react-native';
 // Without a Web Client ID, Google will give you a 401 Unauthorized error when accessing Google Drive API.
 const WEB_CLIENT_ID = "871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.googleusercontent.com";
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
+const APP_PACKAGE = 'com.sarallekhan';
+
+function isDeveloperConfigError(error: any): boolean {
+    const rawCode = error?.code;
+    const normalizedCode = String(rawCode ?? '').toUpperCase();
+    const normalizedMessage = String(error?.message ?? '').toUpperCase();
+    const developerStatusCode = (statusCodes as any).DEVELOPER_ERROR;
+
+    return (
+        rawCode === developerStatusCode ||
+        rawCode === 10 ||
+        normalizedCode === 'DEVELOPER_ERROR' ||
+        normalizedCode === '10' ||
+        normalizedMessage.includes('DEVELOPER_ERROR')
+    );
+}
+
+function mapGoogleSignInError(error: any): Error {
+    if (error?.code === statusCodes.SIGN_IN_CANCELLED) {
+        return new Error("User cancelled the login flow");
+    }
+    if (error?.code === statusCodes.IN_PROGRESS) {
+        return new Error("Sign in is in progress already");
+    }
+    if (error?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        return new Error("Google Play Services not available or outdated");
+    }
+    if (isDeveloperConfigError(error)) {
+        return new Error(
+            `Google Sign-In config mismatch for package ${APP_PACKAGE}. ` +
+            `Register this APK signing SHA-1/SHA-256 in Firebase and refresh google-services.json.`
+        );
+    }
+
+    return error instanceof Error
+        ? error
+        : new Error(error?.message || "Google Sign-In failed unexpectedly.");
+}
 
 try {
     GoogleSignin.configure({
         scopes: SCOPES,
         webClientId: WEB_CLIENT_ID,
+        offlineAccess: true,
+        forceCodeForRefreshToken: true,
     });
 } catch (e) {
     console.warn("Google Sign-in not available in this environment:", e);
@@ -43,15 +83,7 @@ export class GoogleDriveService {
             const email = userInfo.data?.user?.email || userInfo.user?.email || 'Unknown';
             return { accessToken: tokens.accessToken, email };
         } catch (error: any) {
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                throw new Error("User cancelled the login flow");
-            } else if (error.code === statusCodes.IN_PROGRESS) {
-                throw new Error("Sign in is in progress already");
-            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                throw new Error("Google Play Services not available or outdated");
-            } else {
-                throw error;
-            }
+            throw mapGoogleSignInError(error);
         }
     }
 

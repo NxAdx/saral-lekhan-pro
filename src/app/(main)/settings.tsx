@@ -21,10 +21,7 @@ import { log } from '../../utils/Logger';
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
-
-// Hardcoded to match app.json — update this when bumping version
-const APP_VERSION = '2.9.4-HOTFIX-GREEN';
+import { APP_VERSION, checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -344,7 +341,16 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
                 {/* APP UPDATER */}
-                <View style={{ marginBottom: 24, padding: 16, backgroundColor: colors.bgRaised, borderRadius: theme.radius.lg, borderWidth: 4, borderColor: '#00FF00' }}>
+                <View
+                    style={{
+                        marginBottom: 24,
+                        padding: 16,
+                        backgroundColor: colors.bgRaised,
+                        borderRadius: theme.radius.lg,
+                        borderWidth: 2,
+                        borderColor: '#22C55E'
+                    }}
+                >
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flex: 1 }}>
                             <Text style={s.listLabel}>App Version</Text>
@@ -370,14 +376,14 @@ export default function SettingsScreen() {
                                 onPress={() => handleCheckUpdate(true)}
                                 style={{
                                     backgroundColor: colors.bgRaised,
-                                    borderWidth: 1,
-                                    borderColor: colors.strokeDim,
+                                    borderWidth: 1.5,
+                                    borderColor: '#22C55E',
                                     paddingHorizontal: 16,
                                     paddingVertical: 8,
                                     borderRadius: theme.radius.sm
                                 }}
                             >
-                                <Text style={{ color: colors.ink, fontFamily: font.sansSemi, fontSize: 13 }}>
+                                <Text style={{ color: '#15803D', fontFamily: font.sansSemi, fontSize: 13 }}>
                                     Check for Updates
                                 </Text>
                             </Pressable>

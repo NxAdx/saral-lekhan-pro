@@ -7,5 +7,6 @@ Files in this folder:
 - IMPLEMENTATION-GUIDE.md — how to run, build, and continue development; includes commands we used.
 - ERRORS-LOGS.md — important errors, causes and resolutions encountered during setup.
 - TASKS.md — current task checklist and next actions.
+- RELEASES/ - version-wise release notes (latest: `RELEASES/v2.9.4.md`).
 
 Open these files to understand decisions, environment quirks, and the next steps for production work.

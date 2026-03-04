@@ -45,8 +45,8 @@ Notes
 
 8) Google Sign-in `DEVELOPER_ERROR` (Error 10)
 - Symptom: React Native Google Sign-in crashes instantly on button press.
-- Cause: Either the EAS Android SHA-1 fingerprint does not match the Google Cloud Console, OR the codebase inadvertently passes the Android Client ID into the `webClientId` parameter.
-- Resolution: Removed the `webClientId` parameter. Ensure the SHA-1 from `npx eas credentials -p android` exactly matches the Android Client ID in Google Cloud.
+- Cause: OAuth config mismatch. The most critical cause was release APKs being signed with debug keystore, producing SHA fingerprints that do not match Firebase OAuth for production.
+- Resolution: Keep `webClientId` set to a valid OAuth Web Client, sign release builds with release keystore credentials (`MYAPP_UPLOAD_*`), and ensure Firebase fingerprints include the release signing SHA values.
 
 9) Google Drive API `401 Unauthorized`
 - Symptom: Google login succeeds, but `fetch()` requests to `googleapis.com/drive` return 401 Unauthenticated.
@@ -94,4 +94,19 @@ Notes
 16) Missing Splash Screen Background Color
 - Symptom: `AAPT: error: resource color/splashscreen_background not found`.
 - Cause: The `splashscreen.xml` drawable references `@color/splashscreen_background`, but the `colors.xml` resource file was overwritten or missing that entry.
-- Resolution: Manually added `<color name="splashscreen_background">#ffffff</color>` to `android/app/src/main/res/values/colors.xml`.
+- Resolution: Manually added `<color name="splashscreen_background">#171513</color>` to `android/app/src/main/res/values/colors.xml` and mirrored the same value in `values-night/colors.xml`.
+
+17) Release Build Signed with Debug Keystore
+- Symptom: Google login fails with Error 10 in production despite correct package name and seemingly correct `google-services.json`.
+- Cause: `android/app/build.gradle` had `release { signingConfig signingConfigs.debug }`, so production APK used debug SHA fingerprints.
+- Resolution: Added explicit release signing config wired to `MYAPP_UPLOAD_STORE_FILE`, `MYAPP_UPLOAD_STORE_PASSWORD`, `MYAPP_UPLOAD_KEY_ALIAS`, and `MYAPP_UPLOAD_KEY_PASSWORD`.
+
+18) CI Native Files Overwritten by Clean Prebuild
+- Symptom: CI repeatedly required runtime `sed` patches and produced unstable auth/build behavior across releases.
+- Cause: Workflow used `npx expo prebuild --platform android --clean`, which regenerated `android/` and discarded committed native fixes.
+- Resolution: Removed clean prebuild from production workflow and validated `GOOGLE_SERVICES_JSON` before build.
+
+19) Fresh Startup White Screen (~1 second)
+- Symptom: On cold launch, app shows a brief white frame before themed UI renders.
+- Cause: Startup backgrounds were not unified between Expo splash config, Android `AppTheme`, and light/night native color resources.
+- Resolution: Forced `#171513` across `app.json` splash, Android `values` + `values-night`, `AppTheme android:windowBackground`, and early `SystemUI.setBackgroundColorAsync()` call.

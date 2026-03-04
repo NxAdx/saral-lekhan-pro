@@ -23,12 +23,17 @@ Completed:
 - **Phase 10 (Stability)**: Resolved `BentoCard` prop mismatch in Trash screen causing potential crashes.
 - **Phase 14 (Auth Debugging)**: Diagnosed `DEVELOPER_ERROR` via Firebase App Signing Fingerprint mismatches and GCP project mismatch. Corrected `WEB_CLIENT_ID` to correctly target the Firebase instance. Added SHA-1 printout step in GitHub CI.
 - **Phase 10 (Visual Polish)**: Extinguished the 1ms "White Flash" on app resume by permanently locking the root window background to `#171513` using `expo-system-ui`.
+- **Phase 17 (Auth Hardening)**: Fixed release signing path in `android/app/build.gradle` so release builds no longer default to debug keystore (primary root cause behind recurring `DEVELOPER_ERROR`).
+- **Phase 17 (CI Hardening)**: Updated `.github/workflows/android-build.yml` to stop `expo prebuild --clean` overwrites and added strict `GOOGLE_SERVICES_JSON` validation (`com.sarallekhan` package + OAuth Web client presence).
+- **Phase 17 (Startup Polish)**: Unified startup background to `#171513` across `app.json`, Android `values/colors.xml`, `values-night/colors.xml`, and `AppTheme` window background.
+- **Phase 17 (Updater Polish)**: Green border pass for updater card/button and centralized app version source (`src/utils/githubUpdater.ts`) with semver-safe comparison.
 
 ## Phase 15: Deep Root Edge Cases (Auth & Flashes)
 - [x] Eradicate Cold Boot White Flash via `styles.xml` CI patch
 - [x] Eradicate React Navigation white transition flashes via Theme injection
 - [x] Wrap `_layout.tsx` in `View` + `onLayoutRootView` to mask React startup frame
-- [ ] Final verification: Diagnose and eliminate the persisting `DEVELOPER_ERROR` (requires updated `GOOGLE_SERVICES_JSON` GitHub Secret)
+- [x] Root-cause fix merged for persisting `DEVELOPER_ERROR` (release signing + secret validation)
+- [ ] Final live verification on freshly signed GitHub APK
 
 ## Phase 16: In-App Updater
 - [x] Create `src/utils/githubUpdater.ts` (GitHub Releases API + APK download + intent launcher)
@@ -39,7 +44,7 @@ Completed:
 - [x] Version bumped to `2.9.4` (versionCode 35)
 
 In progress:
-- User verification of v2.9.4 APK features
+- User verification of v2.9.4 APK features and Google Sign-In on the new release-signed build
 
 Next actions (Future Roadmap):
 1. Prepare Google Play Store submission assets.

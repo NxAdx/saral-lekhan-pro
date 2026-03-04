@@ -28,34 +28,37 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: 4. Install Dependencies & Native Prebuild
+      - name: 4. Install Dependencies
         run: |
           npm ci
-          npx expo prebuild --platform android --clean
 
-      - name: 5. Secure Secrets Injection & Native Patches
+      - name: 5. Secure Secrets Injection
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          # Inject Secrets AFTER the clean prebuild
+          # Validate google-services secret before writing file to avoid broken OAuth builds.
+          python3 - <<'PY'
+          import json
+          import os
+
+          payload = json.loads(os.environ["GOOGLE_SERVICES_JSON"])
+          client = payload["client"][0]
+          package_name = client["client_info"]["android_client_info"]["package_name"]
+          if package_name != "com.sarallekhan":
+              raise SystemExit(f"Invalid package in GOOGLE_SERVICES_JSON: {package_name}")
+
+          oauth_clients = client.get("oauth_client", [])
+          has_web_client = any(item.get("client_type") == 3 for item in oauth_clients)
+          if not has_web_client:
+              raise SystemExit("GOOGLE_SERVICES_JSON is missing OAuth web client (client_type=3).")
+          print("google-services.json validation passed.")
+          PY
+
+          # Inject secrets
           cat <<< "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
           
           # Decode Base64 Keystore into binary file
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-          
-          # Patch MainApplication.java for production bundler
-          sed -i 's/return ".expo\/.virtual-metro-entry";/return "index";/' android/app/src/main/java/com/sarallekhan/MainApplication.java
-          
-          # Patch styles.xml to eliminate cold boot 5ms white flash by natively forcing the base window
-          sed -i 's/<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">/<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">\n        <item name="android:windowBackground">@color\/splashscreen_background<\/item>/' android/app/src/main/res/values/styles.xml
-          
-          # Patch android/build.gradle to enforce Java 17 compilation and add Google Services classpath
-          sed -i '/allprojects {/a \    tasks.withType(JavaCompile).configureEach {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }' android/build.gradle
-          sed -i '/dependencies {/a \        classpath("com.google.gms:google-services:4.4.1")' android/build.gradle
-          
-          # Patch android/app/build.gradle to aggressively apply the Google Services plugin at the very bottom
-          echo "" >> android/app/build.gradle
-          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android

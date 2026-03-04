@@ -3,10 +3,31 @@ import * as IntentLauncher from 'expo-intent-launcher';
 import { Platform } from 'react-native';
 
 // Hardcoded to match app.json — update when bumping version
-const APP_VERSION = '2.9.4';
+export const APP_VERSION = '2.9.4';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
+
+function parseVersionParts(version: string): number[] {
+    return version
+        .split('.')
+        .map((part) => parseInt(part, 10))
+        .map((part) => (Number.isFinite(part) ? part : 0));
+}
+
+function compareVersions(a: string, b: string): number {
+    const left = parseVersionParts(a);
+    const right = parseVersionParts(b);
+    const maxLen = Math.max(left.length, right.length);
+
+    for (let i = 0; i < maxLen; i += 1) {
+        const l = left[i] ?? 0;
+        const r = right[i] ?? 0;
+        if (l > r) return 1;
+        if (l < r) return -1;
+    }
+    return 0;
+}
 
 export interface UpdateInfo {
     hasUpdate: boolean;
@@ -41,9 +62,8 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
         const cleanLatest = latestVersionTag.replace(/^v/, '');
         const cleanCurrent = currentVersion.replace(/^v/, '');
 
-        // Quick basic comparison (Assumes standard SemVer)
-        if (cleanLatest !== cleanCurrent) {
-            // Technically this triggers on *any* difference, but assuming we only push increasing versions
+        // Compare as semantic version parts to avoid false "update available" prompts.
+        if (compareVersions(cleanLatest, cleanCurrent) > 0) {
 
             // Find the APK asset
             const apkAsset = data.assets.find((asset: any) => asset.name.endsWith('.apk'));

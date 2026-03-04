@@ -51,7 +51,8 @@ import {
 import { useAiStore } from '../store/aiStore';
 import { log } from '../utils/Logger';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => { });
+SystemUI.setBackgroundColorAsync('#171513').catch(() => { });
 
 Sentry.init({
   dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",

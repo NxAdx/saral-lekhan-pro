@@ -59,6 +59,8 @@ Google Sign-In & Native Builds
 npx eas-cli build -p android --profile production
 ```
 - **Drive REST API**: Ensure you use the **Web Application Client ID** in `webClientId` for REST access.
+- **Release Signing (Critical)**: Ensure production builds are signed with release keystore env vars (`MYAPP_UPLOAD_STORE_FILE`, `MYAPP_UPLOAD_STORE_PASSWORD`, `MYAPP_UPLOAD_KEY_ALIAS`, `MYAPP_UPLOAD_KEY_PASSWORD`). Debug-signed release artifacts can trigger Google Sign-In `DEVELOPER_ERROR`.
+- **CI Behavior (March 2026)**: Production workflow builds from committed `android/` sources directly and validates `GOOGLE_SERVICES_JSON` before Gradle starts.
 
 ## Telemetry & Production Monitoring
 - **Crash Reporting (Sentry)**: For production online builds, you must integrate `@sentry/react-native`. Sentry provides stack traces that map back to your TypeScript code rather than obfuscated Java errors.

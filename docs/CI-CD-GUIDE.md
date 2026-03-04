@@ -104,18 +104,22 @@ You have uploaded the code and locked the secrets in the vault. The cloud builde
 3. On the left side, click **Production Android Build**.
 4. On the right side of the screen, click the **Run workflow** dropdown, then click the green **Run workflow** button.
 
+### Step 8: Understand the March 2026 Workflow Hardening
+The production workflow was hardened to avoid auth regressions:
+- It now builds from committed native Android files directly (no `expo prebuild --clean` in production CI).
+- It validates `GOOGLE_SERVICES_JSON` before build (must include package `com.sarallekhan` and an OAuth Web client entry).
+- Release signing is consumed from secrets via `MYAPP_UPLOAD_*`, so production artifacts use your release keystore fingerprints.
+
 ## Phase 5: Google Sign-In & Production Go-Live
 
-If you see a `DEVELOPER_ERROR` or `Error 10`, it means your Cloud Build is using a "Signature" that Google doesn't recognize yet. Follow these steps to link them.
+If you see a `DEVELOPER_ERROR` or `Error 10`, it means Firebase/GCP still does not trust the signing fingerprints used by the current release artifact. Follow these steps to link them.
 
 ### Step 9: Register your Release Fingerprints
-1. **The Fingerprints:** Here are the unique signatures for your new `release.keystore`. You will need these in the next steps:
-   - **SHA-1:** `D1:53:DF:86:B2:FC:A9:E0:B5:F7:50:45:CE:EC:F3:92:FF:63:C7:28`
-   - **SHA-256:** `26:A8:7D:91:81:42:C0:BF:77:DA:15:CF:0A:22:1E:B2:82:76:A5:C7:8D:EA:A6:C1:5E:5F:19:8B:13:37:21:F9`
+1. **Read the exact fingerprint from the current workflow run logs** (the build prints release keystore SHA values right before Gradle build starts).
 2. Go to the [Firebase Console](https://console.firebase.google.com).
 3. Open your project -> **Project settings** -> **General** tab.
 4. Scroll to "Your apps" (com.sarallekhan) and click **Add fingerprint**.
-5. Paste the **SHA-1** string and click Save. Repeat for the **SHA-256** string.
+5. Paste the **SHA-1** string and click Save. Repeat for **SHA-256**.
 6. (Optional but Recommended): Re-download `google-services.json` and update your GitHub Secret if the fingerprints change the file contents.
 
 ### Step 10: Switch to Production Mode (GCP)

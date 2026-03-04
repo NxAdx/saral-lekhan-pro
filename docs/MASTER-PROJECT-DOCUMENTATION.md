@@ -2,6 +2,12 @@
 
 > **Important for AI Agents**: This document provides the complete context, architecture, design philosophy, and technical implementation details of the Saral Lekhan app. Read this first to understand the project deeply.
 
+> **Hotfix Addendum (2026-03-04)**:
+> - Release signing now uses dedicated release keystore inputs in `android/app/build.gradle` (no debug-signing fallback for production artifacts).
+> - Production GitHub workflow now validates `GOOGLE_SERVICES_JSON` and no longer runs `expo prebuild --clean`.
+> - Startup background is unified to `#171513` across Expo splash and Android native resources to reduce cold-boot white flash.
+> - Updater version logic and Settings updater UI were refined (semantic comparison + green visual polish).
+
 ## 1. Project Overview & Idea
 **सरल लेखन (Saral Lekhan)** is a premium, tactile notes application designed primarily for Hindi (Devanagari) writers.
 - **Goal**: To make digital writing feel physical and beautiful.
