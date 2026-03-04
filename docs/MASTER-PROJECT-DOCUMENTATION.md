@@ -8,6 +8,11 @@
 > - **Auth Hardened**: GitHub CI now prints both **SHA-1 and SHA-256** fingerprints. Both must be registered in Firebase to prevent `DEVELOPER_ERROR` in production builds.
 > - **Version State**: Mainline is at **v2.10.1** (versionCode 43).
 
+> **Post-v2.10.1 Hotfix (main - 2026-03-04)**:
+> - Added `REQUEST_INSTALL_PACKAGES` in committed native `AndroidManifest.xml` to ensure installer permission exists in CI-built APKs.
+> - Settings updater now always clears `isDownloadingUpdate` in `finally`, preventing UI from staying at "Downloading 100%".
+> - Added dedicated updater technical runbook: `docs/UPDATER-LOGIC.md`.
+
 > **Hotfix Addendum (v2.9.9/v2.10.0)**:
 > - Release signing now uses dedicated release keystore inputs in `android/app/build.gradle`.
 > - Production GitHub workflow validates `GOOGLE_SERVICES_JSON` and no longer runs `expo prebuild --clean`.

@@ -162,3 +162,13 @@ Notes
   1. CI now validates `APP_PACKAGE` and `WEB_CLIENT_ID` from `src/services/googleDriveService.ts` against injected `GOOGLE_SERVICES_JSON`.
   2. CI now compares normalized release keystore SHA-1 to Android OAuth `certificate_hash` in injected `google-services.json`.
   3. Build fails early if mismatch is detected, preventing broken auth artifacts from being published.
+
+26) In-app updater still stuck at 100% after v2.10.1
+- Symptom: Download reaches 100%, but installer prompt does not appear and button can remain in downloading state.
+- Cause:
+  1. `REQUEST_INSTALL_PACKAGES` existed in `app.json` but was missing in committed native `android/app/src/main/AndroidManifest.xml`.
+  2. Settings updater UI did not always clear `isDownloadingUpdate` after successful installer intent dispatch.
+- Resolution:
+  1. Added `<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>` to committed native manifest.
+  2. Updated updater action to always reset download state in `finally`.
+  3. Added success guidance modal (`Installer Started`) when installer is dispatched.

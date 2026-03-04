@@ -193,3 +193,9 @@ After build completes:
 4. Only then test in-app updater.
 
 Artifacts in Actions are not the same as GitHub Releases.
+
+### C) Native permission parity (important for updater)
+Because this project commits the native `android/` folder for release builds:
+1. If you add an Android permission in `app.json`, mirror it in `android/app/src/main/AndroidManifest.xml`.
+2. For updater installs, ensure `android.permission.REQUEST_INSTALL_PACKAGES` exists in the committed manifest.
+3. Otherwise update download can reach 100% without showing the installer prompt on some devices.

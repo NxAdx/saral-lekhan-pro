@@ -70,9 +70,13 @@ Next actions (Future Roadmap):
     - Added CI validation to ensure `APP_PACKAGE` and `WEB_CLIENT_ID` in code match injected `GOOGLE_SERVICES_JSON`.
     - Added CI SHA-1 congruence check between release keystore and Android OAuth `certificate_hash` in injected `google-services.json`.
     - Build now fails early on config drift so broken Google Sign-In artifacts are not published.
+- **Phase 23: Updater Reliability Hardening (v2.10.1+)**:
+    - Added `REQUEST_INSTALL_PACKAGES` to committed native `android/app/src/main/AndroidManifest.xml` for CI-built APK parity.
+    - Added guaranteed updater UI reset (`isDownloadingUpdate = false` in `finally`) in Settings update flow.
+    - Added dedicated updater architecture/troubleshooting runbook: `docs/UPDATER-LOGIC.md`.
 
 In progress:
-- None. (Project is in "Maintenance Mode" awaiting Play Store approval).
+- Build verification by user on latest updater flow and installer prompt behavior.
 
 Next actions (Future Roadmap):
 1. Prepare Google Play Store submission assets.

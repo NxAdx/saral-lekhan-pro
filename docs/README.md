@@ -6,6 +6,7 @@ Files in this folder:
 - DESIGN-SYSTEM.md - Token summary and links to source design files.
 - IMPLEMENTATION-GUIDE.md - How to run, build, and continue development.
 - CI-CD-GUIDE.md - End-to-end cloud build and release pipeline guide.
+- UPDATER-LOGIC.md - Dedicated architecture and troubleshooting runbook for in-app updates.
 - ERRORS-LOGS.md - Important errors, root causes, and fixes (including Google Sign-In mismatch and GitHub Release 403).
 - TASKS.md - Current task checklist and next actions.
 - MASTER-PROJECT-DOCUMENTATION.md - Canonical architecture and implementation context for agents.
@@ -16,4 +17,5 @@ Recommended reading order for fast context restore:
 - Latest Release Notes: `RELEASES/v2.10.1.md`
 - Error Logs & Fixes: `ERRORS-LOGS.md`
 - CI/CD Release Guide: `CI-CD-GUIDE.md`
+- Updater Logic Guide: `UPDATER-LOGIC.md`
 - Current Task Checklist: `TASKS.md`
