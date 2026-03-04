@@ -94,13 +94,17 @@ export default function SettingsScreen() {
 
     const handleCheckUpdate = async (isManual = true) => {
         setIsCheckingUpdate(true);
-        const info = await checkForUpdate();
+        const info = await checkForUpdate(isManual);
         if (info && info.hasUpdate) {
             setUpdateInfo(info);
             // We only need the Alert from the settings screen if they explicitly pressed check, 
             // since the Home screen will handle the global app-launch notification
             if (isManual) {
-                Alert.alert("Update Available", `Version ${info.version} is available. Do you want to download it now?`, [
+                const promptTitle = info.isReinstall ? "Reinstall Available" : "Update Available";
+                const promptBody = info.isReinstall
+                    ? `Version ${info.version} is already installed. Do you want to reinstall this build now?`
+                    : `Version ${info.version} is available. Do you want to download it now?`;
+                Alert.alert(promptTitle, promptBody, [
                     { text: "Later", style: "cancel" },
                     { text: "Download", onPress: handleDownloadUpdate }
                 ]);
@@ -385,7 +389,11 @@ export default function SettingsScreen() {
                             <Text style={s.listLabel}>App Version</Text>
                             <Text style={s.listSub}>
                                 Current: v{APP_VERSION}
-                                {updateInfo?.hasUpdate ? ` • Latest: v${updateInfo.version}` : ' • Up to date'}
+                                {updateInfo?.hasUpdate
+                                    ? (updateInfo.isReinstall
+                                        ? ` • Reinstall v${updateInfo.version}`
+                                        : ` • Latest: v${updateInfo.version}`)
+                                    : ' • Up to date'}
                             </Text>
                         </View>
                         {isCheckingUpdate ? (
@@ -397,7 +405,9 @@ export default function SettingsScreen() {
                                 style={{ backgroundColor: colors.accent, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm }}
                             >
                                 <Text style={{ color: colors.white, fontFamily: font.sansBold }}>
-                                    {isDownloadingUpdate ? `Downloading ${Math.round(downloadProgress * 100)}%` : 'Update Now'}
+                                    {isDownloadingUpdate
+                                        ? `Downloading ${Math.round(downloadProgress * 100)}%`
+                                        : (updateInfo?.isReinstall ? 'Reinstall' : 'Update Now')}
                                 </Text>
                             </Pressable>
                         ) : (

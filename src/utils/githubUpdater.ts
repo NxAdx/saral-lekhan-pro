@@ -1,9 +1,10 @@
 import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
-import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+import { Linking, Platform } from 'react-native';
 
-// Hardcoded to match app.json — update when bumping version
-export const APP_VERSION = '2.9.9';
+export const APP_VERSION = (Constants.expoConfig?.version || '0.0.0').replace(/^v/, '');
+const APP_PACKAGE = Constants.expoConfig?.android?.package || 'com.sarallekhan';
 
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
@@ -34,13 +35,15 @@ export interface UpdateInfo {
     version: string;
     downloadUrl: string;
     changelog: string;
+    releaseUrl: string;
+    isReinstall: boolean;
 }
 
 /**
  * Checks the public GitHub repository for the latest release.
  * Returns information about the update if the latest tag is greater than the current app version.
  */
-export async function checkForUpdate(): Promise<UpdateInfo | null> {
+export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
     try {
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`, {
             headers: {
@@ -56,31 +59,45 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
 
         const data = await response.json();
         const latestVersionTag = data.tag_name; // e.g., 'v2.9.4'
-        const currentVersion = APP_VERSION;
+        const currentVersion = APP_VERSION.replace(/^v/, '');
 
         // Strip 'v' if present for clean comparison
         const cleanLatest = latestVersionTag.replace(/^v/, '');
         const cleanCurrent = currentVersion.replace(/^v/, '');
 
         // Compare as semantic version parts to avoid false "update available" prompts.
-        if (compareVersions(cleanLatest, cleanCurrent) > 0) {
+        // Find the APK asset
+        const assets = Array.isArray(data?.assets) ? data.assets : [];
+        const apkAsset = assets.find((asset: any) => typeof asset?.name === 'string' && asset.name.endsWith('.apk'));
+        const hasApk = !!apkAsset;
+        const versionCompare = compareVersions(cleanLatest, cleanCurrent);
+        const isReinstall = allowSameVersion && versionCompare === 0 && hasApk;
+        const hasUpdate = versionCompare > 0 || isReinstall;
 
-            // Find the APK asset
-            const apkAsset = data.assets.find((asset: any) => asset.name.endsWith('.apk'));
-            if (!apkAsset) {
-                console.log('Update found but no .apk asset attached');
-                return null;
-            }
+        if (versionCompare > 0 && !hasApk) {
+            console.log('Update found but no .apk asset attached');
+            return null;
+        }
 
+        if (hasUpdate) {
             return {
                 hasUpdate: true,
                 version: cleanLatest,
-                downloadUrl: apkAsset.browser_download_url,
-                changelog: data.body
+                downloadUrl: apkAsset?.browser_download_url || '',
+                changelog: data.body || '',
+                releaseUrl: data.html_url || `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest`,
+                isReinstall,
             };
         }
 
-        return { hasUpdate: false, version: cleanCurrent, downloadUrl: '', changelog: '' };
+        return {
+            hasUpdate: false,
+            version: cleanCurrent,
+            downloadUrl: '',
+            changelog: data.body || '',
+            releaseUrl: data.html_url || `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest`,
+            isReinstall: false,
+        };
 
     } catch (error) {
         console.error('Update Check Error:', error);
@@ -97,9 +114,11 @@ export async function downloadAndInstallApk(
     onProgress?: (progress: number) => void
 ): Promise<boolean> {
     if (Platform.OS !== 'android') return false;
+    if (!downloadUrl) return false;
 
     try {
-        const fileUri = `${FileSystem.documentDirectory}saral_lekhan_update_v${version}.apk`;
+        const cacheRoot = FileSystem.cacheDirectory || FileSystem.documentDirectory || '';
+        const fileUri = `${cacheRoot}saral_lekhan_update_v${version}_${Date.now()}.apk`;
 
         // Setup Resumable Download to track progress
         const downloadResumable = FileSystem.createDownloadResumable(
@@ -122,13 +141,27 @@ export async function downloadAndInstallApk(
         // Trigger Android Native Package Installer
         await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
             data: contentUri,
-            flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+            // FLAG_GRANT_READ_URI_PERMISSION | FLAG_ACTIVITY_NEW_TASK
+            flags: 268435457,
             type: 'application/vnd.android.package-archive',
         });
 
         return true;
     } catch (e) {
         console.error("Install App Error:", e);
-        return false;
+        // Fallback: open installer permission settings and then release URL in browser.
+        try {
+            await IntentLauncher.startActivityAsync('android.settings.MANAGE_UNKNOWN_APP_SOURCES', {
+                data: `package:${APP_PACKAGE}`,
+            });
+        } catch {
+            // No-op; continue fallback.
+        }
+        try {
+            await Linking.openURL(downloadUrl);
+            return true;
+        } catch {
+            return false;
+        }
     }
 }
