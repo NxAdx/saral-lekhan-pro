@@ -49,6 +49,7 @@ import {
 } from '@expo-google-fonts/tiro-devanagari-hindi';
 
 import { useAiStore } from '../store/aiStore';
+import { useNotesStore } from '../store/notesStore';
 import { log } from '../utils/Logger';
 
 const splashPreventResult = SplashScreen.preventAutoHideAsync();
@@ -95,6 +96,8 @@ export function RootLayout() {
   // Removed explicit hideAsync here, moved to onLayoutRootView below
 
   useEffect(() => {
+    // Pre-initialize DB during splash screen so Home renders instantly
+    useNotesStore.getState().initDB();
     useAuthStore.getState().initialize();
     useAiStore.getState().initialize();
 

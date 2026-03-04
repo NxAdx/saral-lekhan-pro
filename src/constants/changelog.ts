@@ -10,6 +10,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.10.0",
+        date: "2026-03-04",
+        changes: {
+            en: [
+                "⚡ Instant Launch: Database now pre-loads during splash — no more loading skeleton",
+                "🔐 Login Fix: Improved Google Sign-In error handling and SHA fingerprint guidance",
+                "🛡️ Crash Guard: App never gets stuck on loading screen, even on DB errors",
+                "📋 Updated changelog and documentation for Play Store readiness"
+            ],
+            hi: [
+                "⚡ तुरंत लॉन्च: डेटाबेस अब स्प्लैश के दौरान प्री-लोड होता है — कोई लोडिंग स्क्रीन नहीं",
+                "🔐 लॉगिन फिक्स: Google साइन-इन त्रुटि हैंडलिंग और SHA फिंगरप्रिंट मार्गदर्शन में सुधार",
+                "🛡️ क्रैश गार्ड: ऐप कभी भी लोडिंग स्क्रीन पर अटकती नहीं है",
+                "📋 Play Store तैयारी के लिए अपडेटेड चेंजलॉग और दस्तावेज़"
+            ],
+            mr: [
+                "⚡ त्वरित लॉन्च: डेटाबेस आता स्प्लॅश दरम्यान प्री-लोड होतो — लोडिंग स्क्रीन नाही",
+                "🔐 लॉगिन फिक्स: Google साइन-इन त्रुटी हाताळणी आणि SHA फिंगरप्रिंट मार्गदर्शन सुधारले",
+                "🛡️ क्रॅश गार्ड: अ‍ॅप कधीही लोडिंग स्क्रीनवर अडकत नाही",
+                "📋 Play Store तयारीसाठी अपडेटेड चेंजलॉग आणि दस्तऐवज"
+            ]
+        }
+    },
+    {
         version: "2.9.9",
         date: "2026-03-04",
         changes: {
