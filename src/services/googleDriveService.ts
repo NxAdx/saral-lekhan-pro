@@ -8,6 +8,28 @@ import * as Sentry from '@sentry/react-native';
 const WEB_CLIENT_ID = "871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.googleusercontent.com";
 const SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/userinfo.email'];
 const APP_PACKAGE = 'com.sarallekhan';
+type GoogleSignInMode = 'strict' | 'androidFallback';
+
+function configureGoogleSignIn(mode: GoogleSignInMode = 'strict') {
+    if (mode === 'androidFallback') {
+        // Fallback mode: rely on Android google-services config only.
+        // Useful when web client wiring drifts, while package/SHA mapping is valid.
+        GoogleSignin.configure({
+            scopes: SCOPES,
+            offlineAccess: false,
+            forceCodeForRefreshToken: false,
+        });
+        return;
+    }
+
+    GoogleSignin.configure({
+        scopes: SCOPES,
+        webClientId: WEB_CLIENT_ID,
+        offlineAccess: true,
+        // Avoid forcing repeated consent prompts after the first successful login.
+        forceCodeForRefreshToken: false,
+    });
+}
 
 interface ParsedGoogleApiError {
     code?: number;
@@ -110,13 +132,7 @@ function mapDriveApiError(status: number, raw: string, fallbackMessage: string):
 }
 
 try {
-    GoogleSignin.configure({
-        scopes: SCOPES,
-        webClientId: WEB_CLIENT_ID,
-        offlineAccess: true,
-        // Avoid forcing repeated consent prompts after the first successful login.
-        forceCodeForRefreshToken: false,
-    });
+    configureGoogleSignIn('strict');
 } catch (e) {
     console.warn("Google Sign-in not available in this environment:", e);
 }
@@ -187,6 +203,28 @@ export class GoogleDriveService {
             const tokens = await GoogleSignin.getTokens();
             return { accessToken: tokens.accessToken, email: getEmailFromUserInfo(userInfo) };
         } catch (error: any) {
+            if (isDeveloperConfigError(error)) {
+                // One-time recovery path:
+                // retry with Android default OAuth config from google-services.json.
+                try {
+                    configureGoogleSignIn('androidFallback');
+                    await GoogleSignin.hasPlayServices();
+                    const userInfo = await GoogleSignin.signIn();
+                    const tokens = await GoogleSignin.getTokens();
+                    if (tokens?.accessToken) {
+                        return { accessToken: tokens.accessToken, email: getEmailFromUserInfo(userInfo) };
+                    }
+                } catch {
+                    // No-op: original error mapping below will handle user-facing guidance.
+                } finally {
+                    // Restore strict mode for future flows.
+                    try {
+                        configureGoogleSignIn('strict');
+                    } catch {
+                        // Ignore configure restore errors.
+                    }
+                }
+            }
             throw mapGoogleSignInError(error);
         }
     }

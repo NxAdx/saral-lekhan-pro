@@ -12,6 +12,7 @@
 > - Added `REQUEST_INSTALL_PACKAGES` in committed native `AndroidManifest.xml` to ensure installer permission exists in CI-built APKs.
 > - Settings updater now always clears `isDownloadingUpdate` in `finally`, preventing UI from staying at "Downloading 100%".
 > - Added dedicated updater technical runbook: `docs/UPDATER-LOGIC.md`.
+> - Added Google Sign-In resilience fallback: on `DEVELOPER_ERROR`, app retries once with Android default OAuth config from `google-services.json`.
 
 > **Hotfix Addendum (v2.9.9/v2.10.0)**:
 > - Release signing now uses dedicated release keystore inputs in `android/app/build.gradle`.

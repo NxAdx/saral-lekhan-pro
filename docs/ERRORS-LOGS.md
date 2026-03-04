@@ -172,3 +172,11 @@ Notes
   1. Added `<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>` to committed native manifest.
   2. Updated updater action to always reset download state in `finally`.
   3. Added success guidance modal (`Installer Started`) when installer is dispatched.
+
+27) Google Sign-In `DEVELOPER_ERROR` still shown on some builds despite correct updater flow
+- Symptom: Login modal shows config mismatch even after updater/install flow is fixed.
+- Cause: In some environments the strict `webClientId` path can fail while Android native oauth config from `google-services.json` is valid.
+- Resolution:
+  1. Added auth resilience fallback in `src/services/googleDriveService.ts`.
+  2. On `DEVELOPER_ERROR`, app now retries sign-in once using Android default config (`offlineAccess: false`, no forced web client id).
+  3. Strict config is restored after retry for normal operation.

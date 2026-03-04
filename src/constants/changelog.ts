@@ -17,19 +17,22 @@ export const APP_CHANGELOG: ChangelogItem[] = [
                 "Updater fixed: Android installer now launches without hanging at 100%.",
                 "Added install permission support for Android package installer flow.",
                 "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
-                "Google Sign-In stability improved for production release builds."
+                "Google Sign-In stability improved for production release builds.",
+                "Added Google Sign-In fallback retry when strict client config fails on some devices."
             ],
             hi: [
                 "Updater fixed: Android installer now launches without hanging at 100%.",
                 "Added install permission support for Android package installer flow.",
                 "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
-                "Google Sign-In stability improved for production release builds."
+                "Google Sign-In stability improved for production release builds.",
+                "Added Google Sign-In fallback retry when strict client config fails on some devices."
             ],
             mr: [
                 "Updater fixed: Android installer now launches without hanging at 100%.",
                 "Added install permission support for Android package installer flow.",
                 "CI now prints SHA-1 and SHA-256 fingerprints for Firebase registration.",
-                "Google Sign-In stability improved for production release builds."
+                "Google Sign-In stability improved for production release builds.",
+                "Added Google Sign-In fallback retry when strict client config fails on some devices."
             ]
         }
     },

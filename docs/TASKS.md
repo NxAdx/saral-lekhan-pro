@@ -74,6 +74,9 @@ Next actions (Future Roadmap):
     - Added `REQUEST_INSTALL_PACKAGES` to committed native `android/app/src/main/AndroidManifest.xml` for CI-built APK parity.
     - Added guaranteed updater UI reset (`isDownloadingUpdate = false` in `finally`) in Settings update flow.
     - Added dedicated updater architecture/troubleshooting runbook: `docs/UPDATER-LOGIC.md`.
+- **Phase 24: Google Sign-In Resilience Fallback**:
+    - Added one-time fallback retry for `DEVELOPER_ERROR` in `GoogleDriveService.signIn()`.
+    - Fallback uses Android default OAuth config from `google-services.json` (no forced `webClientId`) to recover client wiring edge cases.
 
 In progress:
 - Build verification by user on latest updater flow and installer prompt behavior.
