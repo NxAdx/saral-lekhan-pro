@@ -80,6 +80,14 @@ def uploadStorePassword = System.getenv("MYAPP_UPLOAD_STORE_PASSWORD") ?: findPr
 def uploadKeyAlias = System.getenv("MYAPP_UPLOAD_KEY_ALIAS") ?: findProperty("MYAPP_UPLOAD_KEY_ALIAS")
 def uploadKeyPassword = System.getenv("MYAPP_UPLOAD_KEY_PASSWORD") ?: findProperty("MYAPP_UPLOAD_KEY_PASSWORD")
 def hasReleaseSigning = uploadStoreFile && uploadStorePassword && uploadKeyAlias && uploadKeyPassword
+def isReleaseBuildRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+
+if (isReleaseBuildRequested && !hasReleaseSigning) {
+    throw new GradleException(
+        "Release signing credentials are missing. " +
+        "Provide MYAPP_UPLOAD_STORE_FILE, MYAPP_UPLOAD_STORE_PASSWORD, MYAPP_UPLOAD_KEY_ALIAS, and MYAPP_UPLOAD_KEY_PASSWORD."
+    )
+}
 
 android {
     ndkVersion rootProject.ext.ndkVersion
