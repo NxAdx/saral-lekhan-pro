@@ -6,6 +6,9 @@ on:
     tags: [ "v*.*.*" ]
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Android App Bundle (AAB)
