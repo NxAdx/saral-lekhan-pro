@@ -120,3 +120,37 @@ Notes
   3. Download a fresh `google-services.json` and update local file + CI secret.
   4. Remove old OAuth grant from Google Account -> Security -> Third-party access.
   5. Reinstall APK and sign in again.
+
+21) GitHub Release publish failed with 403 (`Resource not accessible by integration`)
+- Symptom: Build succeeds and APK/AAB artifacts upload, but `softprops/action-gh-release` fails. In-app updater appears stale because no new GitHub release is published.
+- Cause: Token used by workflow had read-only repository contents permission at runtime (`Contents: read`).
+- Resolution:
+  1. In repository settings, open `Settings -> Actions -> General`.
+  2. Set `Workflow permissions` to `Read and write permissions`.
+  3. Keep workflow-level `permissions: contents: write` in `.github/workflows/android-build.yml`.
+  4. Re-run tag workflow so release is created.
+
+22) Startup loading screen loop after splash customization
+- Symptom: App remains stuck on `Loading Saral Lekhan...` spinner.
+- Cause: Splash-hide and startup-ready state were gated incorrectly during root bootstrap.
+- Resolution: Keep native splash visible until initialization completes, and use the stable startup layout baseline (`d3057e4` + `d8912b6`). Avoid introducing persistent JS loading overlays as a replacement for transition flash.
+
+23) OAuth consent shows `project-871132329368` instead of app name
+- Symptom: Google consent page shows project numeric label instead of `Saral Lekhan Plus` branding.
+- Cause: Branding/audience publication not fully propagated or configured in a different project.
+- Resolution:
+  1. In Google Cloud, confirm selected project is `871132329368`.
+  2. Configure `Google Auth Platform -> Branding` with app name and support/developer emails.
+  3. Set Audience to External and publish app to Production (if applicable).
+  4. Remove old third-party access grant from Google Account, then sign in again.
+
+24) Google Sign-In config mismatch persists even when SHA-1 seems correct
+- Symptom: Modal still says `Google Sign-In config mismatch for package com.sarallekhan`.
+- Cause: Commonly one of:
+  - Installed APK signed by a different key than expected (debug/release/Play signing mismatch).
+  - Updated fingerprints were not followed by a refreshed `google-services.json` in CI secret.
+  - Cached OAuth grant/session from old config.
+- Resolution:
+  1. Register SHA-1 and SHA-256 for every signing path you use (release, debug, and Play App Signing if distributed through Play).
+  2. Download fresh `google-services.json` and update local file + `GOOGLE_SERVICES_JSON` secret.
+  3. Uninstall app, remove old Google third-party access grant, reinstall latest signed APK, sign in again.

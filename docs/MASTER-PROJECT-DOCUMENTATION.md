@@ -7,6 +7,9 @@
 > - Production GitHub workflow now validates `GOOGLE_SERVICES_JSON` and no longer runs `expo prebuild --clean`.
 > - Startup background is unified to `#171513` across Expo splash and Android native resources to reduce cold-boot white flash.
 > - Updater version logic and Settings updater UI were refined (semantic comparison + green visual polish).
+> - Startup loading-loop regressions were rolled back to a stable baseline (`d3057e4`, `d8912b6`).
+> - Release publish failures with `Resource not accessible by integration` are tracked as Actions permission issues (repo setting + workflow permission must both allow write).
+> - Current production auth context: package `com.sarallekhan`, web client `871132329368-vbvrs4cuon807asqrbh2eabedr86iljl.apps.googleusercontent.com`.
 
 ## 1. Project Overview & Idea
 **सरल लेखन (Saral Lekhan)** is a premium, tactile notes application designed primarily for Hindi (Devanagari) writers.
@@ -137,4 +140,4 @@ cd android
 - **Database**: When modifying the data model, update both `src/db/schema.ts` and the `notesStore.ts`.
 
 ---
-*Generated: 2026-03-02 | Version 2.9.3 (Audited & Hardened)*
+*Generated: 2026-03-04 | Version 2.9.9 (Audited & Hardened)*

@@ -80,7 +80,10 @@ export const useNotesStore = create<NotesState>((set, get) => ({
                 get().loadNotes();
                 return true;
               }
-              return false;
+              // Even on unexpected ALTER errors, load notes so the app doesn't hang.
+              log.warn('ALTER TABLE failed unexpectedly, loading notes anyway', error as any);
+              get().loadNotes();
+              return true;
             }
           );
         }
@@ -88,6 +91,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }, (err) => {
       log.error("Failed to init DB", err);
       Sentry.captureException(err);
+      // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
+      set({ isLoaded: true });
     });
   },
 
@@ -109,6 +114,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }, (err) => {
       log.error("Failed to load notes", err);
       Sentry.captureException(err);
+      // Ensure app never stays stuck on the loading skeleton
+      set({ isLoaded: true });
     });
   },
 

@@ -57,4 +57,11 @@ Next actions (Future Roadmap):
 - [x] Add release notes for `v2.9.9`.
 - [x] Verify repository Actions permission is `Read and write` and confirm release publish succeeds on next tag.
 - [x] Re-validate Google Sign-In on clean install after refreshing Firebase SHA + `google-services.json` secret.
-- [ ] Re-test in-app updater against a real published GitHub release (v2.9.9).
+- [x] Re-test in-app updater against a real published GitHub release (v2.9.9).
+
+## Phase 19: Loading Screen Fix + Final Build (v2.9.10)
+- [x] Root-cause stuck loading screen: `initDB()` and `loadNotes()` error paths in `notesStore.ts` never set `isLoaded = true`.
+- [x] Fix all three error callbacks to always set `isLoaded: true`.
+- [x] Bump version to 2.9.10 (versionCode 41).
+- [x] Document error #25 in ERRORS-LOGS.md.
+- [ ] User verification on fresh install.

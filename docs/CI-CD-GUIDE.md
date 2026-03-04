@@ -162,3 +162,29 @@ To catch crashes that happen on users' phones:
 3. Copy your **DSN** (Data Source Name).
 4. In your code, open `src/app/_layout.tsx` and replace the placeholder DSN with your actual one.
 5. In `app.json`, update the `organization` and `project` slugs to match your Sentry account.
+
+---
+
+## Critical 2026 Checks (Do Not Skip)
+
+### A) If release step fails with 403
+If workflow logs show:
+- `Resource not accessible by integration`
+- `GITHUB_TOKEN Permissions: Contents: read`
+
+Do this:
+1. Open `GitHub Repository -> Settings -> Actions -> General`.
+2. Under `Workflow permissions`, select `Read and write permissions`.
+3. Save.
+4. Re-run your tag build (`vX.Y.Z`) so `softprops/action-gh-release` can create/update the release.
+
+Without this, your in-app updater may not get new release metadata even if APK artifact upload succeeds.
+
+### B) Verify release really exists (not only artifact)
+After build completes:
+1. Open repository `Releases` tab.
+2. Confirm a release with your tag exists (example: `v2.9.9`).
+3. Confirm `app-release.apk` is attached there.
+4. Only then test in-app updater.
+
+Artifacts in Actions are not the same as GitHub Releases.
