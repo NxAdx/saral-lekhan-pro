@@ -44,7 +44,12 @@
         "imageUrl": "చిత్రం URL (ఉదా: https://...)",
         "pickGallery": "గ్యాలరీ నుండి ఎంచుకోండి",
         "enterUrl": "చిత్రం URL ని నమోదు చేయండి",
-        "selectSource": "చిత్ర మూలాన్ని ఎంచుకోండి"
+        "selectSource": "చిత్ర మూలాన్ని ఎంచుకోండి",
+        "findReplace": "కనుగొని మార్చండి",
+        "findPlaceholder": "ఏమి వెతకాలి...",
+        "replacePlaceholder": "దేనితో మార్చాలి...",
+        "replace": "మార్చండి",
+        "replaceAll": "అన్నీ మార్చండి"
     },
     "settingsScreen": {
         "colorPalette": "రంగు పాలెట్ (Color Palette)",

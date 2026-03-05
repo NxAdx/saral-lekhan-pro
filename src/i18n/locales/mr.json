@@ -39,7 +39,13 @@
         "imageUrl": "प्रतिमेचा URL (उदा. https://...)",
         "pickGallery": "गॅलरीमधून निवडा",
         "enterUrl": "प्रतिमेचा URL प्रविष्ट करा",
-        "selectSource": "प्रतिमेचे स्त्रोत निवडा"
+        "selectSource": "प्रतिमेचे स्त्रोत निवडा",
+        "tagPlaceholder": "टॅग",
+        "findReplace": "शोधा आणि बदला",
+        "findPlaceholder": "काय शोधायचे...",
+        "replacePlaceholder": "कशाने बदलायचे...",
+        "replace": "बदला",
+        "replaceAll": "सर्व बदला"
     },
     "settingsScreen": {
         "colorPalette": "रंग पॅलेट (Color Palette)",

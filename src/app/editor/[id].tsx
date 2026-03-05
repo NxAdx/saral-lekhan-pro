@@ -53,6 +53,9 @@ export default function EditNoteScreen() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showFindReplaceModal, setShowFindReplaceModal] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
@@ -171,6 +174,79 @@ export default function EditNoteScreen() {
       setShowImageModal(false);
     }
   };
+
+  const handleReplace = useCallback(() => {
+    if (!findText.trim()) return;
+    // Walk text nodes and replace first match
+    const findStr = findText.trim();
+    const repStr = replaceText;
+    const script = `
+      (function() {
+        var found = false;
+        function walk(node) {
+          if (node.nodeType === 3) {
+            var index = node.data.indexOf(${JSON.stringify(findStr)});
+            if (index !== -1 && !found) {
+              node.data = node.data.substring(0, index) + ${JSON.stringify(repStr)} + node.data.substring(index + ${JSON.stringify(findStr)}.length);
+              found = true;
+              return;
+            }
+          } else if (node.nodeType === 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+            for (var i = 0; i < node.childNodes.length; i++) {
+              walk(node.childNodes[i]);
+              if (found) return;
+            }
+          }
+        }
+        walk(document.body);
+        if (found) {
+          // Trigger change event to notify RN
+          var event = new Event('input', { bubbles: true });
+          document.body.dispatchEvent(event);
+        }
+        return found;
+      })();
+    `;
+    // @ts-ignore
+    richText.current?.injectJavascript(script);
+    setIsDirty(true);
+  }, [findText, replaceText]);
+
+  const handleReplaceAll = useCallback(() => {
+    if (!findText.trim()) return;
+    const findStr = findText.trim();
+    const repStr = replaceText;
+    const script = `
+      (function() {
+        function escapeRegExp(string) {
+          return string.replace(/[.*+?^$\${}()|[\\]\\\\]/g, '\\\\$&');
+        }
+        var count = 0;
+        function walk(node) {
+          if (node.nodeType === 3) {
+            var regex = new RegExp(escapeRegExp(${JSON.stringify(findStr)}), 'g');
+            if (regex.test(node.data)) {
+              node.data = node.data.replace(regex, ${JSON.stringify(repStr)});
+              count++;
+            }
+          } else if (node.nodeType === 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+            for (var i = 0; i < node.childNodes.length; i++) {
+              walk(node.childNodes[i]);
+            }
+          }
+        }
+        walk(document.body);
+        if (count > 0) {
+          var event = new Event('input', { bubbles: true });
+          document.body.dispatchEvent(event);
+        }
+        return count;
+      })();
+    `;
+    // @ts-ignore
+    richText.current?.injectJavascript(script);
+    setIsDirty(true);
+  }, [findText, replaceText]);
 
   const handlePickImage = async () => {
     try {
@@ -503,6 +579,7 @@ export default function EditNoteScreen() {
               actions.blockquote,
               actions.insertLink,
               actions.insertImage,
+              'findReplace',
               'insertPurnaViram',
               'insertDoublePurnaViram'
             ]}
@@ -522,11 +599,18 @@ export default function EditNoteScreen() {
                   <Path d="M21 15l-5-5L5 21" />
                 </Svg>
               ),
+              'findReplace': ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Circle cx="10" cy="10" r="7" />
+                  <Path d="M21 21l-6-6" />
+                </Svg>
+              ),
               'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>।</Text>,
               'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>॥</Text>,
             }}
             onInsertLink={() => setShowLinkModal(true)}
             onPressAddImage={() => setShowImageModal(true)}
+            findReplace={() => setShowFindReplaceModal(true)}
             insertPurnaViram={() => insertHindiPunctuation('।')}
             insertDoublePurnaViram={() => insertHindiPunctuation('॥')}
           />
@@ -788,6 +872,54 @@ export default function EditNoteScreen() {
               autoCorrect={false}
               onSubmitEditing={handleInsertImage}
             />
+          </View>
+        }
+      />
+
+      <ThemedModal
+        visible={showFindReplaceModal}
+        title={loc.editor.findReplace}
+        onClose={() => setShowFindReplaceModal(false)}
+        actions={[
+          {
+            label: loc.editor.replaceAll,
+            style: 'default',
+            onPress: handleReplaceAll
+          },
+          {
+            label: loc.editor.replace,
+            style: 'default',
+            onPress: handleReplace
+          },
+          {
+            label: loc.editor.cancel,
+            style: 'cancel',
+            onPress: () => setShowFindReplaceModal(false)
+          }
+        ]}
+        customContent={
+          <View style={{ gap: 16 }}>
+            <View style={{ gap: 8 }}>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.findPlaceholder}</Text>
+              <TextInput
+                style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                placeholder={loc.editor.findPlaceholder}
+                placeholderTextColor={colors.inkDim}
+                value={findText}
+                onChangeText={setFindText}
+                autoFocus
+              />
+            </View>
+            <View style={{ gap: 8 }}>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.replacePlaceholder}</Text>
+              <TextInput
+                style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                placeholder={loc.editor.replacePlaceholder}
+                placeholderTextColor={colors.inkDim}
+                value={replaceText}
+                onChangeText={setReplaceText}
+              />
+            </View>
           </View>
         }
       />

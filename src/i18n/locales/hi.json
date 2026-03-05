@@ -39,7 +39,13 @@
         "imageUrl": "चित्र का URL (जैसे, https://...)",
         "pickGallery": "गैलरी से चुनें",
         "enterUrl": "चित्र का URL दर्ज करें",
-        "selectSource": "चित्र का स्रोत चुनें"
+        "selectSource": "चित्र का स्रोत चुनें",
+        "tagPlaceholder": "टैग",
+        "findReplace": "खोजें और बदलें",
+        "findPlaceholder": "क्या खोजें...",
+        "replacePlaceholder": "किससे बदलें...",
+        "replace": "बदलें",
+        "replaceAll": "सभी बदलें"
     },
     "settingsScreen": {
         "colorPalette": "रंग पैलेट (Color Palette)",

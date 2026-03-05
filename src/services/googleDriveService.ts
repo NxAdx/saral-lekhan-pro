@@ -178,6 +178,18 @@ export class GoogleDriveService {
         }
     }
 
+    static async verifyAndAddScopes() {
+        try {
+            // For older accounts/silent sign-in, we check if scopes are already granted.
+            // addScopes will only prompt if they are missing.
+            await GoogleSignin.addScopes({ scopes: SCOPES });
+            return true;
+        } catch (error) {
+            console.log("Drive scopes not granted by user", error);
+            return false;
+        }
+    }
+
     static async signIn() {
         try {
             await GoogleSignin.hasPlayServices();
@@ -187,6 +199,7 @@ export class GoogleDriveService {
             if (hasPrevious) {
                 try {
                     const silentUser = await GoogleSignin.signInSilently();
+                    await this.verifyAndAddScopes(); // Ensure scopes are present
                     const silentTokens = await GoogleSignin.getTokens();
                     if (silentTokens?.accessToken) {
                         return {
@@ -200,6 +213,7 @@ export class GoogleDriveService {
             }
 
             const userInfo = await GoogleSignin.signIn();
+            await this.verifyAndAddScopes(); // Safety check for new account checkbox skip
             const tokens = await GoogleSignin.getTokens();
             return { accessToken: tokens.accessToken, email: getEmailFromUserInfo(userInfo) };
         } catch (error: any) {
@@ -210,6 +224,7 @@ export class GoogleDriveService {
                     configureGoogleSignIn('androidFallback');
                     await GoogleSignin.hasPlayServices();
                     const userInfo = await GoogleSignin.signIn();
+                    await this.verifyAndAddScopes();
                     const tokens = await GoogleSignin.getTokens();
                     if (tokens?.accessToken) {
                         return { accessToken: tokens.accessToken, email: getEmailFromUserInfo(userInfo) };

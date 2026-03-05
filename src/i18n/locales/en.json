@@ -40,7 +40,12 @@
         "pickGallery": "Pick from Gallery",
         "enterUrl": "Enter Image URL",
         "selectSource": "Select Image Source",
-        "tagPlaceholder": "Tags"
+        "tagPlaceholder": "Tags",
+        "findReplace": "Find & Replace",
+        "findPlaceholder": "Find what...",
+        "replacePlaceholder": "Replace with...",
+        "replace": "Replace",
+        "replaceAll": "Replace All"
     },
     "settingsScreen": {
         "colorPalette": "Color Palette",

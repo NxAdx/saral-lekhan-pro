@@ -33,7 +33,12 @@
         "thinking": "✨ চিন্তা করছে...",
         "exportPdf": "PDF হিসেবে সংরক্ষণ করুন",
         "exportTxt": "টেক্সট (.txt) হিসেবে সংরক্ষণ করুন",
-        "exportMd": "মার্কডাউন (.md) হিসেবে সংরক্ষণ করুন"
+        "exportMd": "মার্কডাউন (.md) হিসেবে সংরক্ষণ করুন",
+        "findReplace": "খুঁজুন এবং প্রতিস্থাপন করুন",
+        "findPlaceholder": "কী খুঁজবেন...",
+        "replacePlaceholder": "কী দিয়ে প্রতিস্থাপন করবেন...",
+        "replace": "প্রতিস্থাপন করুন",
+        "replaceAll": "সব প্রতিস্থাপন করুন"
     },
     "settingsScreen": {
         "colorPalette": "রঙের প্যালেট (Color Palette)",
