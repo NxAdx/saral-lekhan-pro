@@ -4,11 +4,35 @@ export interface ChangelogItem {
     changes: {
         en: string[];
         hi: string[];
-        mr: string[];
+        mr?: string[];
+        bn?: string[];
+        te?: string[];
+        ta?: string[];
     };
 }
 
 export const APP_CHANGELOG: ChangelogItem[] = [
+    {
+        version: "2.13.2",
+        date: "2026-03-06",
+        changes: {
+            en: [
+                "🚀 Fail-Safe UI: Implemented guaranteed rendering after 5s regardless of asset loading status.",
+                "🛡️ Deadlock Prevention: Refactored background initialization to prevent race conditions during boot.",
+                "📊 Improved Diagnostics: Added surgical logging to identify device-specific startup hangs.",
+            ],
+            hi: [
+                "🚀 फेल-सेफ UI: संपत्ति लोडिंग स्थिति की परवाह किए बिना 5 सेकंड के बाद गारंटीकृत प्रतिपादन लागू किया गया।",
+                "🛡️ डेडलॉक रोकथाम: बूट के दौरान रेस स्थितियों को रोकने के लिए पृष्ठभूमि इनिशियलाइज़ेशन को रिफैक्टर किया गया।",
+                "📊 बेहतर डायग्नोस्टिक्स: डिवाइस-विशिष्ट स्टार्टअप हैंग की पहचान करने के लिए सर्जिकल लॉगिंग जोड़ी गई।",
+            ],
+            ta: [
+                "🚀 ஃபெயில்-சேஃப் UI: சொத்து ஏற்றுதல் நிலையைக் பொருட்படுத்தாமல் 5 வினாடிகளுக்குப் பிறகு உத்தரவாதம் அளிக்கப்பட்ட ரெண்டரிங் செயல்படுத்தப்பட்டது.",
+                "🛡️ டெட்லாக் தடுப்பு: துவக்கத்தின் போது ரேஸ் நிலைமைகளைத் தடுக்க பின்னணி துவக்கம் மீண்டும் உருவாக்கப்பட்டது.",
+                "📊 மேம்படுத்தப்பட்ட கண்டறிதல்: சாதன-குறிப்பிட்ட தொடக்க சிக்கல்களைக் கண்டறிய அறுவை சிகிச்சை பதிவு சேர்க்கப்பட்டது.",
+            ]
+        }
+    },
     {
         version: "2.13.1",
         date: "2026-03-06",

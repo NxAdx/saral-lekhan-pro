@@ -1,7 +1,11 @@
 # Master Project Documentation: सरल लेखन (Saral Lekhan)
 
+> **Handoff Addendum (v2.13.2 - 2026-03-06)**:
+> - **Emergency Startup Fix**: Introduced a guaranteed fail-safe UI rendering logic. If assets (fonts/DB) fail to load within 5 seconds, the app now forcibly renders the main UI instead of hanging. Refactored Sentry initialization to be non-blocking.
+> - **Version State**: Mainline is at **v2.13.2** (versionCode 47).
+
 > **Handoff Addendum (v2.13.1 - 2026-03-06)**:
-> - **Deep Startup Fix**: Resolved the "grey screen" hang by bundling core fonts (`assets/fonts`) and implementing a robust 5s safety net in `RootLayout`.
+> - **Deep Startup Fix**: Bundled fonts locally to `assets/fonts/` for 100% offline reliability. Implemented a 5-second combined safety net in `RootLayout`.
 > - **Offline Reliability**: App is now 100% independent of network-based font loading during boot.
 > - **Version State**: Mainline is at **v2.13.1** (versionCode 46).
 
