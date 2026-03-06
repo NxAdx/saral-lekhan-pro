@@ -1,5 +1,13 @@
 # Master Project Documentation: सरल लेखन (Saral Lekhan)
 
+> **Handoff Addendum (v2.12.0 - 2026-03-06)**:
+> - **Smooth Boot**: White flash eliminated in `_layout.tsx` and `HomeSkeleton` deleted. App now stays themed during loading.
+> - **Theme Simplification**: AMOLED mode and Pitch theme removed to reduce design debt. Standard dark themes are now curated for high-contrast readiness.
+> - **Robust Updater**: Switched to `/releases` endpoint in `githubUpdater.ts` for strictly semantic version checks.
+> - **UI Consistency**: All native alerts related to updates replaced with `ThemedModal`.
+> - **Version State**: Mainline is at **v2.12.0** (versionCode 44).
+
+
 > **Important for AI Agents**: This document provides the complete context, architecture, design philosophy, and technical implementation details of the Saral Lekhan app. Read this first to understand the project deeply.
 
 > **Handoff Addendum (v2.10.1 - 2026-03-04)**:

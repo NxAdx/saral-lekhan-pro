@@ -10,7 +10,6 @@ export type AppFontType = 'hind' | 'poppins' | 'notoSans' | 'baloo2' | 'yantrama
 interface SettingsState {
     language: AppLanguage;
     nightMode: NightMode;
-    amoledMode: boolean;
     themeId: ThemeName;
     fontSize: number;
     appFont: AppFontType;
@@ -18,7 +17,6 @@ interface SettingsState {
 
     setLanguage: (l: AppLanguage) => void;
     setNightMode: (m: NightMode) => void;
-    setAmoledMode: (b: boolean) => void;
     setThemeId: (i: ThemeName) => void;
     setFontSize: (s: number) => void;
     setAppFont: (f: AppFontType) => void;
@@ -30,7 +28,6 @@ export const useSettingsStore = create<SettingsState>()(
         (set) => ({
             language: 'Hi',
             nightMode: 'system',
-            amoledMode: false,
             themeId: 'classic',
             fontSize: 1.0,
             appFont: 'poppins',
@@ -38,8 +35,11 @@ export const useSettingsStore = create<SettingsState>()(
 
             setLanguage: (l) => set({ language: l }),
             setNightMode: (m) => set({ nightMode: m }),
-            setAmoledMode: (b) => set({ amoledMode: b }),
-            setThemeId: (i) => set({ themeId: i }),
+            setThemeId: (i) => {
+                // Migration: if the theme was pitch (which is being removed), reset to classic
+                const newTheme = i === ('pitch' as ThemeName) ? 'classic' : i;
+                set({ themeId: newTheme as ThemeName });
+            },
             setFontSize: (s) => set({ fontSize: s }),
             setAppFont: (f) => set({ appFont: f }),
             setAutoSave: (b) => set({ autoSave: b }),

@@ -19,14 +19,14 @@ export const useThemeStore = create<ThemeState>()((set) => ({
     setColors: (c) => set({ colors: c }),
 }));
 
-const generateAppColors = (seed: string, isDark: boolean, amoled: boolean): ThemeColors => {
+const generateAppColors = (seed: string, isDark: boolean): ThemeColors => {
     const theme = themeFromSourceColor(argbFromHex(seed));
     const scheme = isDark ? theme.schemes.dark : theme.schemes.light;
 
     const colors: ThemeColors = {
-        bg: amoled && isDark ? '#000000' : hexFromArgb(scheme.background),
-        bgRaised: amoled && isDark ? '#050505' : hexFromArgb(scheme.surface),
-        bgDeep: amoled && isDark ? '#0A0A0A' : hexFromArgb(scheme.surfaceVariant),
+        bg: hexFromArgb(scheme.background),
+        bgRaised: hexFromArgb(scheme.surface),
+        bgDeep: hexFromArgb(scheme.surfaceVariant),
         stroke: hexFromArgb(scheme.outline),
         strokeDim: hexFromArgb(scheme.outlineVariant),
         ink: hexFromArgb(scheme.onSurface),
@@ -37,7 +37,7 @@ const generateAppColors = (seed: string, isDark: boolean, amoled: boolean): Them
         accentDim: hexFromArgb(scheme.primaryContainer),
         accentBg: hexFromArgb(scheme.secondaryContainer),
         white: '#FFFFFF',
-        shadow: amoled && isDark ? '#000000' : hexFromArgb(scheme.shadow),
+        shadow: hexFromArgb(scheme.shadow),
         bgHighlight: hexFromArgb(scheme.surfaceVariant),
     };
 
@@ -53,16 +53,9 @@ export const useTheme = () => {
         ? (systemColorScheme === 'dark')
         : settings.nightMode === 'dark';
 
-    // Derive colors
+    // Drive colors
     const themeEntry = themes[settings.themeId] || themes.classic;
     let colors = { ...(isDark ? themeEntry.dark : themeEntry.light) };
-
-    // Apply AMOLED override for presets if theme is dark
-    if (settings.amoledMode && isDark && (settings.themeId === 'pitch' || settings.themeId === 'nord' || settings.themeId === 'classic')) {
-        colors.bg = '#000000';
-        colors.bgRaised = '#050505';
-        colors.bgDeep = '#0A0A0A';
-    }
 
     // Typography Sets
     const getFontSet = (type: AppFontType) => {

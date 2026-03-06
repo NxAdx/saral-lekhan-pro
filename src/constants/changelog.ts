@@ -10,6 +10,33 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.12.0",
+        date: "2026-03-06",
+        changes: {
+            en: [
+                "✨ Premium Startup: Skeleton loader removed and white flash fixed — app stays themed during boot.",
+                "🎨 Simplified Themes: Removed AMOLED mode and 'Light & Dark' palette for a cleaner experience.",
+                "🛠️ Smarter Updater: Strict version checking ensures you only get notified for NEW releases.",
+                "📱 Themed Modals: All update and system alerts now follow the beautiful themed UI.",
+                "🧹 Clean House: Removed legacy components and unused code."
+            ],
+            hi: [
+                "✨ प्रीमियम स्टार्टअप: स्केलेटन लोडर हटाया गया और सफेद फ्लैश फिक्स — स्टार्टअप अब पूरी तरह थीम वाला है।",
+                "🎨 सरलीकृत थीम: बेहतर अनुभव के लिए AMOLED मोड और 'Light & Dark' पैलेट को हटाया गया।",
+                "🛠️ स्मार्ट अपडेटर: सख्त वर्जन चेकिंग सुनिश्चित करती है कि आपको केवल नई रिलीज की सूचना मिले।",
+                "📱 थीम्ड मोडल्स: सभी अपडेट और सिस्टम अलर्ट अब सुंदर थीम्ड UI का पालन करते हैं।",
+                "🧹 हाउस क्लीनिंग: पुराने घटकों और अप्रयुक्त कोड को हटाया गया।"
+            ],
+            mr: [
+                "✨ प्रीमियम स्टार्टअप: स्केलेटन लोडर काढला आणि पांढरा फ्लॅश फिक्स — स्टार्टअप आता पूर्णपणे थीम्ड आहे.",
+                "🎨 सरलीकृत थीम्स: चांगल्या अनुभवासाठी AMOLED मोड आणि 'Light & Dark' पॅलेट काढून टाकले.",
+                "🛠️ स्मार्ट अपडेटर: कडक व्हर्जन चेकिंग सुनिश्चित करते की तुम्हाला फक्त नवीन रिलीजची सूचना मिळेल.",
+                "📱 थीम्ड मोडल्स: सर्व अपडेट आणि सिस्टम अलर्ट आता सुंदर थीम्ड UI चे पालन करतात.",
+                "🧹 हाउस क्लीनिंग: जुने घटक आणि न वापरलेले कोड काढले."
+            ]
+        }
+    },
+    {
         version: "2.10.1",
         date: "2026-03-04",
         changes: {

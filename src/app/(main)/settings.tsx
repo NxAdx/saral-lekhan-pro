@@ -29,7 +29,7 @@ const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
 ];
 
 const PREMIUM_THEMES: { id: ThemeName; label: string }[] = [
-    { id: 'pitch', label: 'Light & Dark' },
+
     { id: 'lavender', label: 'Lavender' },
     { id: 'ocean', label: 'Ocean' },
     { id: 'forest', label: 'Forest' },
@@ -79,6 +79,7 @@ export default function SettingsScreen() {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
+    const [updateModal, setUpdateModal] = React.useState<{ visible: boolean, title: string, sub: string, info: UpdateInfo | null }>({ visible: false, title: '', sub: '', info: null });
 
     // Updater State
     const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
@@ -97,17 +98,16 @@ export default function SettingsScreen() {
         const info = await checkForUpdate(isManual);
         if (info && info.hasUpdate) {
             setUpdateInfo(info);
-            // We only need the Alert from the settings screen if they explicitly pressed check, 
-            // since the Home screen will handle the global app-launch notification
+            // Show update modal if it's a new version OR if user manually checked for reinstall
             if (isManual) {
-                const promptTitle = info.isReinstall ? "Reinstall Available" : "Update Available";
-                const promptBody = info.isReinstall
-                    ? `Version ${info.version} is already installed. Do you want to reinstall this build now?`
-                    : `Version ${info.version} is available. Do you want to download it now?`;
-                Alert.alert(promptTitle, promptBody, [
-                    { text: "Later", style: "cancel" },
-                    { text: "Download", onPress: handleDownloadUpdate }
-                ]);
+                setUpdateModal({
+                    visible: true,
+                    title: info.isReinstall ? "Reinstall Available" : "Update Available",
+                    sub: info.isReinstall
+                        ? `Version ${info.version} is already installed. Do you want to reinstall this build now?`
+                        : `Version ${info.version} is available. Do you want to download it now?`,
+                    info
+                });
             }
         } else if (isManual) {
             setSyncAlert({ visible: true, title: "Up to date", sub: "You are already on the latest version." });
@@ -595,20 +595,6 @@ export default function SettingsScreen() {
                         ))}
                     </View>
 
-                    {/* AMOLED Toggle */}
-                    <View style={s.listItem}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.amoledMode}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.amoledModeSub}</Text>
-                        </View>
-                        <Switch
-                            value={settings.amoledMode}
-                            onValueChange={settings.setAmoledMode}
-                            trackColor={{ false: colors.stroke, true: colors.accent }}
-                            thumbColor={colors.white}
-                        />
-                    </View>
-
                     {/* Auto-save Toggle */}
                     <View style={s.listItem}>
                         <View style={s.listContent}>
@@ -912,6 +898,28 @@ export default function SettingsScreen() {
                         </ScrollView>
                     </View>
                 }
+            />
+            {/* Update Notification Modal */}
+            <ThemedModal
+                visible={updateModal.visible}
+                onClose={() => setUpdateModal(prev => ({ ...prev, visible: false }))}
+                title={updateModal.title}
+                description={updateModal.sub}
+                actions={[
+                    {
+                        label: "Later",
+                        onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
+                        variant: 'secondary'
+                    },
+                    {
+                        label: "Download",
+                        onPress: () => {
+                            setUpdateModal(prev => ({ ...prev, visible: false }));
+                            handleDownloadUpdate();
+                        },
+                        variant: 'primary'
+                    }
+                ]}
             />
         </View>
     );

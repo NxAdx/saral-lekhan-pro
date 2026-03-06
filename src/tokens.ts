@@ -64,7 +64,7 @@ export interface ThemeColors {
   bgHighlight: string;
 }
 
-export type ThemeName = 'classic' | 'nord' | 'pitch' | 'lavender' | 'ocean' | 'forest' | 'sunset' | 'midnight' | 'rose' | 'coffee' | 'neon' | 'mint';
+export type ThemeName = 'classic' | 'nord' | 'lavender' | 'ocean' | 'forest' | 'sunset' | 'midnight' | 'rose' | 'coffee' | 'neon' | 'mint';
 
 export interface ThemeVariant {
   light: ThemeColors;
@@ -102,22 +102,6 @@ export const themes: Record<ThemeName, ThemeVariant> = {
       inkMid: '#E5E9F0', inkDim: '#D8DEE9', accent: '#88C0D0',
       accentDark: '#81A1C1', accentDim: '#5E81AC', accentBg: '#3B4252',
       white: '#FFFFFF', shadow: '#000000', bgHighlight: '#4C566A',
-    }
-  },
-  pitch: {
-    light: {
-      bg: '#FFFFFF', bgRaised: '#F5F5F5', bgDeep: '#EEEEEE',
-      stroke: '#E0E0E0', strokeDim: '#EEEEEE', ink: '#000000',
-      inkMid: '#424242', inkDim: '#757575', accent: '#212121',
-      accentDark: '#000000', accentDim: '#616161', accentBg: '#F5F5F5',
-      white: '#FFFFFF', shadow: '#EEEEEE', bgHighlight: '#E0E0E0',
-    },
-    dark: {
-      bg: '#000000', bgRaised: '#080808', bgDeep: '#000000',
-      stroke: '#1A1A1A', strokeDim: '#0F0F0F', ink: '#FFFFFF',
-      inkMid: '#B3B3B3', inkDim: '#666666', accent: '#FFFFFF',
-      accentDark: '#B3B3B3', accentDim: '#333333', accentBg: '#080808',
-      white: '#FFFFFF', shadow: '#000000', bgHighlight: '#1A1A1A',
     }
   },
   lavender: {

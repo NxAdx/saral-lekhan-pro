@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TextInput,
-  ScrollView, StatusBar, Pressable, Platform, Alert
+  ScrollView, StatusBar, Pressable, Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
@@ -13,7 +12,6 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { BentoCard } from '../../components/ui/BentoCard';
 import { TagPill } from '../../components/ui/TagPill';
-import { HomeSkeleton } from '../../components/ui/HomeSkeleton';
 import { useTypography } from '../../store/typographyStore';
 import { FAB } from '../../components/ui/FAB';
 import { ThemedModal } from '../../components/ui/ThemedModal';
@@ -50,6 +48,7 @@ export default function HomeScreen() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
+  const [updateModal, setUpdateModal] = useState<{ visible: boolean; title: string; subtitle: string; version: string }>({ visible: false, title: '', subtitle: '', version: '' });
 
   // Selection Mode State
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -66,15 +65,14 @@ export default function HomeScreen() {
   useEffect(() => {
     const runUpdateCheck = async () => {
       const info = await checkForUpdate();
-      if (info && info.hasUpdate) {
-        Alert.alert(
-          "Update Available",
-          `Version ${info.version} is available! Head to Settings to download it directly.`,
-          [
-            { text: "Later", style: "cancel" },
-            { text: "Update Now", onPress: () => router.push('/settings') }
-          ]
-        );
+      // On Home screen, we ONLY notify if it's a genuine NEW version (isReinstall will be false by my logic)
+      if (info && info.hasUpdate && !info.isReinstall) {
+        setUpdateModal({
+          visible: true,
+          title: "Update Available",
+          subtitle: `Version ${info.version} is available! Head to Settings to download it directly.`,
+          version: info.version
+        });
       }
     };
     runUpdateCheck();
@@ -344,7 +342,7 @@ export default function HomeScreen() {
     </View >
   ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors]);
 
-  if (!isLoaded) return <HomeSkeleton />;
+  if (!isLoaded) return null;
 
   return (
     <View style={s.root}>
@@ -438,6 +436,27 @@ export default function HomeScreen() {
             label: loc.settingsScreen.ok,
             style: 'default',
             onPress: () => setAppAlert(prev => ({ ...prev, visible: false }))
+          }
+        ]}
+      />
+      <ThemedModal
+        visible={updateModal.visible}
+        onClose={() => setUpdateModal(prev => ({ ...prev, visible: false }))}
+        title={updateModal.title}
+        description={updateModal.subtitle}
+        actions={[
+          {
+            label: "Later",
+            onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
+            variant: 'secondary'
+          },
+          {
+            label: "Update Now",
+            onPress: () => {
+              setUpdateModal(prev => ({ ...prev, visible: false }));
+              router.push('/settings');
+            },
+            variant: 'primary'
           }
         ]}
       />

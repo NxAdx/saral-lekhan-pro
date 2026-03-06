@@ -45,10 +45,11 @@ export interface UpdateInfo {
  */
 export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
     try {
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`, {
+        // We use the full releases list to be more robust than just '/latest' 
+        // which can sometimes be delayed or skip pre-releases the user might want.
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
-                // Optional: 'X-GitHub-Api-Version': '2022-11-28'
             }
         });
 
@@ -57,46 +58,53 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
             return null;
         }
 
-        const data = await response.json();
-        const latestVersionTag = data.tag_name; // e.g., 'v2.9.4'
-        const currentVersion = APP_VERSION.replace(/^v/, '');
+        const releases = await response.json();
+        if (!Array.isArray(releases) || releases.length === 0) return null;
 
-        // Strip 'v' if present for clean comparison
-        const cleanLatest = latestVersionTag.replace(/^v/, '');
-        const cleanCurrent = currentVersion.replace(/^v/, '');
+        // Find the most recent release that has an APK
+        let latestRelease = null;
+        let apkAsset = null;
 
-        // Compare as semantic version parts to avoid false "update available" prompts.
-        // Find the APK asset
-        const assets = Array.isArray(data?.assets) ? data.assets : [];
-        const apkAsset = assets.find((asset: any) => typeof asset?.name === 'string' && asset.name.endsWith('.apk'));
-        const hasApk = !!apkAsset;
-        const versionCompare = compareVersions(cleanLatest, cleanCurrent);
-        const isReinstall = allowSameVersion && versionCompare === 0 && hasApk;
-        const hasUpdate = versionCompare > 0 || isReinstall;
+        for (const release of releases) {
+            const assets = Array.isArray(release.assets) ? release.assets : [];
+            const foundApk = assets.find((asset: any) =>
+                typeof asset?.name === 'string' && asset.name.endsWith('.apk')
+            );
+            if (foundApk) {
+                latestRelease = release;
+                apkAsset = foundApk;
+                break;
+            }
+        }
 
-        if (versionCompare > 0 && !hasApk) {
-            console.log('Update found but no .apk asset attached');
+        if (!latestRelease || !apkAsset) {
+            console.log('No releases with APK found');
             return null;
         }
 
-        if (hasUpdate) {
-            return {
-                hasUpdate: true,
-                version: cleanLatest,
-                downloadUrl: apkAsset?.browser_download_url || '',
-                changelog: data.body || '',
-                releaseUrl: data.html_url || `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest`,
-                isReinstall,
-            };
-        }
+        const latestVersionTag = latestRelease.tag_name;
+        const currentVersion = APP_VERSION.replace(/^v/, '');
+
+        const cleanLatest = latestVersionTag.replace(/^v/, '');
+        const cleanCurrent = currentVersion.replace(/^v/, '');
+
+        const versionCompare = compareVersions(cleanLatest, cleanCurrent);
+
+        // Strict Logic:
+        // 1. hasUpdate is ONLY true if cleanLatest > cleanCurrent
+        // 2. isReinstall is ONLY true if cleanLatest == cleanCurrent AND allowSameVersion (manual check) is true
+
+        const isNewVersion = versionCompare > 0;
+        const isReinstall = versionCompare === 0 && allowSameVersion;
+        const hasUpdate = isNewVersion || isReinstall;
 
         return {
-            hasUpdate: false,
-            version: cleanCurrent,
-            downloadUrl: '',
-            changelog: data.body || '',
-            releaseUrl: data.html_url || `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest`,
-            isReinstall: false,
+            hasUpdate,
+            version: cleanLatest,
+            downloadUrl: apkAsset.browser_download_url,
+            changelog: latestRelease.body || '',
+            releaseUrl: latestRelease.html_url,
+            isReinstall,
         };
 
     } catch (error) {
@@ -154,7 +162,7 @@ export async function downloadAndInstallApk(
             } catch {
                 // No-op
             }
-            Linking.openURL(downloadUrl).catch(() => {});
+            Linking.openURL(downloadUrl).catch(() => { });
         });
 
         // Resolve immediately so UI is not stuck at "Downloading 100%"

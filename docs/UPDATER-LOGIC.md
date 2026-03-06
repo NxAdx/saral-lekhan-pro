@@ -1,22 +1,22 @@
 # In-App Updater Logic (Android)
 
-Last updated: 2026-03-04
+Last updated: 2026-03-06
 Scope: GitHub release based APK updates for `com.sarallekhan`.
 
 ## 1. Design Overview
 
 The app uses a custom updater, not Expo OTA, for APK replacement:
 
-1. Read latest release metadata from GitHub REST API.
-2. Compare semantic version with installed app version.
-3. Download `.apk` asset when update is available.
+1. Read all release metadata from GitHub REST API (v2.12.0+ uses `/releases`).
+2. Compare semantic version with installed app version strictly.
+3. Download `.apk` asset when a NEWER version is available.
 4. Launch Android package installer intent.
 
 Core files:
 
 - `src/utils/githubUpdater.ts` - fetch, compare, download, and installer intent.
-- `src/app/(main)/settings.tsx` - updater UI state and action button.
-- `src/app/(main)/index.tsx` - background update check hint on app launch.
+- `src/app/(main)/settings.tsx` - updater UI state using `ThemedModal`.
+- `src/app/(main)/index.tsx` - background update check on app launch using `ThemedModal`.
 - `android/app/src/main/AndroidManifest.xml` - install permission for unknown sources flow.
 - `app.json` - Android permission declaration for managed config.
 
@@ -24,19 +24,20 @@ Core files:
 
 ### Step A: Check for update
 
-`checkForUpdate()` calls:
+`checkForUpdate()` now calls:
 
-- `GET https://api.github.com/repos/NxAdx/saral-lekhan-pro/releases/latest`
+- `GET https://api.github.com/repos/NxAdx/saral-lekhan-pro/releases`
 
-Behavior:
+Behavior (Strict Versioning):
 
-1. Reads `tag_name` (for example `v2.10.1`).
-2. Removes leading `v`.
-3. Compares with installed version using semantic integer-part comparison.
-4. Finds `.apk` asset in release assets.
+1. Fetches all releases to find the latest available version.
+2. Removes leading `v` from tags.
+3. Compares with installed version using a strict semantic parts comparison (`x.y.z`).
+4. Finds `.apk` asset in the release.
 5. Returns:
-   - `hasUpdate = true` for newer version.
-   - `isReinstall = true` for same version if reinstall is explicitly allowed.
+   - `hasUpdate = true` ONLY for strictly newer versions.
+   - `isReinstall = true` if versions match (only prompted for manual checks).
+6. UI: Uses `ThemedModal` instead of native `Alert` for a consistent look.
 
 ### Step B: Download and install
 

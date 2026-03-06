@@ -65,7 +65,7 @@ try {
 }
 
 export function RootLayout() {
-  const { themeId, nightMode, amoledMode } = useSettingsStore();
+  const { themeId, nightMode } = useSettingsStore();
   const systemColor = useColorScheme();
 
   const [fontsLoaded, fontError] = useFonts({
@@ -95,6 +95,8 @@ export function RootLayout() {
 
   // Removed explicit hideAsync here, moved to onLayoutRootView below
 
+  const isLoaded = useNotesStore(s => s.isLoaded);
+
   useEffect(() => {
     // Pre-initialize DB during splash screen so Home renders instantly
     useNotesStore.getState().initDB();
@@ -114,7 +116,7 @@ export function RootLayout() {
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
-  const finalBgColor = isDark && amoledMode ? '#000000' : coreColors.bg;
+  const finalBgColor = coreColors.bg;
 
   useEffect(() => {
     // Fix the 1ms white-flash on resume and keep root window tracking active theme
@@ -131,12 +133,16 @@ export function RootLayout() {
   };
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
+    // Keep splash screen until BOTH fonts and DB are ready
+    if ((fontsLoaded || fontError) && isLoaded) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, isLoaded]);
 
-  if (!fontsLoaded && !fontError) return null;
+  // Return a themed view instead of null to prevent white flash if splash fails
+  if ((!fontsLoaded && !fontError) || !isLoaded) {
+    return <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView} />;
+  }
 
   return (
     <ThemeProvider value={navTheme}>
