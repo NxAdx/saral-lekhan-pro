@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { log } from '../utils/Logger';
 
 const BIOMETRIC_ENABLED_KEY = 'saral_lekhan_biometric_enabled';
 
@@ -38,6 +39,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     unlockApp: () => set({ isUnlocked: true }),
 
+    forceUnlock: () => {
+        log.warn("AuthStore: Force Unlock triggered (Bypassing biometrics)");
+        set({ isUnlocked: true, isBiometricEnabled: false });
+    },
+
     lockApp: () => {
         if (get().isBiometricEnabled) {
             set({ isUnlocked: false });
@@ -45,17 +51,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     },
 
     initialize: async () => {
+        log.info("AuthStore: Initializing...");
+        
+        // Safety: If SecureStore hangs, we must not block the app
+        const authTimeout = setTimeout(() => {
+            if (!get().isUnlocked && !get().isBiometricEnabled) {
+                log.warn("AuthStore: Initialization timeout - defaulting to unlocked");
+                set({ isUnlocked: true });
+            }
+        }, 3000);
+
         try {
             const isEnabled = await SecureStore.getItemAsync(BIOMETRIC_ENABLED_KEY);
             const enabled = isEnabled === 'true';
             set({
                 isBiometricEnabled: enabled,
-                // If it's not enabled, the app is "unlocked" by default
                 isUnlocked: !enabled
             });
+            log.info(`AuthStore: Ready (Enabled: ${enabled})`);
         } catch (e) {
-            console.error('Failed to load biometric preference', e);
+            log.error('AuthStore: Failed to load biometric preference', e as any);
             set({ isUnlocked: true }); // Fallback to unlocked on error
+        } finally {
+            clearTimeout(authTimeout);
         }
     }
 }));

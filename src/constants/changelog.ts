@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.14.0",
+        date: "2026-03-06",
+        changes: {
+            en: [
+                "🛡️ Recovery UI: Added a manual bypass button if the app hangs for more than 10 seconds.",
+                "🔐 Biometric Fail-Safe: Implemented a timeout for the lock screen to prevent it from blocking the app.",
+                "🚀 Optimization: Consolidated initialization logic and removed redundant database calls.",
+            ],
+            hi: [
+                "🛡️ रिकवरी UI: यदि ऐप 10 सेकंड से अधिक समय तक हैंग रहता है तो एक मैनुअल बायपास बटन जोड़ा गया।",
+                "🔐 बायोमेट्रिक फेल-सेफ: लॉक स्क्रीन को ऐप को ब्लॉक करने से रोकने के लिए टाइमआउट लागू किया गया।",
+                "🚀 ऑप्टिमाइज़ेशन: इनिशियलाइज़ेशन लॉजिक को समेकित किया गया और अनावश्यक डेटाबेस कॉल को हटाया गया।",
+            ],
+            ta: [
+                "🛡️ மீட்டெடுப்பு UI: ஆப் 10 வினாடிகளுக்கு மேல் முடங்கினால் மேனுவல் பைபாஸ் பட்டன் சேர்க்கப்பட்டது.",
+                "🔐 பயோமெட்ரிக் ஃபெயில்-சேஃப்: லாக் ஸ்கிரீன் ஆப்பைத் தடுப்பதைத் தவிர்க்க காலாவதி நேரம் செயல்படுத்தப்பட்டது.",
+                "🚀 மேம்படுத்தல்: துவக்க லாஜிக் ஒருங்கிணைக்கப்பட்டது மற்றும் தேவையற்ற தரவுத்தள அழைப்புகள் நீக்கப்பட்டன.",
+            ]
+        }
+    },
+    {
         version: "2.13.2",
         date: "2026-03-06",
         changes: {

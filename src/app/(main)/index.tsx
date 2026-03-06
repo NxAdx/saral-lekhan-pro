@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
-  ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text
+  ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
@@ -133,10 +133,6 @@ export default function HomeScreen() {
       console.warn(e);
     }
   }, [selectedIds, filteredNotes, clearSelection]);
-
-  useEffect(() => {
-    initDB();
-  }, [initDB]);
 
   const onNewNote = useCallback(() => router.push('/editor/new'), [router]);
   const onNotePress = useCallback((id: number) => router.push(`/editor/${id}`), [router]);
@@ -444,13 +440,12 @@ export default function HomeScreen() {
       <ThemedModal
         visible={updateModal.visible}
         onClose={() => setUpdateModal(prev => ({ ...prev, visible: false }))}
-        title={updateModal.title}
-        description={updateModal.subtitle}
+        title={updateModal.title + " - " + updateModal.subtitle}
         actions={[
           {
             label: "Later",
             onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
-            variant: 'secondary'
+            style: 'cancel'
           },
           {
             label: "Update Now",
@@ -458,7 +453,7 @@ export default function HomeScreen() {
               setUpdateModal(prev => ({ ...prev, visible: false }));
               router.push('/settings');
             },
-            variant: 'primary'
+            style: 'default'
           }
         ]}
       />

@@ -68,6 +68,7 @@ export function RootLayout() {
   const { themeId, nightMode } = useSettingsStore();
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
+  const [showRecovery, setShowRecovery] = React.useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     'Hind': require('../../assets/fonts/Hind-Regular.ttf'),
@@ -100,35 +101,43 @@ export function RootLayout() {
   const coreReady = (fontsLoaded || fontError || isStartupTimeout) && (isLoaded || isStartupTimeout);
 
     useEffect(() => {
-        log.info("🚀 RootLayout: Starting app initialization sequence...");
-        
-        // Delayed Sentry Init to prevent blocking splash hide or early UI renders
-        try {
-            if (!__DEV__) {
-                log.info("Initializing Sentry...");
-                Sentry.init({
-                    dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",
-                    debug: false,
-                });
-            }
-        } catch (e) {
-            log.warn("Sentry init failed", e as any);
-        }
+        const init = async () => {
+            log.info("🚀 RootLayout: Starting atomic initialization...");
+            
+            // 1. Core Stores (Sequential & Guarded)
+            try {
+                log.info("Init DB...");
+                await useNotesStore.getState().initDB();
+            } catch (e) { log.error("DB Init Failed", e as any); }
 
-        log.info("Initializing Stores...");
-        useNotesStore.getState().initDB();
-        useAuthStore.getState().initialize();
-        useAiStore.getState().initialize();
+            try {
+                log.info("Init Auth...");
+                await useAuthStore.getState().initialize();
+            } catch (e) { log.error("Auth Init Failed", e as any); }
 
-        // SAFETY NET: If DB/Fonts take > 5s, force a usable state so app doesn't hang
-        const timer = setTimeout(() => {
-            if (!useNotesStore.getState().isLoaded || (!fontsLoaded && !fontError)) {
-                log.warn("🚨 RootLayout: Startup timeout REACHED. Forcing ready state.");
+            try {
+                log.info("Init AI...");
+                await useAiStore.getState().initialize();
+            } catch (e) { log.error("AI Init Failed", e as any); }
+        };
+
+        init();
+
+        // FAIL-SAFE 1: Soft timeout at 5s (attempts to hide splash silently)
+        const safetyTimer = setTimeout(() => {
+            if (!coreReady) {
+                log.warn("🚨 RootLayout: 5s Safety Net reached. Forcing internal ready.");
                 setIsStartupTimeout(true);
-                useNotesStore.setState({ isLoaded: true });
-                SplashScreen.hideAsync();
             }
         }, 5000);
+
+        // FAIL-SAFE 2: Hard timeout at 10s (Show Recovery UI)
+        const recoveryTimer = setTimeout(() => {
+            if (!coreReady) {
+                log.error("🛑 RootLayout: 10s CRITICAL timeout. Showing Recovery UI.");
+                setShowRecovery(true);
+            }
+        }, 10000);
 
         const subscription = AppState.addEventListener('change', (nextAppState) => {
             if (nextAppState === 'background' || nextAppState === 'inactive') {
@@ -137,19 +146,19 @@ export function RootLayout() {
         });
 
         return () => {
-            clearTimeout(timer);
+            clearTimeout(safetyTimer);
+            clearTimeout(recoveryTimer);
             subscription.remove();
         };
-    }, [fontsLoaded, fontError]); 
+    }, []); 
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
   const finalBgColor = coreColors.bg;
 
   useEffect(() => {
-    log.info(`Theme Update: ${themeId} | Dark: ${isDark}`);
-    const bgResult = SystemUI.setBackgroundColorAsync(finalBgColor);
-    (bgResult as any)?.catch?.(() => { });
+    log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
+    SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
   }, [finalBgColor, isDark]);
 
   const navTheme = {
@@ -161,16 +170,39 @@ export function RootLayout() {
   };
 
     const onLayoutRootView = useCallback(async () => {
-        // Hide splash as soon as we are ready OR if we timed out (handled in useEffect)
         if (coreReady) {
-            log.info(`Hiding splash. Fonts: ${!!fontsLoaded}, DB: ${isLoaded}`);
-            SplashScreen.hideAsync();
+            log.info("Ready state met. Releasing splash.");
+            SplashScreen.hideAsync().catch(() => {});
         }
-    }, [coreReady, fontsLoaded, isLoaded]);
+    }, [coreReady]);
 
-  // Return a themed view instead of null to prevent white flash if splash fails
+  const handleForceStart = () => {
+    log.info("User triggered Force Start");
+    setIsStartupTimeout(true);
+    useNotesStore.setState({ isLoaded: true });
+    useAuthStore.getState().forceUnlock();
+    setShowRecovery(false);
+  };
+
+  // Return specialized loading view if not ready
   if (!coreReady) {
-    return <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView} />;
+    return (
+      <View style={{ flex: 1, backgroundColor: finalBgColor, justifyContent: 'center', alignItems: 'center' }} onLayout={onLayoutRootView}>
+        {showRecovery && (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Text style={{ color: coreColors.inkDim, marginBottom: 20, textAlign: 'center', fontFamily: 'Hind' }}>
+                Startup is taking longer than usual...
+            </Text>
+            <Pressable 
+                onPress={handleForceStart}
+                style={{ backgroundColor: coreColors.accent, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12 }}
+            >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>FORCE START APP</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+    );
   }
 
   return (
