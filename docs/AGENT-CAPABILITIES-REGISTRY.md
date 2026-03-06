@@ -1,28 +1,29 @@
-# Agent Capabilities Registry (Project Context)
+# AGENT-CAPABILITIES-REGISTRY
 
-This registry documents the specialized tools, skills, and protocols currently integrated into the Saral Lekhan Plus development environment. These resources are used to ensure production-grade quality, performance, and cross-session consistency.
+This document tracks the tools, services, and automation capabilities available to the AI development agent for **Saral Lekhan Plus**.
 
-## 🟢 Currently Installed Skills (`.agents/skills/`)
-These skills provide high-level behavioral patterns and best practices.
-- **vercel-react-native-skills**: Specialized rules for list performance (FlashList), memoization, and Expo UI patterns.
-- **vercel-react-best-practices**: Guidelines for state management (Zustand), component architecture, and React hooks.
-- **web-design-guidelines**: Protocols for visual excellence, micro-animations, and premium typography.
+## 🛠️ MCP Servers (Model Context Protocol)
 
-## 🌐 Connected MCP Servers
-Standardized protocols for interacting with external services and codebases.
-- **StitchMCP**: Core tool for UI design generation and screen iterations.
-- **Cloud Run MCP**: Deployment and container management.
-- **GitHub MCP (Capability)**: Deep repository access, issue tracking, and PR inspection.
-- **Fetch/Firecrawl (Capability)**: Real-time documentation extraction from web URLs.
+- **StitchMCP**: High-level UI/UX design and frontend component generation.
+- **Cloud Run**: GCP integration for containerized deployment (if applicable).
+- **Firebase MCP**: Integration with Firebase services (Auth, Firestore, Hosting, Data Connect).
 
-## 🏆 Recommended Marketplace Hubs
-For discovering and adding new project-specific capabilities:
-- **MCP Market ([mcpmarket.com](https://mcpmarket.com))**: Directory of the newest and most popular MCP servers.
-- **Glama.ai**: Preview and evaluate MCP servers before integration.
-- **Skills.sh**: Registry of agent-specific "how-to" behavior libraries.
+## 🚀 DevOps & Infrastructure
 
-## 🔄 Future Context & Continuity
-The **[MASTER-PROMPT.md](file:///d:/Development/Production/saral-lekhan-plus/.agents/MASTER-PROMPT.md)** acts as the source of truth for the agent's identity. Every new session should begin by reading that document to align with the "Production Expert" persona and existing technical standards.
+- **GitHub Actions**: CI/CD pipeline for linting, testing, and production APK builds.
+- **ADB (Android Debug Bridge)**: On-device diagnostics and log analysis.
+  - *Path*: `C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe`
+- **Sentry**: Real-time error tracking and crash reporting.
+  - *DSN*: `https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176`
 
----
-*Registry Version: v1.0.0 | Updated: 2026-03-06*
+## 🧠 Specialized Skills & Automation
+
+- **vercel-react-best-practices**: Advanced patterns for React/Next.js and modern frontend architecture.
+- **Image Generation**: Tools for creating branding assets (logos, icons) using professional AI models.
+- **Unit Testing**: Pre-configured Jest/React Native Testing Library for automated verification.
+
+## 📦 Project Context & Knowledge Base
+
+- **Knowledge Items (KIs)**: Persistent distilled knowledge from past architectural decisions.
+- **docs/**: Centralized source of truth (Roadmap, architecture, Implementation Plans).
+- **Conversation Logs**: Historical context from all development phases.

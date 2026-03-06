@@ -1,77 +1,42 @@
-# Command Guide - सरल लेखन (Saral Lekhan)
+# Command Guide
 
-This guide provides common terminal commands for developers working on the Saral Lekhan project.
+A centralized reference for all development commands required to run, build, and debug the **Saral Lekhan Plus** system.
 
-## 1. Development Commands
-> [!IMPORTANT]
-> All commands must be run from the project root: `d:\Development\Production\saral-lekhan-plus`
+## 🚀 Development & Running
 
-### Start Development Server
-```bash
-npx expo start
-```
-*Options:*
-- `-c`: Clear the packager cache.
-- `--android`: Open the app on a connected Android device/emulator.
-- `--ios`: Open the app on a connected iOS simulator.
+- `npm start`: Start the Expo development server.
+- `npx expo start --android`: Run the app on a connected Android device/emulator.
+- `npx expo start --ios`: Run the app on an iOS simulator.
 
-### Run on Android (Development Client)
-```bash
-npx expo run:android
-```
+## 🛠️ Build & Compilation
 
-### Run on iOS (Development Client)
-```bash
-npx expo run:ios
-```
+- `npx expo prebuild`: Generate native `android/` and `ios/` folders.
+- `cd android && ./gradlew assembleRelease`: Build the production Android APK.
+- `cd android && ./gradlew assembleDebug`: Build the debug Android APK.
 
-## 2. Build Commands (Production)
-Commands to generate the final APK/AAB for distribution.
+## ✅ Quality & Testing
 
-### Build Local APK (Development/Internal Testing)
-```powershell
-cd android
-.\gradlew assembleRelease
-```
-*The resulting APK will be at `android/app/build/outputs/apk/release/app-release.apk`.*
+- `npm test`: Run Jest unit tests.
+- `npm run lint`: Run ESLint for code formatting and style.
+- `npm run tsc`: Run TypeScript compiler for type validation.
 
-### EAS Build (Cloud Build)
-If you have EAS configured:
-```bash
-eas build --platform android --profile production
-```
+## 🔍 Diagnostics & Debugging
 
-## 3. Database & Store
-### Reset Local Storage (Development Only)
-If you need to clear the app state and database during development:
-- **Android**: Long-press app icon > App Info > Storage & Cache > Clear Storage.
-- **Terminal (if using emulator)**:
-```bash
-adb shell pm clear com.saral.lekhan
-```
+- **ADB Logcat**:
+  ```bash
+  # View app-specific logs
+  & "C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe" logcat ReactNativeJS:V saral:V *:S
+  # Filter only errors
+  & "C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe" logcat *:E
+  ```
+- **Sentry Check**:
+  ```bash
+  # Verify Sentry initialization and recent events (via Sentry UI or CLI)
+  sentry-cli info
+  ```
 
-## 4. Linting & Type Checking
-### Run TypeScript Compiler
-```bash
-npx tsc
-```
+## 🧹 Maintenance
 
-### Linting
-If ESLint is configured:
-```bash
-npm run lint
-```
-
-## 5. Helpful Utilities
-### View Connected Devices
-```bash
-adb devices
-```
-
-### Logcat (Android Debugging)
-```bash
-adb logcat *:S ReactNative:V ReactNativeJS:V
-```
-
----
-*Version 1.0 | 2026-03-01*
+- `watchman watch-del-all`: Clear Watchman watches.
+- `rm -rf node_modules && npm install`: Full dependency reinstall.
+- `cd android && ./gradlew clean`: Clean Gradle build cache.
