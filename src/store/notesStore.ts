@@ -88,12 +88,12 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           );
         }
       );
-    }, (err) => {
-      log.error("Failed to init DB", err);
-      Sentry.captureException(err);
-      // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
-      set({ isLoaded: true });
-    });
+        }, (err) => {
+            log.error("Failed to init DB (Transaction Error)", err);
+            Sentry.captureException(err);
+            // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
+            set({ isLoaded: true });
+        });
   },
 
   loadNotes: () => {

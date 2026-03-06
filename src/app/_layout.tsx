@@ -97,22 +97,32 @@ export function RootLayout() {
 
   const isLoaded = useNotesStore(s => s.isLoaded);
 
-  useEffect(() => {
-    // Pre-initialize DB during splash screen so Home renders instantly
-    useNotesStore.getState().initDB();
-    useAuthStore.getState().initialize();
-    useAiStore.getState().initialize();
+    useEffect(() => {
+        log.info("Starting app initialization...");
+        // Pre-initialize DB during splash screen so Home renders instantly
+        useNotesStore.getState().initDB();
+        useAuthStore.getState().initialize();
+        useAiStore.getState().initialize();
 
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-        useAuthStore.getState().lockApp();
-      }
-    });
+        // SAFETY NET: If DB/Fonts take > 5s, force isLoaded to true so app doesn't hang on grey/white screen
+        const timer = setTimeout(() => {
+            if (!useNotesStore.getState().isLoaded) {
+                log.warn("Startup timeout reached: forcing isLoaded=true");
+                useNotesStore.setState({ isLoaded: true });
+            }
+        }, 5000);
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+        const subscription = AppState.addEventListener('change', (nextAppState) => {
+            if (nextAppState === 'background' || nextAppState === 'inactive') {
+                useAuthStore.getState().lockApp();
+            }
+        });
+
+        return () => {
+            clearTimeout(timer);
+            subscription.remove();
+        };
+    }, []);
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
@@ -132,12 +142,14 @@ export function RootLayout() {
     },
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    // Keep splash screen until BOTH fonts and DB are ready
-    if ((fontsLoaded || fontError) && isLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError, isLoaded]);
+    const onLayoutRootView = useCallback(async () => {
+        // Keep splash screen until BOTH fonts and DB are ready
+        const ready = (fontsLoaded || fontError) && isLoaded;
+        if (ready) {
+            log.info(`Ready to hide splash. Fonts: ${!!fontsLoaded}, DB: ${isLoaded}`);
+            await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded, fontError, isLoaded]);
 
   // Return a themed view instead of null to prevent white flash if splash fails
   if ((!fontsLoaded && !fontError) || !isLoaded) {
