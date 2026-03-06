@@ -96,6 +96,10 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
 
         const isNewVersion = versionCompare > 0;
         const isReinstall = versionCompare === 0 && allowSameVersion;
+        
+        // Final logic:
+        // - In auto-check (allowSameVersion=false): hasUpdate is true ONLY for NEWER versions
+        // - In manual-check (allowSameVersion=true): hasUpdate is true for NEWER OR IDENTICAL versions (reinstall)
         const hasUpdate = isNewVersion || isReinstall;
 
         return {

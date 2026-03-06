@@ -1,5 +1,10 @@
 # Master Project Documentation: सरल लेखन (Saral Lekhan)
 
+> **Handoff Addendum (v2.13.1 - 2026-03-06)**:
+> - **Deep Startup Fix**: Resolved the "grey screen" hang by bundling core fonts (`assets/fonts`) and implementing a robust 5s safety net in `RootLayout`.
+> - **Offline Reliability**: App is now 100% independent of network-based font loading during boot.
+> - **Version State**: Mainline is at **v2.13.1** (versionCode 46).
+
 > **Handoff Addendum (v2.13.0 - 2026-03-06)**:
 > - **Performance Boost**: Migrated to `FlashList` for ultra-smooth scrolling and implemented `React.memo` for `BentoCard` to minimize re-renders.
 > - **Agent Skills**: Integrated `vercel-react-native-skills` to enforce production-grade performance and UI best practices.

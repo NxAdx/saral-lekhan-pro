@@ -721,128 +721,113 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Font Size Modal (Material 3 Slider) */}
-                <Modal visible={showFontModal} transparent animationType="fade">
-                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                        <View style={{ backgroundColor: colors.bg, borderRadius: 32, width: '100%', padding: 28, ...theme.shadow.soft, borderWidth: 1, borderColor: colors.strokeDim }}>
-                            <Text style={{ fontFamily: font.sansBold, fontSize: 20, color: colors.ink, marginBottom: 4 }}>{loc.settingsScreen.textSize}</Text>
-                            <Text style={{ fontFamily: font.sans, fontSize: 14, color: colors.inkMid, marginBottom: 24 }}>{loc.settingsScreen.textSizeSub}</Text>
-
-                            {/* Live Preview Area */}
-                            <View style={{
-                                backgroundColor: colors.bgRaised,
-                                borderRadius: 16,
-                                padding: 20,
-                                marginBottom: 32,
-                                alignItems: 'center',
-                                borderWidth: 1,
-                                borderColor: colors.strokeDim,
-                                minHeight: 120,
-                                justifyContent: 'center'
+            <ThemedModal
+                visible={showFontModal}
+                title={loc.settingsScreen.textSize}
+                subtitle={loc.settingsScreen.textSizeSub}
+                onClose={() => setShowFontModal(false)}
+                actions={[
+                    { label: loc.settingsScreen.reset, style: "default", onPress: () => { settings.setFontSize(1.0); setShowFontModal(false); } },
+                    { label: loc.settingsScreen.ok, style: "default", onPress: () => setShowFontModal(false) }
+                ]}
+                customContent={
+                    <View>
+                        {/* Live Preview Area */}
+                        <View style={{
+                            backgroundColor: colors.bgRaised,
+                            borderRadius: 16,
+                            padding: 20,
+                            marginBottom: 24,
+                            alignItems: 'center',
+                            borderWidth: 1,
+                            borderColor: colors.strokeDim,
+                            minHeight: 100,
+                            justifyContent: 'center'
+                        }}>
+                            <Text style={{
+                                fontFamily: font.sans,
+                                fontSize: type.bodyLarge.fontSize,
+                                color: colors.ink,
+                                textAlign: 'center'
                             }}>
-                                <Text style={{
-                                    fontFamily: font.sans,
-                                    fontSize: type.bodyLarge.fontSize,
-                                    color: colors.ink,
-                                    textAlign: 'center'
+                                {settings.language === 'Hi' ? "नमस्ते, सरल लेखन।" : settings.language === 'Mr' ? "नमस्कार, सरल लेखन।" : "The quick brown fox jumps over the lazy dog."}
+                            </Text>
+                            <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.accent, marginTop: 8 }}>
+                                {Math.round(settings.fontSize * 100)}% ({settings.appFont})
+                            </Text>
+                        </View>
+
+                        <View style={{ alignItems: 'center', paddingBottom: 10 }}>
+                            <View style={{ width: '100%', height: 48, justifyContent: 'center' }}>
+                                {/* M3 Slider Track */}
+                                <View style={{
+                                    height: 12,
+                                    backgroundColor: colors.accentBg,
+                                    borderRadius: 6,
+                                    width: '100%',
+                                    position: 'relative',
+                                    overflow: 'hidden'
                                 }}>
-                                    {settings.language === 'Hi' ? "नमस्ते, सरल लेखन।" : settings.language === 'Mr' ? "नमस्कार, सरल लेखन।" : "The quick brown fox jumps over the lazy dog."}
-                                </Text>
-                                <Text style={{ fontFamily: font.mono, fontSize: 12, color: colors.accent, marginTop: 12 }}>
-                                    {Math.round(settings.fontSize * 100)}% ({settings.appFont})
-                                </Text>
-                            </View>
-
-                            <View style={{ alignItems: 'center', paddingBottom: 20 }}>
-                                <View style={{ width: '100%', height: 48, justifyContent: 'center' }}>
-                                    {/* M3 Slider Track */}
+                                    {/* Filled portion */}
                                     <View style={{
-                                        height: 16,
-                                        backgroundColor: colors.accentBg,
-                                        borderRadius: 8,
-                                        width: '100%',
-                                        position: 'relative',
-                                        overflow: 'hidden'
-                                    }}>
-                                        {/* Filled portion */}
-                                        <View style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            top: 0,
-                                            bottom: 0,
-                                            width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`,
-                                            backgroundColor: colors.accent
-                                        }} />
-                                    </View>
-
-                                    {/* Interactive Steps */}
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
                                         position: 'absolute',
                                         left: 0,
-                                        right: 0,
-                                        paddingHorizontal: 0
-                                    }}>
-                                        {FONT_SIZE_STEPS.map((step) => {
-                                            const isActive = settings.fontSize === step;
-                                            return (
-                                                <Pressable
-                                                    key={step}
-                                                    onPress={() => settings.setFontSize(step)}
-                                                    style={{
-                                                        width: 44,
-                                                        height: 44,
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                    }}
-                                                >
-                                                    <View style={{
-                                                        width: 4,
-                                                        height: 4,
-                                                        borderRadius: 2,
-                                                        backgroundColor: isActive ? colors.white : colors.accent,
-                                                        opacity: isActive ? 1 : 0.4
-                                                    }} />
-
-                                                    {isActive && (
-                                                        <View style={{
-                                                            position: 'absolute',
-                                                            width: 12,
-                                                            height: 32,
-                                                            borderRadius: 6,
-                                                            backgroundColor: colors.accent,
-                                                            zIndex: -1
-                                                        }} />
-                                                    )}
-                                                </Pressable>
-                                            );
-                                        })}
-                                    </View>
+                                        top: 0,
+                                        bottom: 0,
+                                        width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`,
+                                        backgroundColor: colors.accent
+                                    }} />
                                 </View>
-                            </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16, gap: 8 }}>
-                                <Pressable onPress={() => { settings.setFontSize(1.0); setShowFontModal(false); }} style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
-                                    <Text style={{ color: colors.inkMid, fontFamily: font.sansSemi, fontSize: 14 }}>{loc.settingsScreen.reset}</Text>
-                                </Pressable>
-                                <Pressable
-                                    onPress={() => setShowFontModal(false)}
-                                    style={{
-                                        backgroundColor: colors.accent,
-                                        paddingHorizontal: 32,
-                                        paddingVertical: 12,
-                                        borderRadius: 24,
-                                        ...theme.shadow.gentle
-                                    }}
-                                >
-                                    <Text style={{ color: colors.white, fontFamily: font.sansBold, fontSize: 15 }}>{loc.settingsScreen.ok}</Text>
-                                </Pressable>
+                                {/* Interactive Steps */}
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                }}>
+                                    {FONT_SIZE_STEPS.map((step) => {
+                                        const isActive = settings.fontSize === step;
+                                        return (
+                                            <Pressable
+                                                key={step}
+                                                onPress={() => settings.setFontSize(step)}
+                                                style={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <View style={{
+                                                    width: 4,
+                                                    height: 4,
+                                                    borderRadius: 2,
+                                                    backgroundColor: isActive ? colors.white : colors.accent,
+                                                    opacity: isActive ? 1 : 0.4
+                                                }} />
+
+                                                {isActive && (
+                                                    <View style={{
+                                                        position: 'absolute',
+                                                        width: 10,
+                                                        height: 28,
+                                                        borderRadius: 4,
+                                                        backgroundColor: colors.accent,
+                                                        zIndex: -1
+                                                    }} />
+                                                )}
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
                             </View>
                         </View>
                     </View>
-                </Modal>
+                }
+            />
 
 
 
@@ -899,25 +884,23 @@ export default function SettingsScreen() {
                     </View>
                 }
             />
-            {/* Update Notification Modal */}
             <ThemedModal
                 visible={updateModal.visible}
                 onClose={() => setUpdateModal(prev => ({ ...prev, visible: false }))}
                 title={updateModal.title}
-                description={updateModal.sub}
+                subtitle={updateModal.sub}
                 actions={[
                     {
-                        label: "Later",
+                        label: "Wait",
+                        style: 'cancel',
                         onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
-                        variant: 'secondary'
                     },
                     {
-                        label: "Download",
+                        label: updateModal.info?.isReinstall ? "Reinstall Now" : "Update Now",
                         onPress: () => {
                             setUpdateModal(prev => ({ ...prev, visible: false }));
                             handleDownloadUpdate();
                         },
-                        variant: 'primary'
                     }
                 ]}
             />
