@@ -10,6 +10,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.13.1",
+        date: "2026-03-06",
+        changes: {
+            hi: [
+                "स्टार्टअप स्थिरता में सुधार किया गया (Grey Screen fix)",
+                "ऑफ़लाइन फोंट को एप में शामिल किया गया"
+            ],
+            en: [
+                "Deep Startup stability fixes (Resolves Grey Screen hang)",
+                "Bundled core fonts directly into the APK for 100% offline reliability"
+            ],
+            mr: [
+                "स्टार्टअप स्थिरता सुधार (Grey Screen fix)",
+                "ऑफलाइन फोंट समाविष्ट केले"
+            ]
+        }
+    },
+    {
         version: "2.13.0",
         date: "2026-03-06",
         changes: {

@@ -69,12 +69,12 @@ export function RootLayout() {
   const systemColor = useColorScheme();
 
   const [fontsLoaded, fontError] = useFonts({
-    'Hind': Hind_400Regular,
-    'Hind-Medium': Hind_500Medium,
-    'Hind-SemiBold': Hind_600SemiBold,
-    'Hind-Bold': Hind_700Bold,
-    'VesperLibre-Black': VesperLibre_900Black,
-    'DMMono-Regular': DMMono_400Regular,
+    'Hind': require('../../assets/fonts/Hind-Regular.ttf'),
+    'Hind-Medium': require('../../assets/fonts/Hind-Medium.ttf'),
+    'Hind-SemiBold': require('../../assets/fonts/Hind-SemiBold.ttf'),
+    'Hind-Bold': require('../../assets/fonts/Hind-Bold.ttf'),
+    'VesperLibre-Black': require('../../assets/fonts/VesperLibre-Black.ttf'),
+    'DMMono-Regular': require('../../assets/fonts/DMMono-Regular.ttf'),
     'Poppins': Poppins_400Regular,
     'Poppins-Medium': Poppins_500Medium,
     'Poppins-SemiBold': Poppins_600SemiBold,
@@ -93,9 +93,9 @@ export function RootLayout() {
     'TiroDevanagari': TiroDevanagariHindi_400Regular,
   });
 
-  // Removed explicit hideAsync here, moved to onLayoutRootView below
-
+  // Combined readiness state
   const isLoaded = useNotesStore(s => s.isLoaded);
+  const coreReady = (fontsLoaded || fontError) && isLoaded;
 
     useEffect(() => {
         log.info("Starting app initialization...");
@@ -104,11 +104,13 @@ export function RootLayout() {
         useAuthStore.getState().initialize();
         useAiStore.getState().initialize();
 
-        // SAFETY NET: If DB/Fonts take > 5s, force isLoaded to true so app doesn't hang on grey/white screen
+        // SAFETY NET: If DB/Fonts take > 5s, force a usable state so app doesn't hang on grey/white screen
         const timer = setTimeout(() => {
-            if (!useNotesStore.getState().isLoaded) {
-                log.warn("Startup timeout reached: forcing isLoaded=true");
+            if (!useNotesStore.getState().isLoaded || (!fontsLoaded && !fontError)) {
+                log.warn("Startup timeout reached: forcing ready state");
+                // We don't force fontsLoaded state (read-only), but we force isLoaded and hide splash
                 useNotesStore.setState({ isLoaded: true });
+                SplashScreen.hideAsync();
             }
         }, 5000);
 
@@ -122,7 +124,7 @@ export function RootLayout() {
             clearTimeout(timer);
             subscription.remove();
         };
-    }, []);
+    }, [fontsLoaded, fontError]); // Dependency added to ensure timeout respects latest font state
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
@@ -143,16 +145,15 @@ export function RootLayout() {
   };
 
     const onLayoutRootView = useCallback(async () => {
-        // Keep splash screen until BOTH fonts and DB are ready
-        const ready = (fontsLoaded || fontError) && isLoaded;
-        if (ready) {
-            log.info(`Ready to hide splash. Fonts: ${!!fontsLoaded}, DB: ${isLoaded}`);
-            await SplashScreen.hideAsync();
+        // Hide splash as soon as we are ready OR if we timed out (handled in useEffect)
+        if (coreReady) {
+            log.info(`Hiding splash. Fonts: ${!!fontsLoaded}, DB: ${isLoaded}`);
+            SplashScreen.hideAsync();
         }
-    }, [fontsLoaded, fontError, isLoaded]);
+    }, [coreReady, fontsLoaded, isLoaded]);
 
   // Return a themed view instead of null to prevent white flash if splash fails
-  if ((!fontsLoaded && !fontError) || !isLoaded) {
+  if (!coreReady) {
     return <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView} />;
   }
 
