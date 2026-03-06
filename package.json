@@ -56,7 +56,8 @@
     "react-native-svg": "13.9.0",
     "react-native-view-shot": "3.7.0",
     "react-native-webview": "13.2.2",
-    "zustand": "^4.5.7"
+    "zustand": "^4.5.7",
+    "@shopify/flash-list": "1.4.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

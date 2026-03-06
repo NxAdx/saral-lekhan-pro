@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
-  ScrollView, StatusBar, Pressable, Platform
+  ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -348,10 +349,11 @@ export default function HomeScreen() {
     <View style={s.root}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
 
-      <FlatList
+      <FlashList
         data={filteredNotes}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
+        estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}

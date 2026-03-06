@@ -10,6 +10,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.13.0",
+        date: "2026-03-06",
+        changes: {
+            en: [
+                "⚡ Performance Boost: Switched to FlashList for ultra-smooth scrolling through large note collections.",
+                "🧠 Efficient Rendering: Implemented component memoization to eliminate unnecessary screen updates.",
+                "🛠️ Agent skills: Applied production-grade optimization rules from vercel-react-native-skills.",
+                "🚀 Memory Guard: Optimized item recycling to keep the app snappy during long sessions."
+            ],
+            hi: [
+                "⚡ परफॉरमेंस बूस्ट: बड़े नोट कलेक्शन में स्मूथ स्क्रॉलिंग के लिए FlashList का उपयोग।",
+                "🧠 कुशल रेंडरिंग: अनावश्यक स्क्रीन अपडेट को रोकने के लिए कंपोनेंट मेमोइज़ेशन।",
+                "🛠️ एजेंट स्किल्स: बेहतर कोड के लिए vercel-react-native-skills के नियमों का पालन।",
+                "🚀 मेमोरी गार्ड: लंबे सेशन के दौरान ऐप को तेज़ रखने के लिए ऑप्टिमाइज़ेशन।"
+            ],
+            mr: [
+                "⚡ परफॉर्मन्स बूस्ट: मोठ्या नोट कलेक्शनमध्ये स्मूथ स्क्रोलिंगसाठी FlashList चा वापर।",
+                "🧠 कार्यक्षम रेंडरिंग: अनावश्यक स्क्रीन अपडेट्स टाळण्यासाठी कंपोनेंट मेमोयझेशन।",
+                "🛠️ एजंट स्किल्स: उत्तम कोडसाठी vercel-react-native-skills नियमांचे एकत्रीकरण।",
+                "🚀 मेमरी गार्ड: लांब सेशन्स दरम्यान अ‍ॅप वेगवान ठेवण्यासाठी ऑप्टिमायझेशन।"
+            ]
+        }
+    },
+    {
         version: "2.12.0",
         date: "2026-03-06",
         changes: {

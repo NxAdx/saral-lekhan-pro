@@ -1,5 +1,10 @@
 # Master Project Documentation: सरल लेखन (Saral Lekhan)
 
+> **Handoff Addendum (v2.13.0 - 2026-03-06)**:
+> - **Performance Boost**: Migrated to `FlashList` for ultra-smooth scrolling and implemented `React.memo` for `BentoCard` to minimize re-renders.
+> - **Agent Skills**: Integrated `vercel-react-native-skills` to enforce production-grade performance and UI best practices.
+> - **Version State**: Mainline is at **v2.13.0** (versionCode 45).
+
 > **Handoff Addendum (v2.12.0 - 2026-03-06)**:
 > - **Smooth Boot**: White flash eliminated in `_layout.tsx` and `HomeSkeleton` deleted. App now stays themed during loading.
 > - **Theme Simplification**: AMOLED mode and Pitch theme removed to reduce design debt. Standard dark themes are now curated for high-contrast readiness.

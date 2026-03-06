@@ -17,13 +17,13 @@ interface BentoCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function BentoCard({
+export const BentoCard = React.memo(({
     note,
     date,
     selected = false,
     onPress,
     onLongPress,
-}: BentoCardProps) {
+}: BentoCardProps) => {
     if (!note) return null;
     const { title, body: preview, tag, pinned } = note;
     const { colors, radius, shadow, font } = useTheme();
@@ -150,4 +150,4 @@ export function BentoCard({
             </View>
         </AnimatedPressable>
     );
-}
+});
