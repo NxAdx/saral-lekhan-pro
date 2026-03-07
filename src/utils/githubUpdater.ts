@@ -1,33 +1,23 @@
 import * as FileSystem from 'expo-file-system';
-import * as IntentLauncher from 'expo-intent-launcher';
+import { Linking, Platform, NativeModules } from 'react-native';
 import Constants from 'expo-constants';
-import { Linking, Platform } from 'react-native';
+
+const { UpdaterModule } = NativeModules;
 
 export const APP_VERSION = (Constants.expoConfig?.version || '0.0.0').replace(/^v/, '');
-const APP_PACKAGE = Constants.expoConfig?.android?.package || 'com.sarallekhan';
-
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
 
-function parseVersionParts(version: string): number[] {
-    return version
-        .split('.')
-        .map((part) => parseInt(part, 10))
-        .map((part) => (Number.isFinite(part) ? part : 0));
-}
-
-function compareVersions(a: string, b: string): number {
-    const left = parseVersionParts(a);
-    const right = parseVersionParts(b);
-    const maxLen = Math.max(left.length, right.length);
-
-    for (let i = 0; i < maxLen; i += 1) {
-        const l = left[i] ?? 0;
-        const r = right[i] ?? 0;
-        if (l > r) return 1;
-        if (l < r) return -1;
-    }
-    return 0;
+/**
+ * Expert Numeric Versioning Logic
+ * Pattern: major * 100,000,000 + minor * 10,000 + patch
+ */
+function getVersionNumber(version: string): number {
+    const parts = version.replace(/^v/, '').split('.').map(p => parseInt(p, 10));
+    const major = parts[0] || 0;
+    const minor = parts[1] || 0;
+    const patch = parts[2] || 0;
+    return major * 100000000 + minor * 10000 + patch;
 }
 
 export interface UpdateInfo {
@@ -41,27 +31,18 @@ export interface UpdateInfo {
 
 /**
  * Checks the public GitHub repository for the latest release.
- * Returns information about the update if the latest tag is greater than the current app version.
  */
 export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
     try {
-        // We use the full releases list to be more robust than just '/latest' 
-        // which can sometimes be delayed or skip pre-releases the user might want.
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`, {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-            }
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
-        if (!response.ok) {
-            console.error('Failed to fetch github releases', response.status);
-            return null;
-        }
+        if (!response.ok) return null;
 
         const releases = await response.json();
         if (!Array.isArray(releases) || releases.length === 0) return null;
 
-        // Find the most recent release that has an APK
         let latestRelease = null;
         let apkAsset = null;
 
@@ -77,34 +58,21 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
             }
         }
 
-        if (!latestRelease || !apkAsset) {
-            console.log('No releases with APK found');
-            return null;
-        }
+        if (!latestRelease || !apkAsset) return null;
 
-        const latestVersionTag = latestRelease.tag_name;
+        const latestVersion = latestRelease.tag_name.replace(/^v/, '');
         const currentVersion = APP_VERSION.replace(/^v/, '');
 
-        const cleanLatest = latestVersionTag.replace(/^v/, '');
-        const cleanCurrent = currentVersion.replace(/^v/, '');
+        const latestNum = getVersionNumber(latestVersion);
+        const currentNum = getVersionNumber(currentVersion);
 
-        const versionCompare = compareVersions(cleanLatest, cleanCurrent);
-
-        // Strict Logic:
-        // 1. hasUpdate is ONLY true if cleanLatest > cleanCurrent
-        // 2. isReinstall is ONLY true if cleanLatest == cleanCurrent AND allowSameVersion (manual check) is true
-
-        const isNewVersion = versionCompare > 0;
-        const isReinstall = versionCompare === 0 && allowSameVersion;
-        
-        // Final logic:
-        // - In auto-check (allowSameVersion=false): hasUpdate is true ONLY for NEWER versions
-        // - In manual-check (allowSameVersion=true): hasUpdate is true for NEWER OR IDENTICAL versions (reinstall)
+        const isNewVersion = latestNum > currentNum;
+        const isReinstall = latestNum === currentNum && allowSameVersion;
         const hasUpdate = isNewVersion || isReinstall;
 
         return {
             hasUpdate,
-            version: cleanLatest,
+            version: latestVersion,
             downloadUrl: apkAsset.browser_download_url,
             changelog: latestRelease.body || '',
             releaseUrl: latestRelease.html_url,
@@ -118,7 +86,8 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
 }
 
 /**
- * Downloads the APK from the raw URL to the document directory, then triggers an Android intent to install it.
+ * Advanced Installation Mechanism
+ * Prioritizes PackageInstaller Session (Direct Install) with fallback for MIUI.
  */
 export async function downloadAndInstallApk(
     downloadUrl: string,
@@ -126,53 +95,49 @@ export async function downloadAndInstallApk(
     onProgress?: (progress: number) => void
 ): Promise<boolean> {
     if (Platform.OS !== 'android') return false;
-    if (!downloadUrl) return false;
 
     try {
-        const cacheRoot = FileSystem.cacheDirectory || FileSystem.documentDirectory || '';
-        const fileUri = `${cacheRoot}saral_lekhan_update_v${version}_${Date.now()}.apk`;
+        const fileUri = `${FileSystem.cacheDirectory}update_v${version}.apk`;
 
-        // Setup Resumable Download to track progress
         const downloadResumable = FileSystem.createDownloadResumable(
             downloadUrl,
             fileUri,
             {},
-            (downloadProgress) => {
-                const expected = downloadProgress.totalBytesExpectedToWrite || 0;
-                const progress = expected > 0
-                    ? downloadProgress.totalBytesWritten / expected
+            (dp) => {
+                const prog = dp.totalBytesExpectedToWrite > 0 
+                    ? dp.totalBytesWritten / dp.totalBytesExpectedToWrite 
                     : 0;
-                if (onProgress) onProgress(progress);
+                if (onProgress) onProgress(prog);
             }
         );
 
         const result = await downloadResumable.downloadAsync();
         if (!result) return false;
-        const contentUri = await FileSystem.getContentUriAsync(result.uri);
 
-        // Trigger Android Native Package Installer (Fire and forget, do not await)
-        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-            data: contentUri,
-            // FLAG_GRANT_READ_URI_PERMISSION | FLAG_ACTIVITY_NEW_TASK
-            flags: 268435457,
-            type: 'application/vnd.android.package-archive',
-        }).catch(async (intentError) => {
-            console.error("Intent Error:", intentError);
-            // Fallback: open installer permission settings and then release URL in browser.
-            try {
-                await IntentLauncher.startActivityAsync('android.settings.MANAGE_UNKNOWN_APP_SOURCES', {
-                    data: `package:${APP_PACKAGE}`,
-                });
-            } catch {
-                // No-op
-            }
-            Linking.openURL(downloadUrl).catch(() => { });
-        });
+        // --- INSTALLATION LOGIC ---
+        
+        // 1. MIUI Fallback Check (known to break PackageInstaller sessions)
+        let isMiui = false;
+        try {
+            const manufacturer = await UpdaterModule.getManufacturer();
+            isMiui = manufacturer?.toLowerCase().includes('xiaomi');
+        } catch (e) {
+            // Non-critical check
+        }
 
-        // Resolve immediately so UI is not stuck at "Downloading 100%"
-        return true;
+        if (isMiui || !UpdaterModule) {
+            // Legacy/Fallback Method for MIUI or if Module failed
+            console.log('Using legacy installation method (MIUI detected or Module missing)');
+            return await Linking.openURL(downloadUrl); 
+        }
+
+        // 2. Direct Install (PackageInstaller Session)
+        // Convert URI to absolute file path for the native module
+        const absolutePath = result.uri.replace('file://', '');
+        return await UpdaterModule.installPackage(absolutePath);
+
     } catch (e) {
-        console.error("Install App Error:", e);
+        console.error("Install Error:", e);
         try {
             await Linking.openURL(downloadUrl);
             return true;

@@ -742,7 +742,7 @@ export default function SettingsScreen() {
                         {loc.settingsScreen.developerNames}
                     </Text>
                     <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
-                        SARAL LEKHAN PLUS ENGINE v2.15.0
+                        SARAL LEKHAN PLUS ENGINE v2.15.1
                     </Text>
                 </View>
 
