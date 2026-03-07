@@ -64,7 +64,9 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         const currentVersion = APP_VERSION.replace(/^v/, '');
 
         const latestNum = getVersionNumber(latestVersion);
-        const currentNum = getVersionNumber(currentVersion);
+        const currentNum = 0; // DEBUG: Forced to 0 for updater testing
+
+        console.log(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum} (Forced for testing)`);
 
         const isNewVersion = latestNum > currentNum;
         const isReinstall = latestNum === currentNum && allowSameVersion;
