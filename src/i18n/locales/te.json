@@ -11,7 +11,7 @@
     "settings": "సెట్టింగులు",
     "trash": "ట్రాష్",
     "trashEmpty": "ట్రాష్ ఖాళీగా ఉంది",
-    "trashEmptySub": "తొలగించబడిన నోట్స్ ఇక్కడ కనిపిస్తాయి",
+    "trashEmptySub": "తొలుగించబడిన నోట్స్ ఇక్కడ కనిపిస్తాయి",
     "restore": "పునరుద్ధరించు",
     "deleteForever": "శాశ్వతంగా తొలగించు",
     "exportOptions": "Share / Export",
@@ -30,7 +30,7 @@
         "words": "పదాలు",
         "notFound": "నోట్ కనుగొనబడలేదు",
         "tagPlaceholder": "ట్యాగ్",
-        "thinking": "✨ ఆలోచిస్తోంది...",
+        "thinking": "ఆలోచిస్తోంది...",
         "exportPdf": "PDF గా ఎగుమతి చేయి",
         "exportTxt": "టెక్స్ట్ (.txt) గా ఎగుమతి చేయి",
         "exportMd": "మార్క్ డౌన్ (.md) గా ఎగుమతి చేయి",
@@ -57,7 +57,7 @@
         "previewTitle": "డిజైన్ మార్పులు",
         "previewSub": "యాప్ వెంటనే కొత్త థీమ్ రంగులు మరియు బెంటి కార్వ్స్ తో మారుతుంది.",
         "justNow": "ఇప్పుడే",
-        "aesthetics": "సౌందర్యం",
+        "aesthetics": "సౌందర్யம்",
         "appearanceTheme": "యాప్ థీమ్",
         "colorScheme": "రంగు పథకం",
         "colorSchemeSub": "సిస్టమ్, లైట్ లేదా డార్క్",
@@ -79,16 +79,25 @@
         "autoSave": "నోట్స్‌ని ఆటో సేవ్ చేయండి",
         "whatsNew": "కొత్తగా ఏముంది",
         "changelog": "యాప్ అప్‌డేట్లు మరియు చరిత్ర",
+        "reportBug": "ఒక లోపాన్ని నివేదించండి",
+        "reportBugSub": "డెవలపర్‌కు డీబగ్ లాగ్‌లను పంపండి",
         "aboutDeveloper": "రూపకల్పన & అభివృద్ధి చేసింది",
         "developerNames": "ఆదర్శ లోఖండే & Antigravity"
     },
+    "support": {
+        "title": "సహాయం మరియు మద్దతు",
+        "reportBug": "లోపాన్ని నివేదించండి",
+        "debugLogs": "డీబగ్ లాగ్‌లు",
+        "copyLogs": "లాగ్‌లను కాపీ చేయండి",
+        "sendReport": "లోపం నివేదిక పంపండి"
+    },
     "plusFeatures": {
-        "title": "సరళ్ లేఖన్ ప్లస్ ⭐",
+        "title": "సరళ్ లేఖన్ ప్లస్",
         "biometricTitle": "బయోమెట్రిక్ వాల్ట్",
         "biometricActive": "ఫింగర్‌ప్రింట్ లేదా ఫేస్ ఐడితో యాప్‌ను లాక్ చేయండి",
         "biometricUnsupported": "ఈ పరికరంలో బయోమెట్రిక్స్ సపోర్ట్ లేదు",
         "sparkAiTitle": "స్పార్క్ AI",
-        "sparkAiDesc": "జెమినీ (Gemini) ఉపయోగించి మీ నోట్స్‌ను సారాంశం చేయండి మరియు శీర్షికలు ఇవ్వండి.",
+        "sparkAiDesc": "జెమినీ (Gemini) ఉపయోగించి మీ నోట్స్‌ను సారాంశం చేయండి మరియు శీర్ஷికలు ఇవ్వండి.",
         "sparkAiGetBtn": "Google AI Studio నుండి ఉచిత API కీని పొందండి ↗",
         "sparkAiPlaceholder": "Gemini API కీని ఇక్కడ పేస్ట్ చేయండి",
         "sparkAiActive": "✓ API కీ యాక్టివ్‌గా ఉంది",
@@ -101,19 +110,19 @@
         "syncDisconnect": "ఖాతాను డిస్‌కనెక్ట్ చేయి",
         "lastSync": "చివరి సమకాలీకరణ",
         "isSyncing": "సమకాలీకరిస్తోంది...",
-        "aiDialogTitle": "✨ స్పార్క్ AI",
+        "aiDialogTitle": "స్పార్క్ AI (Spark AI)",
         "aiDialogSub": "ఈ నోట్ కోసం AI చర్యను ఎంచుకోండి.",
         "aiFormat": "ఈ నోట్‌ను ఫార్మాట్ చేయండి",
         "aiSmartTitle": "స్మార్ట్ శీర్షికను రూపొందించండి",
         "aiSummarize": "నోట్‌ను సారాంశం చేయండి",
         "aiWriteForMe": "నా కోసం రాయండి (Prompt)",
-        "aiWriteTitle": "✨ నా కోసం రాయండి",
+        "aiWriteTitle": "నా కోసం రాయండి",
         "aiWriteSub": "ఏమి రూపొందించాలో స్పార్క్ AI కి చెప్పండి.",
         "aiWritePlaceholder": "ఉదాహరణకు, దీని గురించి కవిత రాయండి...",
         "aiGenerateBtn": "కంటెంట్‌ను రూపొందించండి",
-        "aiSummaryTitle": "✨ AI సారాంశం",
+        "aiSummaryTitle": "AI సారాంశం",
         "aiSummaryInsert": "నోట్‌లో చేర్చు",
-        "aiSummaryPrefix": "✨ AI సారాంశం:"
+        "aiSummaryPrefix": "AI సారాంశం:"
     },
     "home": {
         "importTitle": "నోట్‌ను దిగుమతి చేయండి",
@@ -130,7 +139,7 @@
     },
     "palettes": {
         "standard": "ప్రామాణిక పాలెట్లు",
-        "pro": "ప్రో పాలెట్లు ✦"
+        "pro": "ప్రో పాలెట్లు"
     },
     "lockScreen": {
         "vaultLocked": "వాల్ట్ లాక్ చేయబడింది",
@@ -139,5 +148,18 @@
         "authPrompt": "సరల్ లేఖన్ వాల్ట్‌ను అన్‌లాక్ చేయండి",
         "authFailed": "ప్రమాణీకరణ విఫలమైంది లేదా రద్దు చేయబడింది.",
         "authError": "ప్రమాణీకరణ సమయంలో ఒక లోపం సంభవించింది."
+    },
+    "featureDiscovery": {
+        "title": "ఫీచర్లను అన్వేషించండి",
+        "subtitle": "సరల్ లేఖన్ ప్లస్ యొక్క శక్తిని కనుగొనండి",
+        "sparkAi": "స్పార్క్ AI (Spark AI)",
+        "sparkAiDesc": "మీ నోట్స్‌ కోసం స్మార్ట్ సారాంశం మరియు శీర్షికలు.",
+        "sync": "క్లౌడ్ సమకాలీకరణ",
+        "syncDesc": "గూగుల్ డ్రైవ్‌లో నోట్స్‌ను సురక్షితంగా బ్యాకప్ చేయండి.",
+        "vault": "బయోమెట్రిక్ వాల్ట్",
+        "vaultDesc": "వేలిముద్రతో ముఖ్యమైన నోట్స్ లాక్ చేయండి.",
+        "editor": "ప్రో ఎడిటర్",
+        "editorDesc": "చిత్రాలు మరియు లింక్‌లతో కూడిన రిచ్ మార్క్‌డౌన్.",
+        "viewChangelog": "వెర్షన్ చరిత్రను చూడండి"
     }
 }
