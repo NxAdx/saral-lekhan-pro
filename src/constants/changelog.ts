@@ -13,6 +13,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.15.1",
+        date: "2026-03-07",
+        changes: {
+            en: [
+                "🚀 Advanced Updater: Implemented native 'Direct Install' using Android PackageInstaller API.",
+                "🧠 Numeric Versioning: Switched to expert numeric comparison for robust update detection.",
+                "🐛 Crash Fix: Resolved app crashes when switching to Bengali, Tamil, and Telugu locales.",
+                "🌐 Locale Sync: Fully synchronized all 6 supported languages (EN, HI, MR, BN, TA, TE).",
+            ],
+            hi: [
+                "🚀 एडवांस अपडेटर: एंड्रॉइड PackageInstaller API का उपयोग करके नेटिव 'डायरेक्ट इंस्टॉल' लागू किया गया।",
+                "🧠 न्यूमेरिक वर्जनिंग: मजबूत अपडेट डिटेक्शन के लिए एक्सपर्ट न्यूमेरिक तुलना पर स्विच किया गया।",
+                "🐛 क्रैश फिक्स: बंगाली, तमिल और तेलुगु भाषाओं में स्विच करने पर ऐप क्रैश होने की समस्या को हल किया गया।",
+                "🌐 लोकेल सिंक: सभी 6 समर्थित भाषाओं को पूरी तरह से सिंक्रनाइज़ किया गया।"
+            ],
+            mr: [
+                "🚀 प्रगत अपडेटर: अँड्रॉइड PackageInstaller API वापरून नेटिव्ह 'डायरेक्ट इन्स्टॉल' लागू केले।",
+                "🧠 न्यूमेरिक व्हर्जनिंग: अचूक अपडेट तपासणीसाठी एक्सपर्ट न्यूमेरिक तुलना पद्धत वापरली।",
+                "🐛 क्रॅश फिक्स: बंगाली, तमिळ आणि तेलगू भाषा बदलताना येणारी अ‍ॅप क्रॅशची समस्या सोडवली।",
+                "🌐 लोकेल सिंक: सर्व 6 समर्थित भाषा पूर्णपणे सिंक्रोनाइझ केल्या।"
+            ]
+        }
+    },
+    {
         version: "2.15.0",
         date: "2026-03-07",
         changes: {
