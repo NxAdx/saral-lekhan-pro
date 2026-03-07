@@ -93,7 +93,7 @@
         "sendReport": "Send Bug Report"
     },
     "plusFeatures": {
-        "title": "Saral Lekhan Plus ⭐",
+        "title": "Saral Lekhan Plus",
         "biometricTitle": "Biometric Vault",
         "biometricActive": "Lock app with Fingerprint or FaceID",
         "biometricUnsupported": "Biometrics not supported on this device",
@@ -111,19 +111,19 @@
         "syncDisconnect": "Disconnect Account",
         "lastSync": "Last Sync",
         "isSyncing": "Syncing...",
-        "aiDialogTitle": "✨ Spark AI",
+        "aiDialogTitle": "Spark AI",
         "aiDialogSub": "Choose an AI action for this note.",
         "aiFormat": "Format this Note",
         "aiSmartTitle": "Generate Smart Title",
         "aiSummarize": "Summarize Note",
         "aiWriteForMe": "Write for me (Prompt)",
-        "aiWriteTitle": "✨ Write for me",
+        "aiWriteTitle": "Write for me",
         "aiWriteSub": "Tell Spark AI what to generate.",
         "aiWritePlaceholder": "E.g., Write a poem about...",
         "aiGenerateBtn": "Generate Content",
-        "aiSummaryTitle": "✨ AI Summary",
+        "aiSummaryTitle": "AI Summary",
         "aiSummaryInsert": "Insert into Note",
-        "aiSummaryPrefix": "✨ AI Summary:"
+        "aiSummaryPrefix": "AI Summary:"
     },
     "home": {
         "importTitle": "Import Note",
@@ -142,7 +142,7 @@
     },
     "palettes": {
         "standard": "Standard Palettes",
-        "pro": "Pro Palettes ✦"
+        "pro": "Pro Palettes"
     },
     "lockScreen": {
         "vaultLocked": "Vault Locked",
@@ -155,13 +155,13 @@
     "featureDiscovery": {
         "title": "Explore Features",
         "subtitle": "Discover the power of Saral Lekhan Plus",
-        "sparkAi": "✨ Spark AI",
+        "sparkAi": "Spark AI",
         "sparkAiDesc": "Smart summaries and titles for your notes.",
-        "sync": "☁️ Cloud Sync",
+        "sync": "Cloud Sync",
         "syncDesc": "Securely backup notes to Google Drive.",
-        "vault": "🔒 Biometric Vault",
+        "vault": "Biometric Vault",
         "vaultDesc": "Lock sensitive notes with Fingerprint.",
-        "editor": "✍️ Pro Editor",
+        "editor": "Pro Editor",
         "editorDesc": "Rich markdown with images and links.",
         "viewChangelog": "View Version History"
     }

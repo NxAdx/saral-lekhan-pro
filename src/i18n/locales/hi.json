@@ -96,7 +96,7 @@
         "editorDesc": "उन्नत मार्कडाउन और फॉर्मेटिंग टूल्स।"
     },
     "plusFeatures": {
-        "title": "सरल लेखन प्लस ⭐",
+        "title": "सरल लेखन प्लस",
         "biometricTitle": "बायोमेट्रिक वॉल्ट",
         "biometricActive": "फिंगरप्रिंट या फेस आईडी के साथ ऐप को लॉक करें",
         "biometricUnsupported": "इस डिवाइस पर बायोमेट्रिक्स समर्थित नहीं है",
@@ -114,19 +114,19 @@
         "syncDisconnect": "खाता डिस्कनेक्ट करें",
         "lastSync": "अंतिम सिंक",
         "isSyncing": "सिंक हो रहा है...",
-        "aiDialogTitle": "✨ स्पार्क एआई (Spark AI)",
+        "aiDialogTitle": "स्पार्क एआई (Spark AI)",
         "aiDialogSub": "इस नोट के लिए एआई क्रिया चुनें।",
         "aiFormat": "इस नोट को प्रारूपित (Format) करें",
         "aiSmartTitle": "स्मार्ट शीर्षक बनाएँ",
         "aiSummarize": "नोट का सारांश निकालें",
         "aiWriteForMe": "मेरे लिए लिखें (Prompt)",
-        "aiWriteTitle": "✨ मेरे लिए लिखें",
+        "aiWriteTitle": "मेरे लिए लिखें",
         "aiWriteSub": "स्पार्क एआई को बताएं कि क्या बनाना है।",
         "aiWritePlaceholder": "जैसे, इसके बारे में एक कविता लिखें...",
         "aiGenerateBtn": "सामग्री बनाएँ",
-        "aiSummaryTitle": "✨ एआई सारांश",
+        "aiSummaryTitle": "एआई सारांश",
         "aiSummaryInsert": "नोट में शामिल करें",
-        "aiSummaryPrefix": "✨ एआई सारांश:"
+        "aiSummaryPrefix": "एआई सारांश:"
     },
     "home": {
         "importTitle": "नोट आयात करें",
@@ -143,7 +143,7 @@
     },
     "palettes": {
         "standard": "मानक पैलेट",
-        "pro": "प्रो पैलेट ✦"
+        "pro": "प्रो पैलेट"
     },
     "lockScreen": {
         "vaultLocked": "वॉल्ट लॉक है",

@@ -93,7 +93,7 @@
         "sendReport": "बग रिपोर्ट पाठवा"
     },
     "plusFeatures": {
-        "title": "सरल लेखन प्लस ⭐",
+        "title": "सरल लेखन प्लस",
         "biometricTitle": "बायोमेट्रिक वॉल्ट",
         "biometricActive": "फिंगरप्रिंट किंवा फेसआयडीने ॲप लॉक करा",
         "biometricUnsupported": "या डिव्हाइसवर बायोमेट्रिक्स उपलब्ध नाही",
@@ -111,19 +111,19 @@
         "syncDisconnect": "खोते डिस्कनेक्ट करा",
         "lastSync": "शेवटचा सिंक",
         "isSyncing": "सिंक होत आहे...",
-        "aiDialogTitle": "✨ स्पार्क एआय (Spark AI)",
+        "aiDialogTitle": "स्पार्क एआई (Spark AI)",
         "aiDialogSub": "या नोटसाठी एआय क्रिया निवडा.",
         "aiFormat": "नोट फॉरमॅट करा",
         "aiSmartTitle": "स्मार्ट शीर्षक तयार करा",
         "aiSummarize": "सारांश तयार करा",
         "aiWriteForMe": "माझ्यासाठी लिहा (Prompt)",
-        "aiWriteTitle": "✨ माझ्यासाठी लिहा",
+        "aiWriteTitle": "माझ्यासाठी लिहा",
         "aiWriteSub": "स्पार्क एआयला काय तयार करायचे ते सांगा.",
         "aiWritePlaceholder": "उदा. कविता लिहा...",
         "aiGenerateBtn": "सामग्री तयार करा",
-        "aiSummaryTitle": "✨ एआय सारांश",
+        "aiSummaryTitle": "एआय सारांश",
         "aiSummaryInsert": "नोटमध्ये टाका",
-        "aiSummaryPrefix": "✨ एआय सारांश:"
+        "aiSummaryPrefix": "एआय सारांश:"
     },
     "home": {
         "importTitle": "नोट इम्पोर्ट करा",
@@ -142,7 +142,7 @@
     },
     "palettes": {
         "standard": "मानक पॅलेटस",
-        "pro": "प्रो पॅलेटस ✦"
+        "pro": "प्रो पॅलेटस"
     },
     "lockScreen": {
         "vaultLocked": "वॉल्ट लॉक आहे",
@@ -155,13 +155,13 @@
     "featureDiscovery": {
         "title": "वैशिष्ट्ये एक्सप्लोर करा",
         "subtitle": "सरल लेखन प्लसची ताकद शोधा",
-        "sparkAi": "✨ स्पार्क एआय (AI)",
+        "sparkAi": "स्पार्क एआई (AI)",
         "sparkAiDesc": "तुमच्या नोट्ससाठी स्मार्ट सारांश आणि शीर्षके.",
-        "sync": "☁️ क्लाउड सिंक",
+        "sync": "क्लाउड सिंक",
         "syncDesc": "गुगल ड्राइव्हवर नोट्स सुरक्षितपणे बॅकअप घ्या.",
-        "vault": "🔒 बायोमेट्रिक वॉल्ट",
+        "vault": "बायोमेट्रिक वॉल्ट",
         "vaultDesc": "तुमच्या नोट्स फिंगरप्रिंटने सुरक्षित करा.",
-        "editor": "✍️ प्रो एडिटर",
+        "editor": "प्रो एडिटर",
         "editorDesc": "प्रतिमा आणि लिंक्ससह रिच मार्कडाउन.",
         "viewChangelog": "व्हर्जन इतिहास पहा"
     }

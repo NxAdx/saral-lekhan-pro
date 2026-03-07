@@ -100,7 +100,8 @@ export default function SettingsScreen() {
         if (info && info.hasUpdate) {
             setUpdateInfo(info);
             // Show update modal if it's a new version OR if user manually checked for reinstall
-            if (isManual) {
+            // NEW: Always show modal on mount if a NEW version is found (not just on manual check)
+            if (isManual || (!info.isReinstall)) {
                 setUpdateModal({
                     visible: true,
                     title: info.isReinstall ? "Reinstall Available" : "Update Available",
@@ -617,18 +618,6 @@ export default function SettingsScreen() {
                             thumbColor={colors.white}
                         />
                     </View>
-                    <Pressable
-                        style={[s.listItem, s.listItemNoBorder]}
-                        onPress={() => router.push('/(main)/trash')}
-                    >
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.trash}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.trashDesc}</Text>
-                        </View>
-                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkDim} strokeWidth={2}>
-                            <Path d="M9 6l6 6l-6 6" />
-                        </Svg>
-                    </Pressable>
                 </View>
 
                 {/* CLOUD & BACKUP */}
@@ -743,60 +732,6 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* MAINTENANCE SECTION */}
-                <Text style={s.sectionTitle}>App Maintenance</Text>
-                <View style={s.listBlock}>
-                    {/* Bug Report */}
-                    <Pressable
-                        style={s.listItem}
-                        onPress={handleBugReport}
-                    >
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.reportBug}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.reportBugSub}</Text>
-                        </View>
-                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkDim} strokeWidth={2}>
-                            <Path d="M9 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                            <Path d="M12 15v2" />
-                            <Path d="M12 3v10" />
-                        </Svg>
-                    </Pressable>
-
-                    {/* App Version & Update Status */}
-                    <View style={[s.listItem, s.listItemNoBorder]}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>App Version</Text>
-                            <Text style={s.listSub}>
-                                Current: v{APP_VERSION}
-                                {updateInfo?.hasUpdate
-                                    ? (updateInfo.isReinstall
-                                        ? ` • Reinstall v${updateInfo.version}`
-                                        : ` • Latest: v${updateInfo.version}`)
-                                    : ' • Up to date'}
-                            </Text>
-                        </View>
-                        {updateInfo?.hasUpdate ? (
-                            <Pressable
-                                onPress={handleDownloadUpdate}
-                                disabled={isDownloadingUpdate}
-                                style={{ backgroundColor: colors.accent, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radius.sm }}
-                            >
-                                <Text style={{ color: colors.white, fontFamily: font.sansBold, fontSize: 12 }}>
-                                    {isDownloadingUpdate ? '...' : 'Update'}
-                                </Text>
-                            </Pressable>
-                        ) : (
-                            <Pressable
-                                onPress={() => handleCheckUpdate(true)}
-                                style={{ borderWidth: 1, borderColor: colors.strokeDim, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radius.sm }}
-                            >
-                                <Text style={{ color: colors.inkMid, fontFamily: font.sansMed, fontSize: 12 }}>
-                                    Check
-                                </Text>
-                            </Pressable>
-                        )}
-                    </View>
-                </View>
 
                 {/* About Developer Section */}
                 <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>
