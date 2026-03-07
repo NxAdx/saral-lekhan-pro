@@ -17,16 +17,19 @@ export const APP_CHANGELOG: ChangelogItem[] = [
         date: "2026-03-07",
         changes: {
             en: [
-                "🚀 Updater Test: Bumping version to v2.15.2 to verify the new 'Direct Install' logic.",
-                "🛠️ Stability: Final verification of PackageInstaller session flow on production builds.",
+                "🛡️ Installer Fix: Implemented native status tracking to ensure the 'Update?' dialog appears reliably.",
+                "🔐 Permissions: Added explicit 'Install Unknown Apps' checks and guidance to Settings.",
+                "🛠️ Stability: Refactored the PackageInstaller session flow for better OEM compatibility (Xiaomi/MIUI).",
             ],
             hi: [
-                "🚀 अपडेटर टेस्ट: नए 'डायरेक्ट इंस्टॉल' लॉजिक को सत्यापित करने के लिए v2.15.2 पर स्विच किया गया।",
-                "🛠️ स्थिरता: प्रोडक्शन बिल्ड पर PackageInstaller सेशन फ्लो का अंतिम सत्यापन।"
+                "🛡️ इंस्टॉलर फिक्स: 'अपडेट?' संवाद विश्वसनीय रूप से दिखाई देने के लिए नेटिव स्टेटस ट्रैकिंग लागू की गई।",
+                "🔐 अनुमतियाँ: स्पष्ट 'अज्ञात ऐप्स इंस्टॉल करें' जांच और सेटिंग्स में मार्गदर्शन जोड़ा गया।",
+                "🛠️ स्थिरता: बेहतर OEM संगतता (Xiaomi/MIUI) के लिए PackageInstaller सेशन फ्लो को रिफैक्टर किया गया।"
             ],
             mr: [
-                "🚀 अपडेटर टेस्ट: नवीन 'डायरेक्ट इन्स्टॉल' लॉजिक तपासण्यासाठी v2.15.2 व्हर्जन रिलीज.",
-                "🛠️ स्थिरता: प्रोडक्शन बिल्डवर PackageInstaller सेशन फ्लोची अंतिम पडताळणी।"
+                "🛡️ इन्स्टॉलर फिक्स: 'अपडेट?' डायलॉग खात्रीशीरपणे दिसण्यासाठी नेटिव्ह स्टेटस ट्रॅकिंग लागू केले.",
+                "🔐 परवानग्या: 'अनोळखी अ‍ॅप्स इन्स्टॉल करा' परवानग्यांची तपासणी आणि सेटिंग्जमध्ये मार्गदर्शन जोडले.",
+                "🛠️ स्थिरता: OEM सुसंगततेसाठी (Xiaomi/MIUI) PackageInstaller सेशन फ्लोमध्ये सुधारणा केली."
             ]
         }
     },

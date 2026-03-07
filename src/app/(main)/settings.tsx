@@ -119,6 +119,20 @@ export default function SettingsScreen() {
 
     const handleDownloadUpdate = async () => {
         if (!updateInfo?.downloadUrl) return;
+
+        // 1. Check for Install Permission first
+        const { checkInstallPermission, requestInstallPermission } = await import('../../utils/githubUpdater');
+        const hasPermission = await checkInstallPermission();
+        if (!hasPermission) {
+            setSyncAlert({
+                visible: true,
+                title: "Permission Required",
+                sub: "Saral Lekhan Plus needs permission to install updates. Please enable 'Install unknown apps' in the settings and try again."
+            });
+            await requestInstallPermission();
+            return;
+        }
+
         setIsDownloadingUpdate(true);
         setDownloadProgress(0);
 
@@ -133,18 +147,16 @@ export default function SettingsScreen() {
                 setSyncAlert({
                     visible: true,
                     title: "Update Failed",
-                    sub: "Could not download or open installer. Check install permissions and try again."
+                    sub: "Could not initiate the installation. This might happen if permission was denied or the download was interrupted."
                 });
                 return;
             }
 
-            // Installation intent was triggered. Clear spinner state even if OS installer
-            // does not foreground immediately on some OEM Android builds.
             setDownloadProgress(1);
             setSyncAlert({
                 visible: true,
                 title: "Installer Started",
-                sub: "If install prompt does not appear, allow 'Install unknown apps' for this app and tap Update Now again."
+                sub: "The system update dialog should appear now. If it doesn't, please ensure 'Install unknown apps' is enabled for this app."
             });
         } catch (e: any) {
             setSyncAlert({

@@ -64,9 +64,9 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         const currentVersion = APP_VERSION.replace(/^v/, '');
 
         const latestNum = getVersionNumber(latestVersion);
-        const currentNum = 0; // DEBUG: Forced to 0 for updater testing
+        const currentNum = getVersionNumber(currentVersion);
 
-        console.log(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum} (Forced for testing)`);
+        console.log(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum}`);
 
         const isNewVersion = latestNum > currentNum;
         const isReinstall = latestNum === currentNum && allowSameVersion;
@@ -88,6 +88,30 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
 }
 
 /**
+ * Checks if the app has permission to install other apps (Unknown Sources).
+ */
+export async function checkInstallPermission(): Promise<boolean> {
+    if (Platform.OS !== 'android') return true;
+    try {
+        return await UpdaterModule.canInstallPackages();
+    } catch {
+        return true;
+    }
+}
+
+/**
+ * Opens system settings to grant installation permission.
+ */
+export async function requestInstallPermission(): Promise<void> {
+    if (Platform.OS !== 'android') return;
+    try {
+        await UpdaterModule.openInstallPermissionSettings();
+    } catch (e) {
+        console.warn("Failed to open install settings", e);
+    }
+}
+
+/**
  * Advanced Installation Mechanism
  * Prioritizes PackageInstaller Session (Direct Install) with fallback for MIUI.
  */
@@ -98,6 +122,13 @@ export async function downloadAndInstallApk(
 ): Promise<boolean> {
     if (Platform.OS !== 'android') return false;
 
+    // Check permission first
+    const hasPermission = await checkInstallPermission();
+    if (!hasPermission) {
+        await requestInstallPermission();
+        return false; // Return false to indicate the process was interrupted for permission
+    }
+
     try {
         const fileUri = `${FileSystem.cacheDirectory}update_v${version}.apk`;
 
@@ -106,8 +137,8 @@ export async function downloadAndInstallApk(
             fileUri,
             {},
             (dp) => {
-                const prog = dp.totalBytesExpectedToWrite > 0 
-                    ? dp.totalBytesWritten / dp.totalBytesExpectedToWrite 
+                const prog = dp.totalBytesExpectedToWrite > 0
+                    ? dp.totalBytesWritten / dp.totalBytesExpectedToWrite
                     : 0;
                 if (onProgress) onProgress(prog);
             }
@@ -117,24 +148,18 @@ export async function downloadAndInstallApk(
         if (!result) return false;
 
         // --- INSTALLATION LOGIC ---
-        
-        // 1. MIUI Fallback Check (known to break PackageInstaller sessions)
+
         let isMiui = false;
         try {
             const manufacturer = await UpdaterModule.getManufacturer();
             isMiui = manufacturer?.toLowerCase().includes('xiaomi');
-        } catch (e) {
-            // Non-critical check
-        }
+        } catch (e) {}
 
         if (isMiui || !UpdaterModule) {
-            // Legacy/Fallback Method for MIUI or if Module failed
             console.log('Using legacy installation method (MIUI detected or Module missing)');
-            return await Linking.openURL(downloadUrl); 
+            return await Linking.openURL(downloadUrl);
         }
 
-        // 2. Direct Install (PackageInstaller Session)
-        // Convert URI to absolute file path for the native module
         const absolutePath = result.uri.replace('file://', '');
         return await UpdaterModule.installPackage(absolutePath);
 

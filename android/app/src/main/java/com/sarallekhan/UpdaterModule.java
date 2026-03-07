@@ -64,16 +64,16 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
                 session.fsync(out);
             }
 
-            // Create a PendingIntent to handle the result
-            Intent intent = new Intent(reactContext, MainActivity.class);
-            intent.setAction("com.sarallekhan.INSTALL_COMPLETE");
+            // Status receiver intent
+            Intent intent = new Intent(reactContext, InstallReceiver.class);
+            intent.setAction("com.sarallekhan.INSTALL_STATUS");
             
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 flags |= PendingIntent.FLAG_MUTABLE;
             }
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
                     reactContext,
                     sessionId,
                     intent,
@@ -87,6 +87,32 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             Log.e(TAG, "Installation failed", e);
             promise.reject("ERR_INSTALLATION_FAILED", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void canInstallPackages(Promise promise) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            promise.resolve(reactContext.getPackageManager().canRequestPackageInstalls());
+        } else {
+            promise.resolve(true);
+        }
+    }
+
+    @ReactMethod
+    public void openInstallPermissionSettings(Promise promise) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                Uri uri = Uri.parse("package:" + reactContext.getPackageName());
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                reactContext.startActivity(intent);
+                promise.resolve(true);
+            } catch (Exception e) {
+                promise.reject("ERR_OPEN_SETTINGS_FAILED", e.getMessage());
+            }
+        } else {
+            promise.resolve(false);
         }
     }
 
