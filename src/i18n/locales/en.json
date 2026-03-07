@@ -151,5 +151,18 @@
         "authPrompt": "Unlock Saral Lekhan Vault",
         "authFailed": "Authentication failed or canceled.",
         "authError": "An error occurred during authentication."
+    },
+    "featureDiscovery": {
+        "title": "Explore Features",
+        "subtitle": "Discover the power of Saral Lekhan Plus",
+        "sparkAi": "✨ Spark AI",
+        "sparkAiDesc": "Smart summaries and titles for your notes.",
+        "sync": "☁️ Cloud Sync",
+        "syncDesc": "Securely backup notes to Google Drive.",
+        "vault": "🔒 Biometric Vault",
+        "vaultDesc": "Lock sensitive notes with Fingerprint.",
+        "editor": "✍️ Pro Editor",
+        "editorDesc": "Rich markdown with images and links.",
+        "viewChangelog": "View Version History"
     }
 }

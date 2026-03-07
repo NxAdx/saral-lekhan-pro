@@ -76,6 +76,7 @@ export default function SettingsScreen() {
     const type = useTypography();
 
     const [showFontModal, setShowFontModal] = React.useState(false);
+    const [showFeatures, setShowFeatures] = React.useState(false);
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
@@ -362,7 +363,7 @@ export default function SettingsScreen() {
                     </Pressable>
 
                     <Pressable
-                        onPress={() => setShowChangelog(true)}
+                        onPress={() => setShowFeatures(true)}
                         style={({ pressed }) => ({
                             width: 38, height: 38, borderRadius: 99,
                             borderWidth: 1.5, borderColor: colors.strokeDim,
@@ -373,8 +374,9 @@ export default function SettingsScreen() {
                         })}
                     >
                         <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <Path d="M12 8l0 4l2 2" />
-                            <Path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                            <Path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                            <Path d="M12 9v4" />
+                            <Path d="M12 16v.01" />
                         </Svg>
                     </Pressable>
                 </View>
@@ -566,9 +568,8 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Appearance Customizer */}
-                <Text style={s.sectionTitle}>{loc.settingsScreen.colorPalette}</Text>
-
+                {/* APPEARANCE SECTION */}
+                <Text style={s.sectionTitle}>{loc.settingsScreen.aesthetics}</Text>
                 <View style={s.listBlock}>
                     {/* Appearance Mode Toggle */}
                     <View style={s.listItem}>
@@ -588,7 +589,7 @@ export default function SettingsScreen() {
                                     settings.nightMode === m && s.activeMode
                                 ]}
                             >
-                                <Text style={[s.modeText, { color: settings.nightMode === m ? (theme.isDark ? colors.bg : colors.white) : colors.inkMid }]}>
+                                <Text style={[s.modeText, { color: settings.nightMode === m ? (theme.isDark ? colors.bg : colors.white) : colors.inkMid, includeFontPadding: false }]}>
                                     {m === 'system' ? 'System' : m === 'light' ? 'Light' : 'Dark'}
                                 </Text>
                             </Pressable>
@@ -609,10 +610,22 @@ export default function SettingsScreen() {
                         />
                     </View>
 
+                    {/* Text Size Entry */}
+                    <Pressable
+                        style={[s.listItem, s.listItemNoBorder]}
+                        onPress={() => setShowFontModal(true)}
+                    >
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.textSize}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.textSizeSub}</Text>
+                        </View>
+                        <Text style={{ fontFamily: font.mono, color: colors.accent, fontSize: 16 }}>
+                            {Math.round(settings.fontSize * 100)}%
+                        </Text>
+                    </Pressable>
                 </View>
 
                 {/* Font Customization */}
-                <Text style={s.sectionTitle}>{loc.typography.title}</Text>
                 <View style={s.listBlock}>
                     <View style={s.listItem}>
                         <View style={s.listContent}>
@@ -627,12 +640,13 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Appearance Theme Selector */}
+                {/* THEME PALETTES */}
                 <Text style={s.sectionTitle}>{loc.palettes.standard}</Text>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={s.themeGrid}
+                    style={{ marginBottom: 24 }}
                 >
                     {STANDARD_THEMES.map(opt => {
                         const isSelected = settings.themeId === opt.id;
@@ -655,7 +669,7 @@ export default function SettingsScreen() {
                                     <View style={[s.themeLineLong, { backgroundColor: previewColors.strokeDim }]} />
                                     <View style={[s.themeLineShort, { backgroundColor: previewColors.strokeDim }]} />
                                 </View>
-                                <Text style={[s.themeLabel, { color: isSelected ? colors.accent : colors.inkMid }]} numberOfLines={2}>
+                                <Text style={[s.themeLabel, { color: isSelected ? colors.accent : colors.inkMid, includeFontPadding: false }]} numberOfLines={2}>
                                     {opt.label}
                                 </Text>
                             </Pressable>
@@ -668,6 +682,7 @@ export default function SettingsScreen() {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={s.themeGrid}
+                    style={{ marginBottom: 24 }}
                 >
                     {PREMIUM_THEMES.map(opt => {
                         const isSelected = settings.themeId === opt.id;
@@ -690,7 +705,7 @@ export default function SettingsScreen() {
                                     <View style={[s.themeLineLong, { backgroundColor: previewColors.strokeDim }]} />
                                     <View style={[s.themeLineShort, { backgroundColor: previewColors.strokeDim }]} />
                                 </View>
-                                <Text style={[s.themeLabel, { color: isSelected ? colors.accent : colors.inkMid }]} numberOfLines={2}>
+                                <Text style={[s.themeLabel, { color: isSelected ? colors.accent : colors.inkMid, includeFontPadding: false }]} numberOfLines={2}>
                                     {opt.label}
                                 </Text>
                             </Pressable>
@@ -698,28 +713,264 @@ export default function SettingsScreen() {
                     })}
                 </ScrollView>
 
-                {/* Text Size & Language */}
+                {/* LANGUAGE SECTION */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.displayLanguage}</Text>
-                <View style={s.listBlock}>
-                    <Pressable
-                        style={s.listItem}
-                        onPress={() => setShowFontModal(true)}
-                    >
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.textSize}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.textSizeSub}</Text>
-                        </View>
-                        <Text style={{ fontFamily: font.mono, color: colors.accent, fontSize: 16 }}>
-                            {Math.round(settings.fontSize * 100)}%
-                        </Text>
-                    </Pressable>
-
-                    <View style={[s.pillRow, { paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.strokeDim }]}>
+                <View style={[s.listBlock, { paddingBottom: 16 }]}>
+                    <View style={[s.pillRow, { paddingTop: 16 }]}>
                         {LANG_OPTIONS.map(l => (
                             <TagPill key={l.id} label={l.label} active={settings.language === l.id} onPress={() => settings.setLanguage(l.id)} />
                         ))}
                     </View>
                 </View>
+
+                {/* SECURITY & PRIVACY */}
+                <Text style={s.sectionTitle}>Security & Privacy</Text>
+                <View style={s.listBlock}>
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.plusFeatures.biometricTitle}</Text>
+                            <Text style={s.listSub}>
+                                {auth.isSupported
+                                    ? loc.plusFeatures.biometricActive
+                                    : loc.plusFeatures.biometricUnsupported}
+                            </Text>
+                        </View>
+                        <Switch
+                            disabled={!auth.isSupported}
+                            value={auth.isBiometricEnabled}
+                            onValueChange={(val: boolean) => auth.enableBiometric(val)}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
+                    <Pressable
+                        style={[s.listItem, s.listItemNoBorder]}
+                        onPress={() => router.push('/(main)/trash')}
+                    >
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.trash}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.trashDesc}</Text>
+                        </View>
+                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkDim} strokeWidth={2}>
+                            <Path d="M9 6l6 6l-6 6" />
+                        </Svg>
+                    </Pressable>
+                </View>
+
+                {/* CLOUD & BACKUP */}
+                <Text style={s.sectionTitle}>Cloud & Intelligence</Text>
+                <View style={s.listBlock}>
+                    {/* Spark AI Key */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.plusFeatures.sparkAiTitle}</Text>
+                            <Text style={s.listSub}>{loc.plusFeatures.sparkAiDesc}</Text>
+
+                            <Pressable onPress={() => Linking.openURL('https://aistudio.google.com/app/apikey')}>
+                                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent, marginTop: 8 }}>{loc.plusFeatures.sparkAiGetBtn}</Text>
+                            </Pressable>
+
+                            <TextInput
+                                style={{
+                                    marginTop: 12,
+                                    padding: 10,
+                                    borderRadius: theme.radius.md,
+                                    backgroundColor: colors.bg,
+                                    color: colors.ink,
+                                    fontFamily: font.mono,
+                                    borderWidth: 1,
+                                    borderColor: colors.strokeDim,
+                                    fontSize: 12,
+                                }}
+                                placeholder={loc.plusFeatures.sparkAiPlaceholder}
+                                placeholderTextColor={colors.inkDim}
+                                value={tempKey}
+                                onChangeText={setTempKey}
+                                onBlur={() => {
+                                    const key = tempKey.trim();
+                                    if (key.length > 0) {
+                                        if (key.length < 30 || !key.startsWith('AIza')) {
+                                            setSyncAlert({ visible: true, title: "Invalid Key Format", sub: "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key." });
+                                            return;
+                                        }
+                                        ai.setGeminiApiKey(key);
+                                        setTempKey('');
+                                    }
+                                }}
+                                secureTextEntry
+                            />
+                            {ai.geminiApiKey && (
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent }}>{loc.plusFeatures.sparkAiActive}</Text>
+                                    <Pressable onPress={() => ai.removeKey()}>
+                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim }}>{loc.plusFeatures.sparkAiRemove}</Text>
+                                    </Pressable>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+
+                    {/* Google Drive Sync */}
+                    <View style={[s.listItem, s.listItemNoBorder]}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.plusFeatures.syncTitle}</Text>
+                            <Text style={s.listSub}>{loc.plusFeatures.syncDesc}</Text>
+
+                            {!sync.googleToken ? (
+                                <Pressable
+                                    style={{ marginTop: 12, paddingVertical: 10, backgroundColor: colors.bgDeep, borderRadius: theme.radius.md, alignItems: 'center' }}
+                                    onPress={handleGoogleLogin}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.ink, fontSize: 13 }}>{loc.plusFeatures.syncSignIn}</Text>
+                                </Pressable>
+                            ) : (
+                                <View style={{ marginTop: 12 }}>
+                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent, marginBottom: 8 }}>
+                                        ✓ Connected: {sync.googleEmail}
+                                    </Text>
+
+                                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                                        <Pressable
+                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
+                                            onPress={handleBackup}
+                                            disabled={sync.isSyncing}
+                                        >
+                                            <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
+                                                {sync.isSyncing ? loc.plusFeatures.isSyncing : loc.plusFeatures.syncBackup}
+                                            </Text>
+                                        </Pressable>
+
+                                        <Pressable
+                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
+                                            onPress={handleRestore}
+                                            disabled={sync.isSyncing}
+                                        >
+                                            <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
+                                                {sync.isSyncing ? 'Wait...' : loc.plusFeatures.syncRestore}
+                                            </Text>
+                                        </Pressable>
+                                    </View>
+
+                                    {sync.lastSync && (
+                                        <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12, textAlign: 'center' }}>
+                                            {loc.plusFeatures.lastSync}: {new Date(sync.lastSync).toLocaleString()}
+                                        </Text>
+                                    )}
+
+                                    <Pressable style={{ marginTop: 16 }} onPress={async () => {
+                                        await GoogleDriveService.signOut();
+                                        sync.clearGoogleTokens();
+                                    }}>
+                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, textAlign: 'center' }}>{loc.plusFeatures.syncDisconnect}</Text>
+                                    </Pressable>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                </View>
+
+                {/* MAINTENANCE SECTION */}
+                <Text style={s.sectionTitle}>App Maintenance</Text>
+                <View style={s.listBlock}>
+                    {/* Bug Report */}
+                    <Pressable
+                        style={s.listItem}
+                        onPress={handleBugReport}
+                    >
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.reportBug}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.reportBugSub}</Text>
+                        </View>
+                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkDim} strokeWidth={2}>
+                            <Path d="M9 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                            <Path d="M12 15v2" />
+                            <Path d="M12 3v10" />
+                        </Svg>
+                    </Pressable>
+
+                    {/* App Version & Update Status */}
+                    <View style={[s.listItem, s.listItemNoBorder]}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>App Version</Text>
+                            <Text style={s.listSub}>
+                                Current: v{APP_VERSION}
+                                {updateInfo?.hasUpdate
+                                    ? (updateInfo.isReinstall
+                                        ? ` • Reinstall v${updateInfo.version}`
+                                        : ` • Latest: v${updateInfo.version}`)
+                                    : ' • Up to date'}
+                            </Text>
+                        </View>
+                        {updateInfo?.hasUpdate ? (
+                            <Pressable
+                                onPress={handleDownloadUpdate}
+                                disabled={isDownloadingUpdate}
+                                style={{ backgroundColor: colors.accent, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radius.sm }}
+                            >
+                                <Text style={{ color: colors.white, fontFamily: font.sansBold, fontSize: 12 }}>
+                                    {isDownloadingUpdate ? '...' : 'Update'}
+                                </Text>
+                            </Pressable>
+                        ) : (
+                            <Pressable
+                                onPress={() => handleCheckUpdate(true)}
+                                style={{ borderWidth: 1, borderColor: colors.strokeDim, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radius.sm }}
+                            >
+                                <Text style={{ color: colors.inkMid, fontFamily: font.sansMed, fontSize: 12 }}>
+                                    Check
+                                </Text>
+                            </Pressable>
+                        )}
+                    </View>
+                </View>
+
+                {/* About Developer Section */}
+                <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>
+                    <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>
+                        {loc.settingsScreen.aboutDeveloper}
+                    </Text>
+                    <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.accent, marginTop: 4 }}>
+                        {loc.settingsScreen.developerNames}
+                    </Text>
+                    <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
+                        SARAL LEKHAN PLUS ENGINE v2.15.0
+                    </Text>
+                </View>
+
+                <View style={{ height: 80 }} />
+
+            </ScrollView >
+
+            <ThemedModal
+                visible={showFeatures}
+                title={loc.featureDiscovery.title}
+                subtitle={loc.featureDiscovery.subtitle}
+                onClose={() => setShowFeatures(false)}
+                actions={[
+                    { label: loc.featureDiscovery.viewChangelog, style: "default", onPress: () => { setShowFeatures(false); setShowChangelog(true); } },
+                    { label: loc.settingsScreen.ok, style: "default", onPress: () => setShowFeatures(false) }
+                ]}
+                customContent={
+                    <View style={{ gap: 20 }}>
+                        {[
+                            { icon: '✨', title: loc.featureDiscovery.sparkAi, desc: loc.featureDiscovery.sparkAiDesc },
+                            { icon: '☁️', title: loc.featureDiscovery.sync, desc: loc.featureDiscovery.syncDesc },
+                            { icon: '🔒', title: loc.featureDiscovery.vault, desc: loc.featureDiscovery.vaultDesc },
+                            { icon: '✍️', title: loc.featureDiscovery.editor, desc: loc.featureDiscovery.editorDesc },
+                        ].map((feat, i) => (
+                            <View key={i} style={{ flexDirection: 'row', gap: 16 }}>
+                                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center', borderColor: colors.strokeDim, borderWidth: 1 }}>
+                                    <Text style={{ fontSize: 20 }}>{feat.icon}</Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.ink, includeFontPadding: false }}>{feat.title}</Text>
+                                    <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid, marginTop: 2, includeFontPadding: false }}>{feat.desc}</Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                }
+            />
 
             <ThemedModal
                 visible={showFontModal}
@@ -732,7 +983,6 @@ export default function SettingsScreen() {
                 ]}
                 customContent={
                     <View>
-                        {/* Live Preview Area */}
                         <View style={{
                             backgroundColor: colors.bgRaised,
                             borderRadius: 16,
@@ -748,7 +998,8 @@ export default function SettingsScreen() {
                                 fontFamily: font.sans,
                                 fontSize: type.bodyLarge.fontSize,
                                 color: colors.ink,
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                includeFontPadding: false
                             }}>
                                 {settings.language === 'Hi' ? "नमस्ते, सरल लेखन।" : settings.language === 'Mr' ? "नमस्कार, सरल लेखन।" : "The quick brown fox jumps over the lazy dog."}
                             </Text>
@@ -759,7 +1010,6 @@ export default function SettingsScreen() {
 
                         <View style={{ alignItems: 'center', paddingBottom: 10 }}>
                             <View style={{ width: '100%', height: 48, justifyContent: 'center' }}>
-                                {/* M3 Slider Track */}
                                 <View style={{
                                     height: 12,
                                     backgroundColor: colors.accentBg,
@@ -768,7 +1018,6 @@ export default function SettingsScreen() {
                                     position: 'relative',
                                     overflow: 'hidden'
                                 }}>
-                                    {/* Filled portion */}
                                     <View style={{
                                         position: 'absolute',
                                         left: 0,
@@ -779,7 +1028,6 @@ export default function SettingsScreen() {
                                     }} />
                                 </View>
 
-                                {/* Interactive Steps */}
                                 <View style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
@@ -829,24 +1077,6 @@ export default function SettingsScreen() {
                 }
             />
 
-
-
-                {/* About Developer Section */}
-                <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>
-                    <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>
-                        {loc.settingsScreen.aboutDeveloper}
-                    </Text>
-                    <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.accent, marginTop: 4 }}>
-                        {loc.settingsScreen.developerNames}
-                    </Text>
-                    <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
-                    </Text>
-                </View>
-
-                <View style={{ height: 80 }} />
-
-            </ScrollView >
-
             <ThemedModal
                 visible={syncAlert.visible}
                 title={syncAlert.title}
@@ -870,11 +1100,11 @@ export default function SettingsScreen() {
                             {APP_CHANGELOG.map((item, idx) => (
                                 <View key={item.version} style={{ marginBottom: 24, borderBottomWidth: idx === APP_CHANGELOG.length - 1 ? 0 : 1, borderBottomColor: colors.strokeDim, paddingBottom: 16 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                        <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.accent }}>v{item.version}</Text>
+                                        <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.accent, includeFontPadding: false }}>v{item.version}</Text>
                                         <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.inkDim }}>{item.date}</Text>
                                     </View>
                                     {(item.changes[settings.language.toLowerCase() as keyof typeof item.changes] || item.changes['en'])?.map((change, cIdx) => (
-                                        <Text key={cIdx} style={{ fontFamily: font.sans, fontSize: 14, color: colors.ink, marginBottom: 6, lineHeight: 20 }}>
+                                        <Text key={cIdx} style={{ fontFamily: font.sans, fontSize: 14, color: colors.ink, marginBottom: 6, lineHeight: 20, includeFontPadding: false }}>
                                             • {change}
                                         </Text>
                                     ))}

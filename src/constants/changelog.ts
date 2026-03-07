@@ -13,6 +13,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.15.0",
+        date: "2026-03-07",
+        changes: {
+            en: [
+                "✨ Feature Discovery: Replaced the old changelog icon with a new interactive Highlights modal.",
+                "⚙️ Settings Redesign: Logical grouping into Aesthetics, Security, Cloud, and Maintenance.",
+                "🔤 Font Fix: Applied global `includeFontPadding: false` to solve Devanagari (Marathi/Hindi) clipping.",
+                "🚀 Localization: Synchronized and optimized strings across English, Marathi, and Hindi.",
+            ],
+            hi: [
+                "✨ सुविधाओं की खोज: पुराने चेंजलॉग आइकन को नए इंटरेक्टिव हाइलाइट्स मोडल से बदला गया।",
+                "⚙️ सेटिंग्स रिडिज़ाइन: सौंदर्यशास्त्र, सुरक्षा, क्लाउड और रखरखाव में तार्किक समूहन।",
+                "🔤 फ़ॉन्ट फिक्स: देवनागरी (मराठी/हिंदी) क्लिपिंग को हल करने के लिए `includeFontPadding: false` लागू किया गया।",
+                "🚀 स्थानीयकरण: अंग्रेजी, मराठी और हिंदी में अनुकूलित अनुवाद।"
+            ],
+            mr: [
+                "✨ नवीन वैशिष्ट्ये: जुन्या चेंजलॉग आयकॉनच्या जागी नवीन इंटरअॅक्टिव्ह हायलाइट्स मोडल.",
+                "⚙️ सेटिंग्ज पुनर्रचना: सौंदर्यशास्त्र, सुरक्षा, क्लाउड आणि देखभाल विभागांमध्ये विभागणी.",
+                "🔤 फॉन्ट फिक्स: देवनागरी (मराठी/हिंदी) मजकूर कापला जाण्याची समस्या सोडवण्यासाठी `includeFontPadding: false` लागू केले.",
+                "🚀 लोकेलायझेशन: इंग्रजी, मराठी आणि हिंदी भाषांमधील मजकूर सुधारला आणि अपडेट केला."
+            ]
+        }
+    },
+    {
         version: "2.14.0",
         date: "2026-03-06",
         changes: {
