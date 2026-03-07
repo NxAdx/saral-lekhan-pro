@@ -762,15 +762,12 @@ export default function SettingsScreen() {
                 customContent={
                     <View style={{ gap: 20 }}>
                         {[
-                            { icon: '✨', title: loc.featureDiscovery.sparkAi, desc: loc.featureDiscovery.sparkAiDesc },
-                            { icon: '☁️', title: loc.featureDiscovery.sync, desc: loc.featureDiscovery.syncDesc },
-                            { icon: '🔒', title: loc.featureDiscovery.vault, desc: loc.featureDiscovery.vaultDesc },
-                            { icon: '✍️', title: loc.featureDiscovery.editor, desc: loc.featureDiscovery.editorDesc },
+                            { title: loc.featureDiscovery.sparkAi, desc: loc.featureDiscovery.sparkAiDesc },
+                            { title: loc.featureDiscovery.sync, desc: loc.featureDiscovery.syncDesc },
+                            { title: loc.featureDiscovery.vault, desc: loc.featureDiscovery.vaultDesc },
+                            { title: loc.featureDiscovery.editor, desc: loc.featureDiscovery.editorDesc },
                         ].map((feat, i) => (
                             <View key={i} style={{ flexDirection: 'row', gap: 16 }}>
-                                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center', borderColor: colors.strokeDim, borderWidth: 1 }}>
-                                    <Text style={{ fontSize: 20 }}>{feat.icon}</Text>
-                                </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.ink, includeFontPadding: false }}>{feat.title}</Text>
                                     <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid, marginTop: 2, includeFontPadding: false }}>{feat.desc}</Text>
