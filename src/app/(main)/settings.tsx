@@ -217,7 +217,7 @@ export default function SettingsScreen() {
         }
     };
 
-    const handleReportBug = async () => {
+    const handleBugReport = async () => {
         try {
             const debugInfo = log.getDebugInfo();
             const logsText = log.getLogsAsString();
@@ -339,7 +339,7 @@ export default function SettingsScreen() {
 
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     <Pressable
-                        onPress={handleReportBug}
+                        onPress={handleBugReport}
                         style={({ pressed }) => ({
                             width: 38, height: 38, borderRadius: 99,
                             borderWidth: 1.5, borderColor: colors.strokeDim,
@@ -441,132 +441,6 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* PLUS FEATURES */}
-                <Text style={s.sectionTitle}>{loc.plusFeatures.title}</Text>
-                <View style={s.listBlock}>
-                    <View style={s.listItem}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.plusFeatures.biometricTitle}</Text>
-                            <Text style={s.listSub}>
-                                {auth.isSupported
-                                    ? loc.plusFeatures.biometricActive
-                                    : loc.plusFeatures.biometricUnsupported}
-                            </Text>
-                        </View>
-                        <Switch
-                            disabled={!auth.isSupported}
-                            value={auth.isBiometricEnabled}
-                            onValueChange={(val: boolean) => auth.enableBiometric(val)}
-                            trackColor={{ false: colors.stroke, true: colors.accent }}
-                            thumbColor={colors.white}
-                        />
-                    </View>
-                    <View style={s.listItem}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.plusFeatures.sparkAiTitle}</Text>
-                            <Text style={s.listSub}>{loc.plusFeatures.sparkAiDesc}</Text>
-
-                            <Pressable onPress={() => Linking.openURL('https://aistudio.google.com/app/apikey')}>
-                                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent, marginTop: 8 }}>{loc.plusFeatures.sparkAiGetBtn}</Text>
-                            </Pressable>
-
-                            <TextInput
-                                style={{
-                                    marginTop: 12,
-                                    padding: 10,
-                                    borderRadius: theme.radius.md,
-                                    backgroundColor: colors.bg,
-                                    color: colors.ink,
-                                    fontFamily: font.mono,
-                                    borderWidth: 1,
-                                    borderColor: colors.strokeDim,
-                                    fontSize: 12,
-                                }}
-                                placeholder={loc.plusFeatures.sparkAiPlaceholder}
-                                placeholderTextColor={colors.inkDim}
-                                value={tempKey}
-                                onChangeText={setTempKey}
-                                onBlur={() => {
-                                    const key = tempKey.trim();
-                                    if (key.length > 0) {
-                                        // Basic validation to prevent obvious bad inputs
-                                        if (key.length < 30 || !key.startsWith('AIza')) {
-                                            setSyncAlert({ visible: true, title: "Invalid Key Format", sub: "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key." });
-                                            return;
-                                        }
-                                        ai.setGeminiApiKey(key);
-                                        setTempKey('');
-                                    }
-                                }}
-                                secureTextEntry
-                            />
-                            {ai.geminiApiKey && (
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent }}>{loc.plusFeatures.sparkAiActive}</Text>
-                                    <Pressable onPress={() => ai.removeKey()}>
-                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim }}>{loc.plusFeatures.sparkAiRemove}</Text>
-                                    </Pressable>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-                    <View style={s.listItem}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.plusFeatures.syncTitle}</Text>
-                            <Text style={s.listSub}>{loc.plusFeatures.syncDesc}</Text>
-
-                            {!sync.googleToken ? (
-                                <Pressable
-                                    style={{ marginTop: 12, paddingVertical: 10, backgroundColor: colors.bgDeep, borderRadius: theme.radius.md, alignItems: 'center' }}
-                                    onPress={handleGoogleLogin}
-                                >
-                                    <Text style={{ fontFamily: font.sansSemi, color: colors.ink, fontSize: 13 }}>{loc.plusFeatures.syncSignIn}</Text>
-                                </Pressable>
-                            ) : (
-                                <View style={{ marginTop: 12 }}>
-                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent, marginBottom: 8 }}>
-                                        ✓ Connected: {sync.googleEmail}
-                                    </Text>
-
-                                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                                        <Pressable
-                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
-                                            onPress={handleBackup}
-                                            disabled={sync.isSyncing}
-                                        >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                                {sync.isSyncing ? loc.plusFeatures.isSyncing : loc.plusFeatures.syncBackup}
-                                            </Text>
-                                        </Pressable>
-
-                                        <Pressable
-                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
-                                            onPress={handleRestore}
-                                            disabled={sync.isSyncing}
-                                        >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                                {sync.isSyncing ? 'Wait...' : loc.plusFeatures.syncRestore}
-                                            </Text>
-                                        </Pressable>
-                                    </View>
-
-                                    {sync.lastSync && (
-                                        <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12, textAlign: 'center' }}>
-                                            {loc.plusFeatures.lastSync}: {new Date(sync.lastSync).toLocaleString()}
-                                        </Text>
-                                    )}
-
-                                    <Pressable style={{ marginTop: 16 }} onPress={async () => {
-                                        await GoogleDriveService.signOut();
-                                        sync.clearGoogleTokens();
-                                    }}>
-                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, textAlign: 'center' }}>{loc.plusFeatures.syncDisconnect}</Text>
-                                    </Pressable>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-                </View>
 
                 {/* APPEARANCE SECTION */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.aesthetics}</Text>
