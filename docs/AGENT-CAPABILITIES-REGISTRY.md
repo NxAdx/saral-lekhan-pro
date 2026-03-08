@@ -22,8 +22,8 @@ This document tracks the tools, services, and automation capabilities available 
 - **Image Generation**: Tools for creating branding assets (logos, icons) using professional AI models.
 - **Unit Testing**: Pre-configured Jest/React Native Testing Library for automated verification.
 
-## 📦 Project Context & Knowledge Base
+## ⚠️ Critical Constraints for AI Agents
 
-- **Knowledge Items (KIs)**: Persistent distilled knowledge from past architectural decisions.
-- **docs/**: Centralized source of truth (Roadmap, architecture, Implementation Plans).
-- **Conversation Logs**: Historical context from all development phases.
+- **Startup Sequence**: The splash screen dismissal is handled in `src/app/(main)/index.tsx`. The intermediate loading background (Gap View) in `src/app/_layout.tsx` must always match the light grey splash background (`#d9d7d2`) to maintain a seamless transition.
+- **Versioning**: Always synchronize version numbers in both `app.json` and `package.json` before tagging a release to avoid update notification loops.
+- **Icon Colors**: Splash and adaptive icon backgrounds are hardcoded to `#d9d7d2`. Do not change these unless explicitly asked for a branding refresh.
