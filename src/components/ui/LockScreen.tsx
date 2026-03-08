@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../store/themeStore';
@@ -7,12 +7,12 @@ import { Svg, Path, Rect } from 'react-native-svg';
 import { strings } from '../../i18n/strings';
 import { useSettingsStore } from '../../store/settingsStore';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { shallow } from 'zustand/shallow';
 
 export function LockScreen() {
     const { isBiometricEnabled, isUnlocked, unlockApp, setSupported } = useAuthStore();
     const theme = useTheme();
-    const settings = useSettingsStore();
-    const lang = settings.language;
+    const { language: lang } = useSettingsStore((s) => ({ language: s.language }), shallow);
     const loc = strings[lang] || strings['En'];
     const [errorText, setErrorText] = useState('');
     const [isAuthenticating, setIsAuthenticating] = useState(false);

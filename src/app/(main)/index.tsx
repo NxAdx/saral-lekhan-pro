@@ -6,7 +6,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { Svg, Circle, Line, Path } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -16,9 +16,6 @@ import { TagPill } from '../../components/ui/TagPill';
 import { useTypography } from '../../store/typographyStore';
 import { FAB } from '../../components/ui/FAB';
 import { ThemedModal } from '../../components/ui/ThemedModal';
-import * as Sharing from 'expo-sharing';
-import { log } from '../../utils/Logger';
-import { APP_CHANGELOG } from '../../constants/changelog';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
@@ -55,7 +52,6 @@ export default function HomeScreen() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
-  const initDB = useNotesStore((s) => s.initDB);
   const isLoaded = useNotesStore((s) => s.isLoaded);
   const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
   const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
@@ -78,23 +74,6 @@ export default function HomeScreen() {
     };
     runUpdateCheck();
   }, [router]);
-
-  // Hide splash only when Home is ready to show
-  useEffect(() => {
-    if (isLoaded) {
-      log.info("HomeScreen: isLoaded, releasing splash.");
-      // Small timeout to ensure the first frame of the list is rendered
-      const t = setTimeout(async () => {
-        const { SplashScreen } = await import('expo-router');
-        try {
-          await SplashScreen.hideAsync();
-        } catch (e) {
-          // Ignore
-        }
-      }, 50);
-      return () => clearTimeout(t);
-    }
-  }, [isLoaded]);
 
   const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 

@@ -20,14 +20,6 @@
         "backgroundColor": "#d9d7d2"
       }
     },
-    "fonts": [
-      "./assets/fonts/Hind-Regular.ttf",
-      "./assets/fonts/Hind-Medium.ttf",
-      "./assets/fonts/Hind-SemiBold.ttf",
-      "./assets/fonts/Hind-Bold.ttf",
-      "./assets/fonts/VesperLibre-Black.ttf",
-      "./assets/fonts/DMMono-Regular.ttf"
-    ],
     "android": {
       "package": "com.sarallekhan",
       "versionCode": 57,

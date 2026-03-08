@@ -142,6 +142,20 @@ function getEmailFromUserInfo(userInfo: any): string {
     return userInfo?.data?.user?.email || userInfo?.user?.email || 'Unknown';
 }
 
+async function hasPreviousSession(): Promise<boolean> {
+    // Compatibility across @react-native-google-signin/google-signin versions:
+    // some builds expose hasPreviousSignIn, others only provide getCurrentUser.
+    const maybeApi = GoogleSignin as unknown as { hasPreviousSignIn?: () => Promise<boolean> };
+    if (typeof maybeApi.hasPreviousSignIn === 'function') {
+        try {
+            return await maybeApi.hasPreviousSignIn();
+        } catch {
+            // Fall back to current-user probe below.
+        }
+    }
+    return Boolean(GoogleSignin.getCurrentUser());
+}
+
 export class GoogleDriveService {
     /**
      * Silently refresh the OAuth access token.
@@ -159,7 +173,7 @@ export class GoogleDriveService {
         }
 
         try {
-            const hasPrevious = await GoogleSignin.hasPreviousSignIn();
+            const hasPrevious = await hasPreviousSession();
             if (!hasPrevious) {
                 throw new Error("Session expired. Please sign in again.");
             }
@@ -195,7 +209,7 @@ export class GoogleDriveService {
             await GoogleSignin.hasPlayServices();
 
             // Prefer silent sign-in if a previous session exists to avoid re-prompting OAuth UI.
-            const hasPrevious = await GoogleSignin.hasPreviousSignIn();
+            const hasPrevious = await hasPreviousSession();
             if (hasPrevious) {
                 try {
                     const silentUser = await GoogleSignin.signInSilently();

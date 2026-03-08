@@ -1,17 +1,16 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, Pressable, Platform, StatusBar, Modal, TextInput, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, Pressable, Platform, StatusBar, TextInput, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Svg, Path, Circle, Polyline, Line } from 'react-native-svg';
-import { useThemeStore, useTheme } from '../../store/themeStore';
+import { Svg, Path } from 'react-native-svg';
+import { useTheme } from '../../store/themeStore';
 import { useSettingsStore, AppLanguage } from '../../store/settingsStore';
 import { useAuthStore } from '../../store/authStore';
 import { useAiStore } from '../../store/aiStore';
 import { useSyncStore } from '../../store/syncStore';
 import { useNotesStore } from '../../store/notesStore';
 import { GoogleDriveService } from '../../services/googleDriveService';
-import { themes, ThemeName, sharedTokens } from '../../tokens';
+import { themes, ThemeName } from '../../tokens';
 import { strings } from '../../i18n/strings';
-import { BentoCard } from '../../components/ui/BentoCard';
 import { TagPill } from '../../components/ui/TagPill';
 import { AppFontType } from '../../store/settingsStore';
 import { ThemedModal } from '../../components/ui/ThemedModal';
@@ -754,7 +753,7 @@ export default function SettingsScreen() {
                         {loc.settingsScreen.developerNames}
                     </Text>
                     <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
-                        SARAL LEKHAN PLUS ENGINE v2.15.1
+                        {`SARAL LEKHAN PLUS ENGINE v${APP_VERSION}`}
                     </Text>
                 </View>
 

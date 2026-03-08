@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, Platform, ScrollView } from 'react-native';
+import { Modal, View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useTheme } from '../../store/themeStore';
 import { useTypography } from '../../store/typographyStore';
-import { sharedTokens } from '../../tokens';
 
 interface ModalAction {
     label: string;

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, StatusBar, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Svg, Path, Line, Polyline, Circle } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -12,7 +12,7 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 export default function TrashScreen() {
     const router = useRouter();
     const theme = useTheme();
-    const { colors, font, shadow } = theme;
+    const { colors, font } = theme;
     const lang = useSettingsStore(s => s.language);
     const loc = strings[lang] || strings['En'];
 

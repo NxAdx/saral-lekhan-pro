@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Pressable, Alert,
+  View, Text, TextInput, StyleSheet, Pressable,
   KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -326,10 +326,6 @@ export default function EditNoteScreen() {
       console.warn(e);
     }
   }, [note, bodyText]);
-
-  const handleExportMenu = useCallback(() => {
-    setShowExportModal(true);
-  }, []);
 
   const handleAiTitle = async () => {
     setShowAiModal(false);

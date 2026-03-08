@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
-  Platform, StatusBar, ScrollView, BackHandler, Alert
+  Platform, StatusBar, ScrollView, BackHandler
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';

@@ -1,18 +1,14 @@
 import { useMemo } from 'react';
-import { useSettingsStore, AppFontType } from '../store/settingsStore';
+import { shallow } from 'zustand/shallow';
+import { useSettingsStore } from '../store/settingsStore';
 import { sharedTokens } from '../tokens';
-
-const FONT_SCALES: Record<AppFontType, number> = {
-    hind: 1.0,
-    poppins: 0.96,
-    notoSans: 1.0,
-    baloo2: 1.02,
-    yantramanav: 1.0,
-    tiro: 1.12,
-};
+import { FONT_SCALES } from '../constants/fontConfig';
 
 export const useTypography = () => {
-    const { fontSize, appFont } = useSettingsStore();
+    const { fontSize, appFont } = useSettingsStore(
+        (s) => ({ fontSize: s.fontSize, appFont: s.appFont }),
+        shallow
+    );
 
     const type = useMemo(() => {
         const scale = FONT_SCALES[appFont] || 1.0;

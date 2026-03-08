@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { AppState, useColorScheme, View, Text, Pressable, Image } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { AppState, useColorScheme, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -10,17 +10,7 @@ import { useSettingsStore } from '../store/settingsStore';
 import { themes } from '../tokens';
 import {
   useFonts,
-  Hind_400Regular,
-  Hind_500Medium,
-  Hind_600SemiBold,
-  Hind_700Bold,
 } from '@expo-google-fonts/hind';
-import {
-  VesperLibre_900Black,
-} from '@expo-google-fonts/vesper-libre';
-import {
-  DMMono_400Regular,
-} from '@expo-google-fonts/dm-mono';
 import {
   Poppins_400Regular,
   Poppins_500Medium,
@@ -44,20 +34,19 @@ import {
   Yantramanav_500Medium,
   Yantramanav_700Bold,
 } from '@expo-google-fonts/yantramanav';
-import {
-  TiroDevanagariHindi_400Regular,
-} from '@expo-google-fonts/tiro-devanagari-hindi';
+import { TiroDevanagariHindi_400Regular } from '@expo-google-fonts/tiro-devanagari-hindi';
 
 import { useAiStore } from '../store/aiStore';
 import { useNotesStore } from '../store/notesStore';
 import { log } from '../utils/Logger';
+import { shallow } from 'zustand/shallow';
 
 const splashPreventResult = SplashScreen.preventAutoHideAsync();
-(splashPreventResult as any)?.catch?.(() => { });
+(splashPreventResult as any)?.catch?.(() => {});
 
 try {
   Sentry.init({
-    dsn: "https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176",
+    dsn: 'https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176',
     debug: __DEV__,
   });
 } catch {
@@ -65,156 +54,124 @@ try {
 }
 
 export function RootLayout() {
-  const { themeId, nightMode } = useSettingsStore();
+  const { themeId, nightMode } = useSettingsStore(
+    (s) => ({ themeId: s.themeId, nightMode: s.nightMode }),
+    shallow
+  );
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
-  const [showRecovery, setShowRecovery] = React.useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
-    'Hind': require('../../assets/fonts/Hind-Regular.ttf'),
+    Hind: require('../../assets/fonts/Hind-Regular.ttf'),
     'Hind-Medium': require('../../assets/fonts/Hind-Medium.ttf'),
     'Hind-SemiBold': require('../../assets/fonts/Hind-SemiBold.ttf'),
     'Hind-Bold': require('../../assets/fonts/Hind-Bold.ttf'),
     'VesperLibre-Black': require('../../assets/fonts/VesperLibre-Black.ttf'),
     'DMMono-Regular': require('../../assets/fonts/DMMono-Regular.ttf'),
-    'Poppins': Poppins_400Regular,
+    Poppins: Poppins_400Regular,
     'Poppins-Medium': Poppins_500Medium,
     'Poppins-SemiBold': Poppins_600SemiBold,
     'Poppins-Bold': Poppins_700Bold,
-    'NotoSans': NotoSans_400Regular,
+    NotoSans: NotoSans_400Regular,
     'NotoSans-Medium': NotoSans_500Medium,
     'NotoSans-SemiBold': NotoSans_600SemiBold,
     'NotoSans-Bold': NotoSans_700Bold,
-    'Baloo2': Baloo2_400Regular,
+    Baloo2: Baloo2_400Regular,
     'Baloo2-Medium': Baloo2_500Medium,
     'Baloo2-SemiBold': Baloo2_600SemiBold,
     'Baloo2-Bold': Baloo2_700Bold,
-    'Yantramanav': Yantramanav_400Regular,
+    Yantramanav: Yantramanav_400Regular,
     'Yantramanav-Medium': Yantramanav_500Medium,
     'Yantramanav-Bold': Yantramanav_700Bold,
-    'TiroDevanagari': TiroDevanagariHindi_400Regular,
+    TiroDevanagari: TiroDevanagariHindi_400Regular,
   });
 
-  // Combined readiness state
-  const isLoaded = useNotesStore(s => s.isLoaded);
-  // FAIL-SAFE: coreReady is true if everything is loaded OR if we hit the 5s timeout
+  const isLoaded = useNotesStore((s) => s.isLoaded);
   const coreReady = (fontsLoaded || fontError || isStartupTimeout) && (isLoaded || isStartupTimeout);
 
-    useEffect(() => {
-        const init = async () => {
-            log.info("🚀 RootLayout: Starting atomic initialization...");
-            
-            // 1. Core Stores (Sequential & Guarded)
-            try {
-                log.info("Init DB...");
-                await useNotesStore.getState().initDB();
-            } catch (e) { log.error("DB Init Failed", e as any); }
+  useEffect(() => {
+    const init = async () => {
+      log.info('RootLayout: Starting atomic initialization.');
 
-            try {
-                log.info("Init Auth...");
-                await useAuthStore.getState().initialize();
-            } catch (e) { log.error("Auth Init Failed", e as any); }
+      try {
+        log.info('Init DB...');
+        await useNotesStore.getState().initDB();
+      } catch (e) {
+        log.error('DB Init Failed', e as any);
+      }
 
-            try {
-                log.info("Init AI...");
-                await useAiStore.getState().initialize();
-            } catch (e) { log.error("AI Init Failed", e as any); }
-        };
+      try {
+        log.info('Init Auth...');
+        await useAuthStore.getState().initialize();
+      } catch (e) {
+        log.error('Auth Init Failed', e as any);
+      }
 
-        init();
+      try {
+        log.info('Init AI...');
+        await useAiStore.getState().initialize();
+      } catch (e) {
+        log.error('AI Init Failed', e as any);
+      }
+    };
 
-        // FAIL-SAFE 1: Soft timeout at 5s (attempts to hide splash silently)
-        const safetyTimer = setTimeout(() => {
-            if (!coreReady) {
-                log.warn("🚨 RootLayout: 5s Safety Net reached. Forcing internal ready.");
-                setIsStartupTimeout(true);
-            }
-        }, 5000);
+    init();
 
-        // FAIL-SAFE 2: Hard timeout at 10s (Show Recovery UI)
-        const recoveryTimer = setTimeout(() => {
-            if (!coreReady) {
-                log.error("🛑 RootLayout: 10s CRITICAL timeout. Showing Recovery UI.");
-                setShowRecovery(true);
-            }
-        }, 10000);
+    // Fail-safe: never block startup forever.
+    const safetyTimer = setTimeout(() => {
+      log.warn('RootLayout: 5s safety net reached. Forcing internal ready.');
+      setIsStartupTimeout(true);
+      useNotesStore.setState({ isLoaded: true });
+    }, 5000);
 
-        const subscription = AppState.addEventListener('change', (nextAppState) => {
-            if (nextAppState === 'background' || nextAppState === 'inactive') {
-                useAuthStore.getState().lockApp();
-            }
-        });
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        useAuthStore.getState().lockApp();
+      }
+    });
 
-        return () => {
-            clearTimeout(safetyTimer);
-            clearTimeout(recoveryTimer);
-            subscription.remove();
-        };
-    }, []); 
+    return () => {
+      clearTimeout(safetyTimer);
+      subscription.remove();
+    };
+  }, []);
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
-  const coreColors = themes[themeId][isDark ? 'dark' : 'light'];
-  const finalBgColor = coreColors.bg;
+  const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
 
   useEffect(() => {
-    if (coreReady) {
-        log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
-        SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
-    }
-  }, [finalBgColor, isDark, coreReady]);
+    if (!coreReady) return;
+    log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
+    SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
+  }, [finalBgColor, isDark, themeId, coreReady]);
 
-  // The Gap Color should match the splash background (#d9d7d2) 
-  // to avoid a color flash while stores initialize.
+  useEffect(() => {
+    if (!coreReady) return;
+    try {
+      SplashScreen.hideAsync();
+    } catch {
+      // no-op
+    }
+  }, [coreReady]);
+
+  // Keep pre-ready state visually blank so users perceive one branded splash.
   const gapColor = '#d9d7d2';
 
-  const navTheme = {
+  const navTheme = useMemo(() => ({
     dark: isDark,
     colors: {
       ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
       background: finalBgColor,
     },
-  };
+  }), [isDark, finalBgColor]);
 
-    const onLayoutRootView = useCallback(() => {
-        // We handle hiding in individual screens now for precision
-    }, []);
-
-  const handleForceStart = () => {
-    log.info("User triggered Force Start");
-    setIsStartupTimeout(true);
-    useNotesStore.setState({ isLoaded: true });
-    useAuthStore.getState().forceUnlock();
-    setShowRecovery(false);
-  };
-
-  // Return specialized loading view if not ready
   if (!coreReady) {
-    return (
-      <View style={{ flex: 1, backgroundColor: gapColor, justifyContent: 'center', alignItems: 'center' }} onLayout={onLayoutRootView}>
-        <Image 
-            source={require('../../assets/splash-icon-light.png')} 
-            style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: 20 }}
-        />
-        {showRecovery && (
-          <View style={{ padding: 40, alignItems: 'center' }}>
-            <Text style={{ color: coreColors.inkDim, marginBottom: 20, textAlign: 'center', fontFamily: 'Hind' }}>
-                Startup is taking longer than usual...
-            </Text>
-            <Pressable 
-                onPress={handleForceStart}
-                style={{ backgroundColor: coreColors.accent, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12 }}
-            >
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>FORCE START APP</Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
-    );
+    return <View style={{ flex: 1, backgroundColor: gapColor }} />;
   }
 
   return (
     <ThemeProvider value={navTheme}>
-      <View style={{ flex: 1, backgroundColor: finalBgColor }} onLayout={onLayoutRootView}>
+      <View style={{ flex: 1, backgroundColor: finalBgColor }}>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
         <LockScreen />
       </View>
