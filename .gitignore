@@ -46,7 +46,4 @@ ios/build/
 
 # Local Assets & Backups
 ss/
-*.zip
-*.jpg
-*.png
 *.mp4

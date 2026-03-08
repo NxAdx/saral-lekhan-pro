@@ -13,6 +13,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.15.5",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "🛠️ Build System: Resolved 'Resource Not Found' error by fixing Git asset visibility.",
+                "🚀 Assets: Successfully pushed adaptive icon foreground layers for all densities.",
+            ],
+            hi: [
+                "🛠️ बिल्ड सिस्टम: गिट एसेट विजिबिलिटी को ठीक करके 'रिसोर्स नॉट फाउंड' त्रुटि को हल किया गया।",
+                "🚀 एसेट्स: सभी डेंसिटी के लिए एडेप्टिव आइकन फोरग्राउंड लेयर्स को सफलतापूर्वक पुश किया गया।"
+            ],
+            mr: [
+                "🛠️ बिल्ड सिस्टम: गिट एसेट व्हिजिबिलिटी फिक्स करून 'रिसोर्स नॉट फाउंड' त्रुटी सोडवली.",
+                "🚀 एसेट्स: सर्व डेन्सिटीसाठी अ‍ॅडॉप्टिव्ह आयकॉन फोरग्राउंड लेयर्स यशस्वीरित्या पुश केले."
+            ]
+        }
+    },
+    {
         version: "2.15.4",
         date: "2026-03-08",
         changes: {
