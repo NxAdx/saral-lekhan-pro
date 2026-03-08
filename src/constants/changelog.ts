@@ -13,6 +13,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.15.3",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "✨ Brand Identity: Introducing our new official logo across the app icon and adaptive icons.",
+                "🚀 Updater Verification: Version bump to v2.15.3 to verify the advanced PackageInstaller logic.",
+            ],
+            hi: [
+                "✨ ब्रांड पहचान: ऐप आइकन और एडेप्टिव आइकन पर अपना नया आधिकारिक लोगो पेश कर रहे हैं।",
+                "🚀 अपडेटर सत्यापन: उन्नत PackageInstaller लॉजिक को सत्यापित करने के लिए v2.15.3 पर स्विच किया गया।"
+            ],
+            mr: [
+                "✨ ब्रँड ओळख: अ‍ॅप आयकॉन आणि अ‍ॅडॉप्टिव्ह आयकॉनवर आमचा नवीन अधिकृत लोगो सादर करत आहोत.",
+                "🚀 अपडेटर पडताळणी: प्रगत PackageInstaller लॉजिक तपासण्यासाठी v2.15.3 व्हर्जन रिलीज."
+            ]
+        }
+    },
+    {
         version: "2.15.2",
         date: "2026-03-07",
         changes: {
