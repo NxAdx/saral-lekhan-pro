@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { AppState, useColorScheme, View, Text, Pressable } from 'react-native';
+import { AppState, useColorScheme, View, Text, Pressable, Image } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -189,6 +189,10 @@ export function RootLayout() {
   if (!coreReady) {
     return (
       <View style={{ flex: 1, backgroundColor: gapColor, justifyContent: 'center', alignItems: 'center' }} onLayout={onLayoutRootView}>
+        <Image 
+            source={require('../../assets/splash-icon-light.png')} 
+            style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: 20 }}
+        />
         {showRecovery && (
           <View style={{ padding: 40, alignItems: 'center' }}>
             <Text style={{ color: coreColors.inkDim, marginBottom: 20, textAlign: 'center', fontFamily: 'Hind' }}>

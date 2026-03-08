@@ -13,6 +13,45 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.2",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "✨ Startup Polish: Added logo to the intermediate loading screen for a 100% seamless transition.",
+                "🎨 Sync: Perfect alignment of splash background colors across all app states.",
+                "🚀 Versioning: Fixed the persistent update notification loop."
+            ],
+            hi: [
+                "✨ स्टार्टअप पॉलिश: 100% निर्बाध संक्रमण के लिए इंटरमीडिएट लोडिंग स्क्रीन में लोगो जोड़ा गया।",
+                "🎨 सिंक: सभी ऐप राज्यों में स्प्लैश बैकग्राउंड रंगों का सही तालमेल।",
+                "🚀 वर्जनिंग: लगातार अपडेट अधिसूचना लूप को ठीक किया गया।"
+            ],
+            mr: [
+                "✨ स्टार्टअप पॉलिश: १००% अखंड संक्रमणासाठी इंटरमीडिएट लोडिंग स्क्रीनमध्ये लोगो जोडला.",
+                "🎨 सिंक: सर्व अ‍ॅप स्थितींमध्ये स्प्लॅश बॅकग्राउंड रंगांचे अचूक संरेखन.",
+                "🚀 व्हर्जनिंग: सतत येणाऱ्या अपडेट नोटिफिकेशनची समस्या दूर केली."
+            ]
+        }
+    },
+    {
+        version: "2.16.1",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "🚀 Performance: Intelligent splash dismissal logic that waits for the Home Screen to be ready.",
+                "🎨 Branding: Updated official background color to #d9d7d2 for a softer, premium look."
+            ],
+            hi: [
+                "🚀 प्रदर्शन: इंटेलिजेंट स्प्लैश डिसमिसल लॉजिक जो होम स्क्रीन के तैयार होने तक प्रतीक्षा करता है।",
+                "🎨 ब्रांडिंग: सॉफ़्ट, प्रीमियम लुक के लिए आधिकारिक बैकग्राउंड रंग को #d9d7d2 पर अपडेट किया गया।"
+            ],
+            mr: [
+                "🚀 परफॉर्मन्स: इंटेलिजेंट स्प्लॅश डिसमिसल लॉजिक जे होम स्क्रीन तयार होईपर्यंत प्रतीक्षा करते.",
+                "🎨 ब्रँडिंग: सॉफ्ट, प्रीमियम लूकसाठी अधिकृत बॅकग्राउंड रंग #d9d7d2 वर अपडेट केला."
+            ]
+        }
+    },
+    {
         version: "2.16.0",
         date: "2026-03-08",
         changes: {
