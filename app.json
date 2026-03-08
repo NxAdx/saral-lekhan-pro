@@ -3,7 +3,7 @@
     "name": "saral-lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.16.2",
+    "version": "2.16.3",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -14,7 +14,11 @@
     "splash": {
       "image": "./assets/splash-icon-light.png",
       "resizeMode": "contain",
-      "backgroundColor": "#d9d7d2"
+      "backgroundColor": "#d9d7d2",
+      "dark": {
+        "image": "./assets/splash-icon-light.png",
+        "backgroundColor": "#d9d7d2"
+      }
     },
     "fonts": [
       "./assets/fonts/Hind-Regular.ttf",
@@ -26,7 +30,7 @@
     ],
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 55,
+      "versionCode": 56,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
       ],

@@ -157,9 +157,11 @@ export function RootLayout() {
   const finalBgColor = coreColors.bg;
 
   useEffect(() => {
-    log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
-    SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
-  }, [finalBgColor, isDark]);
+    if (coreReady) {
+        log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
+        SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
+    }
+  }, [finalBgColor, isDark, coreReady]);
 
   // The Gap Color should match the splash background (#d9d7d2) 
   // to avoid a color flash while stores initialize.

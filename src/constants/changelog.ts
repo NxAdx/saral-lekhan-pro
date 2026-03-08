@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.3",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "✨ Launch Consistency: Forced light-mode splash background even if the system is in dark mode.",
+                "🎨 UI Stability: Eliminated the 'Dark Flash' by delaying theme-based background changes until ready.",
+                "🚀 Asset Fix: Verified and enforced adaptive icon background colors."
+            ],
+            hi: [
+                "✨ लॉन्च स्थिरता: यदि सिस्टम डार्क मोड में है तो भी लाइट-मोड स्प्लैश बैकग्राउंड को लागू किया गया।",
+                "🎨 UI स्थिरता: तैयार होने तक थीम-आधारित बैकग्राउंड परिवर्तनों में देरी करके 'डार्क फ्लैश' को समाप्त किया गया।",
+                "🚀 एसेट फिक्स: एडेप्टिव आइकन बैकग्राउंड रंगों को सत्यापित और लागू किया गया।"
+            ],
+            mr: [
+                "✨ लॉन्च सातत्य: सिस्टीम डार्क मोडमध्ये असली तरीही लाइट-मोड स्प्लॅश बॅकग्राउंड सक्तीने लागू केले.",
+                "🎨 UI स्थिरता: अ‍ॅप तयार होईपर्यंत थीम-आधारित बॅकग्राउंड बदल लांबणीवर टाकून 'डार्क फ्लॅश'ची समस्या दूर केली.",
+                "🚀 एसेट फिक्स: अ‍ॅडॉप्टिव्ह आयकॉनचे बॅकग्राउंड रंग तपासून लागू केले."
+            ]
+        }
+    },
+    {
         version: "2.16.2",
         date: "2026-03-08",
         changes: {
