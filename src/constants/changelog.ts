@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.0",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "🎨 Visual Identity: Launched new high-quality adaptive icons and splash screens.",
+                "🔋 Performance: Optimized native resource handling for smoother app launch.",
+                "📱 Platform: Full support for Android 13+ adaptive icon themes."
+            ],
+            hi: [
+                "🎨 विज़ुअल आइडेंटिटी: नए उच्च गुणवत्ता वाले एडेप्टिव आइकन और स्प्लैश स्क्रीन लॉन्च किए गए।",
+                "🔋 प्रदर्शन: सुचारू ऐप लॉन्च के लिए नेटिव रिसोर्स हैंडलिंग को अनुकूलित किया गया।",
+                "📱 प्लेटफॉर्म: एंड्रॉइड 13+ एडेप्टिव आइकन थीम के लिए पूर्ण समर्थन।"
+            ],
+            mr: [
+                "🎨 व्हिज्युअल आयडेंटिटी: नवीन उच्च-गुणवत्तेचे अ‍ॅडॉप्टिव्ह आयकॉन आणि स्प्लॅश स्क्रीन लॉन्च केले.",
+                "🔋 परफॉर्मन्स: सुलभ अ‍ॅप लॉन्चसाठी नेटिव्ह रिसोर्स हँडलिंग ऑप्टिमाइझ केले.",
+                "📱 प्लॅटफॉर्म: अँड्रॉइड 13+ अ‍ॅडॉप्टिव्ह आयकॉन थीमसाठी पूर्ण समर्थन."
+            ]
+        }
+    },
+    {
         version: "2.15.5",
         date: "2026-03-08",
         changes: {
