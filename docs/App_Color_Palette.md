@@ -7,8 +7,8 @@ These colors are hardcoded for branding consistency across the OS.
 
 | Asset | Color (Hex) | Usage |
 | :--- | :--- | :--- |
-| **Splash Background** | `#171513` | Deep charcoal for the launch screen. |
-| **Android Adaptive Icon BG** | `#171513` | Background layer for the home screen icon. |
+| **Splash Background** | `#D9D7D2` | Light grey for the launch screen (System + App). |
+| **Android Adaptive Icon BG** | `#D9D7D2` | Background layer for the home screen icon. |
 | **Default Foreground** | `#C14E28` | The "Saral Lekhan Orange" used in logos. |
 
 ---

@@ -1,8 +1,12 @@
 # Master Project Documentation: सरल लेखन (Saral Lekhan)
 
+> **Handoff Addendum (v2.16.3 - 2026-03-08)**:
+> - **Unified Startup Branding**: Forced splash and adaptive icon background color to `#d9d7d2` across all system states (even Dark Mode).
+> - **Seamless Transition**: Added the logo to the intermediate loading screen to prevent "disappearing logo" or white flashes during boot.
+> - **Release Integrity**: Synchronized versioning across `app.json` and `package.json` to v2.16.3.
+> - **Version State**: Mainline is at **v2.16.3** (versionCode 56).
+
 > **Handoff Addendum (v2.13.2 - 2026-03-06)**:
-> - **Emergency Startup Fix**: Introduced a guaranteed fail-safe UI rendering logic. If assets (fonts/DB) fail to load within 5 seconds, the app now forcibly renders the main UI instead of hanging. Refactored Sentry initialization to be non-blocking.
-> - **Version State**: Mainline is at **v2.13.2** (versionCode 47).
 
 > **Handoff Addendum (v2.13.1 - 2026-03-06)**:
 > - **Deep Startup Fix**: Bundled fonts locally to `assets/fonts/` for 100% offline reliability. Implemented a 5-second combined safety net in `RootLayout`.
@@ -173,4 +177,4 @@ cd android
 - **Database**: When modifying the data model, update both `src/db/schema.ts` and the `notesStore.ts`.
 
 ---
-*Generated: 2026-03-04 | Version 2.10.1 (Production Ready & Optimized)*
+*Generated: 2026-03-08 | Version 2.16.3 (Production Ready & Polished)*

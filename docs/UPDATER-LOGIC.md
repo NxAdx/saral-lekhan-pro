@@ -1,13 +1,13 @@
 # In-App Updater Logic (Android)
 
-Last updated: 2026-03-06
+Last updated: 2026-03-08
 Scope: GitHub release based APK updates for `com.sarallekhan`.
 
 ## 1. Design Overview
 
 The app uses a custom updater, not Expo OTA, for APK replacement:
 
-1. Read all release metadata from GitHub REST API (v2.12.0+ uses `/releases`).
+1. Read all release metadata from GitHub REST API (v2.16.x uses `/releases`).
 2. Compare semantic version with installed app version strictly.
 3. Download `.apk` asset when a NEWER version is available.
 4. Launch Android package installer intent.
