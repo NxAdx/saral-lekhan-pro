@@ -283,3 +283,22 @@ Notes
   1. `npx tsc --noEmit` -> PASS.
   2. `npx tsc --noEmit --noUnusedLocals --noUnusedParameters` -> PASS.
   3. `npx expo-doctor --verbose` -> 14/15 PASS (only non-CNG sync warning remains).
+
+33) CI release build failure in `:shopify_flash-list:compileReleaseKotlin` (2026-03-08)
+- Symptom:
+  1. All Android release jobs fail in GitHub Actions during Kotlin compile step.
+  2. Error in FlashList native source:
+     - `AutoLayoutView.kt: 'dispatchDraw' overrides nothing`
+     - `Type mismatch: inferred type is Canvas? but Canvas was expected`
+- Cause:
+  1. Project was pinned to `@shopify/flash-list@1.4.3`.
+  2. That version's Android source declares `dispatchDraw(canvas: Canvas?)`, which is incompatible with the current Android/Kotlin compile path used in CI.
+- Resolution:
+  1. Upgraded FlashList within the same major line:
+     - `@shopify/flash-list: 1.4.3 -> 1.8.3`
+  2. Regenerated lockfile to ensure CI resolves the fixed artifact.
+  3. Verified installed source now uses:
+     - `override fun dispatchDraw(canvas: Canvas)`
+- Files changed:
+  1. `package.json`
+  2. `package-lock.json`

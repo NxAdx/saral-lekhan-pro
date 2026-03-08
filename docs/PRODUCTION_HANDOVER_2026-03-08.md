@@ -194,3 +194,10 @@ To preserve institutional knowledge for future developers/agents:
 3. Heavy artifacts stay ignored to keep repo size stable:
    - `docs/*.html`
    - `docs/*.docx`
+
+## 12) Post-Handover CI Hotfix (same day)
+After this handover, CI surfaced an additional Kotlin compile failure in FlashList:
+- Failure task: `:shopify_flash-list:compileReleaseKotlin`
+- Root issue: old FlashList native Android source (`1.4.3`) used incompatible `dispatchDraw(Canvas?)` signature.
+- Hotfix applied: pin `@shopify/flash-list` to `1.8.3` and regenerate lockfile.
+- Operational note: keep this dependency at `1.8.3` or newer verified-compatible 1.x for current Expo 49 / RN 0.72 stack.

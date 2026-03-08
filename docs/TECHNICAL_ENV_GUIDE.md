@@ -59,7 +59,8 @@ To build the production APK natively (`npx expo run:android` or `assembleRelease
 - **Startup Chain**: `_layout.tsx` owns native splash lifecycle (`preventAutoHideAsync` + hide on `coreReady`), then routes render in `index.tsx`.
 - **Branding Sync**: Splash background, Loading Gap view, and Adaptive Icon background must ALL match `#d9d7d2`.
 - **Versioning**: Always update `app.json` AND `package.json` before tagging a release.
-- **Security**: The `docs/` folder and `.env` files are untracked via `.gitignore`.
+- **Security**: `.env` files are untracked via `.gitignore`. `docs/` is intentionally versioned for production handover continuity.
+- **FlashList Compatibility**: Keep `@shopify/flash-list` on `1.8.3` (or newer verified-compatible 1.x) for this stack. `1.4.3` fails CI Kotlin compile with `dispatchDraw` signature errors.
 
 ## 📦 Documentation Directory
 - `docs/MASTER-PROJECT-DOCUMENTATION.md`: Global architecture and history.

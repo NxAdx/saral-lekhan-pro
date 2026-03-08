@@ -178,3 +178,12 @@ Result:
 2. Review `docs/TECHNICAL_ENV_GUIDE.md` before local/CI build edits.
 3. Run TypeScript + Expo doctor checks before and after each release-facing change.
 4. Keep native splash resources, `app.json`, and version/changelog constants in sync per release.
+
+## 7) Post-Handover Follow-Up (same date)
+An additional CI-only Kotlin failure was discovered after the initial hardening commits:
+- Task: `:shopify_flash-list:compileReleaseKotlin`
+- Error source: `@shopify/flash-list@1.4.3` Android file `AutoLayoutView.kt` (`dispatchDraw(Canvas?)` incompatibility)
+- Remediation: bump to `@shopify/flash-list@1.8.3` and update lockfile
+- This follow-up is intentionally documented here so future maintainers can distinguish:
+  1. Initial hardening baseline.
+  2. Immediate CI compatibility hotfix that followed.
