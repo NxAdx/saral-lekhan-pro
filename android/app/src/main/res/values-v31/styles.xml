@@ -3,7 +3,6 @@
     <item name="android:windowSplashScreenBackground">@color/splashscreen_background</item>
     <item name="android:windowSplashScreenAnimatedIcon">@drawable/splashscreen_image</item>
     <item name="android:windowSplashScreenIconBackgroundColor">@color/splashscreen_background</item>
-    <item name="postSplashScreenTheme">@style/AppTheme</item>
     <item name="android:windowBackground">@drawable/splashscreen</item>
   </style>
 </resources>
