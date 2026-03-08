@@ -13,6 +13,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.4",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "✨ Native Splash & Icon background color synchronized across all Android versions (#d9d7d2).",
+                "🛠️ Fixed legacy dark splash appearing on Android 12+ devices in Dark Mode.",
+                "📖 Added Technical Environment & Build Guide for developer onboarding."
+            ],
+            hi: [
+                "✨ सभी Android वर्शन पर नेटिव स्प्लैश और आइकन बैकग्राउंड रंग सिंक किया गया (#d9d7d2)।",
+                "🛠️ डार्क मोड में Android 12+ डिवाइस पर दिखने वाले पुराने डार्क स्प्लैश को ठीक किया गया।",
+                "📖 डेवलपर ऑनबोर्डिंग के लिए तकनीकी परिवेश और बिल्ड गाइड जोड़ा गया।"
+            ]
+        }
+    },
+    {
         version: "2.16.3",
         date: "2026-03-08",
         changes: {
