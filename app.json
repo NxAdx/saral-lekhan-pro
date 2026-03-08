@@ -14,7 +14,7 @@
     "splash": {
       "image": "./assets/splash-icon-light.png",
       "resizeMode": "contain",
-      "backgroundColor": "#171513"
+      "backgroundColor": "#d9d7d2"
     },
     "fonts": [
       "./assets/fonts/Hind-Regular.ttf",
@@ -32,7 +32,7 @@
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-adaptive.png",
-        "backgroundColor": "#171513"
+        "backgroundColor": "#d9d7d2"
       },
       "softwareKeyboardLayoutMode": "resize",
       "intentFilters": [

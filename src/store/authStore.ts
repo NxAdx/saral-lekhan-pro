@@ -13,6 +13,7 @@ interface AuthState {
     setSupported: (supported: boolean) => void;
     enableBiometric: (enabled: boolean) => Promise<void>;
     unlockApp: () => void;
+    forceUnlock: () => void;
     lockApp: () => void;
     initialize: () => Promise<void>;
 }

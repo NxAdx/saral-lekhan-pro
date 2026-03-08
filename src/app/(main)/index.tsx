@@ -79,6 +79,23 @@ export default function HomeScreen() {
     runUpdateCheck();
   }, [router]);
 
+  // Hide splash only when Home is ready to show
+  useEffect(() => {
+    if (isLoaded) {
+      log.info("HomeScreen: isLoaded, releasing splash.");
+      // Small timeout to ensure the first frame of the list is rendered
+      const t = setTimeout(async () => {
+        const { SplashScreen } = await import('expo-router');
+        try {
+          await SplashScreen.hideAsync();
+        } catch (e) {
+          // Ignore
+        }
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [isLoaded]);
+
   const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 
   const filteredNotes = useMemo(() => {

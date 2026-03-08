@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { AppState, useColorScheme, View } from 'react-native';
+import { AppState, useColorScheme, View, Text, Pressable } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -161,6 +161,10 @@ export function RootLayout() {
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
   }, [finalBgColor, isDark]);
 
+  // The Gap Color should match the splash background (#d9d7d2) 
+  // to avoid a color flash while stores initialize.
+  const gapColor = '#d9d7d2';
+
   const navTheme = {
     dark: isDark,
     colors: {
@@ -169,12 +173,9 @@ export function RootLayout() {
     },
   };
 
-    const onLayoutRootView = useCallback(async () => {
-        if (coreReady) {
-            log.info("Ready state met. Releasing splash.");
-            SplashScreen.hideAsync().catch(() => {});
-        }
-    }, [coreReady]);
+    const onLayoutRootView = useCallback(() => {
+        // We handle hiding in individual screens now for precision
+    }, []);
 
   const handleForceStart = () => {
     log.info("User triggered Force Start");
@@ -187,7 +188,7 @@ export function RootLayout() {
   // Return specialized loading view if not ready
   if (!coreReady) {
     return (
-      <View style={{ flex: 1, backgroundColor: finalBgColor, justifyContent: 'center', alignItems: 'center' }} onLayout={onLayoutRootView}>
+      <View style={{ flex: 1, backgroundColor: gapColor, justifyContent: 'center', alignItems: 'center' }} onLayout={onLayoutRootView}>
         {showRecovery && (
           <View style={{ padding: 40, alignItems: 'center' }}>
             <Text style={{ color: coreColors.inkDim, marginBottom: 20, textAlign: 'center', fontFamily: 'Hind' }}>
