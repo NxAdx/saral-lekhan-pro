@@ -46,4 +46,7 @@ ios/build/
 
 # Local Assets & Backups
 ss/
+docs/
 *.mp4
+.env*
+security/
