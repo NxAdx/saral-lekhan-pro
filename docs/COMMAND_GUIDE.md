@@ -35,6 +35,17 @@ A centralized reference for all development commands required to run, build, and
   sentry-cli info
   ```
 
+## 📦 Releasing (GitHub)
+
+- **Create a New Release**:
+  ```bash
+  # 1. Create a version tag
+  git tag v2.15.3
+  # 2. Push the tag to trigger GitHub Actions (Automated Build & Release)
+  git push origin v2.15.3
+  ```
+  *Note: Ensure `app.json` and `package.json` versions are updated before tagging.*
+
 ## 🧹 Maintenance
 
 - `watchman watch-del-all`: Clear Watchman watches.

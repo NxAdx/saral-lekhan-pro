@@ -39,6 +39,14 @@ cd android && ./gradlew clean
 - `ANDROID_KEYSTORE`: For signing production builds (base64 encoded).
 - `KEYSTORE_PASSWORD`: Password for the keystore.
 
+## 🚀 Triggering a Release
+To trigger the automated production build and GitHub release:
+```bash
+git tag v2.15.3
+git push origin v2.15.3
+```
+*Note: This will automatically generate the APK and publish it to the GitHub Releases page.*
+
 ## 📁 Artifact Location
 After a successful run, the APK can be found under the **Actions** tab on GitHub:
 `outputs/apk/release/app-release.apk`

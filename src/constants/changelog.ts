@@ -13,6 +13,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.15.4",
+        date: "2026-03-08",
+        changes: {
+            en: [
+                "🛠️ Native Assets: Fixed missing app icon and splash screen branding.",
+                "🚀 Sync: Forcibly synchronized native Android resources with the new logo.",
+            ],
+            hi: [
+                "🛠️ नेटिव एसेट्स: गायब ऐप आइकन और स्प्लैश स्क्रीन ब्रांडिंग को ठीक किया गया।",
+                "🚀 सिंक: नए लोगो के साथ नेटिव एंड्रॉइड संसाधनों को सफलतापूर्वक सिंक्रनाइज़ किया गया।"
+            ],
+            mr: [
+                "🛠️ नेटिव एसेट्स: गायब अ‍ॅप आयकॉन आणि स्प्लॅश स्क्रीन ब्रँडिंग फिक्स केले.",
+                "🚀 सिंक: नवीन लोगोसह नेटिव्ह अँड्रॉइड रिसोर्सेस यशस्वीरित्या सिंक्रोनाइझ केले."
+            ]
+        }
+    },
+    {
         version: "2.15.3",
         date: "2026-03-08",
         changes: {
