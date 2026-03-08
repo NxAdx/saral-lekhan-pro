@@ -78,8 +78,19 @@ Next actions (Future Roadmap):
     - Added one-time fallback retry for `DEVELOPER_ERROR` in `GoogleDriveService.signIn()`.
     - Fallback uses Android default OAuth config from `google-services.json` (no forced `webClientId`) to recover client wiring edge cases.
 
+- **Phase 49: Startup Optimization (v2.16.1)**:
+    - Optimized splash dismissal logic to wait for `HomeScreen` data.
+    - Updated official splash background to light grey (`#d9d7d2`).
+    - Unified initialization \"Gap View\" background to prevent colored flashes.
+- **Phase 50: Release Fix & Startup Polish (v2.16.2)**:
+    - Added splash logo to the intermediate loading screen for a 100% seamless transition.
+    - Synchronized versioning across `app.json` and `package.json` to resolve update loops.
+- **Phase 51: Splash & Icon Color Sync (v2.16.3)**:
+    - Forced light-mode splash background even if the system is in dark mode.
+    - Delayed theme-based background changes in `_layout.tsx` until `coreReady` to eliminate \"Dark Flash\".
+    - Final verification and push of v2.16.3.
+
 In progress:
-- Build verification by user on latest updater flow and installer prompt behavior.
 
 Next actions (Future Roadmap):
 1. Prepare Google Play Store submission assets.
