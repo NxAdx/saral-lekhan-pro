@@ -46,7 +46,10 @@ ios/build/
 
 # Local Assets & Backups
 ss/
-docs/
 *.mp4
 .env*
 security/
+
+# Keep markdown docs versioned, ignore heavy source/prototype assets in docs
+docs/*.html
+docs/*.docx
