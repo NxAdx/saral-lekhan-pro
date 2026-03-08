@@ -10,8 +10,11 @@ Primary goals of this pass:
 - Document the exact state, validations, and remaining risks.
 
 ## 2) Commits Included
+- `a86a506` - `docs: finalize v2.16.4 release with native fixes and onboarding guides`
+- `c9a9649` - `fix: final native splash resource sync for v2.16.4`
 - `822744a` - `Harden theme architecture, fix TS blockers, and align Android release config`
 - `62b856d` - `chore: apply safe lockfile security patch`
+- `2862f38` - `docs: add production handover and version docs folder for future maintainers`
 
 Repository/branch:
 - `origin/main`
@@ -182,3 +185,12 @@ If any regression is discovered:
 ## 10) Ownership Note
 This handover intentionally prioritizes production stability over aggressive dependency churn.  
 Future modernization (SDK major upgrade + security sweep) should be planned as a dedicated milestone, not mixed with hotfixes.
+
+## 11) Documentation Continuity Update
+To preserve institutional knowledge for future developers/agents:
+1. `docs/` is now version-controlled in git.
+2. A full commit/file manifest has been added in:
+   - `docs/CHANGE_MANIFEST_2026-03-08.md`
+3. Heavy artifacts stay ignored to keep repo size stable:
+   - `docs/*.html`
+   - `docs/*.docx`

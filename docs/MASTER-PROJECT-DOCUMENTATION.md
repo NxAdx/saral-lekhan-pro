@@ -4,6 +4,7 @@
 > - **Native Resource Sync**: Synchronized `colors.xml`, `styles.xml`, and `ic_launcher` assets to force light branding (`#d9d7d2`) at the system level.
 > - **Android 12+ Splash Fix**: Explicitly handled `windowSplashScreenBackground` in `values-v31` to eliminate dark system flashes.
 > - **Theme and Build Hardening**: Full production handover is documented in `docs/PRODUCTION_HANDOVER_2026-03-08.md`.
+> - **Audit Trail**: Full commit/file trace is documented in `docs/CHANGE_MANIFEST_2026-03-08.md`.
 > - **Toolchain Baseline**: Current baseline is Java 17 + Gradle 8.0.1 + AGP 7.4.2 + Android compile/target SDK 34.
 > - **Version State**: Mainline is at **v2.16.4** (versionCode 57).
 
