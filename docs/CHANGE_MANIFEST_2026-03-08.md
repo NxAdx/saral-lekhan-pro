@@ -12,6 +12,7 @@ Use this as the first reference when a new developer/agent needs to understand w
   - `822744a`
   - `62b856d`
   - `2862f38`
+  - `06cf03c`
 
 ## 3) Commit-by-Commit Manifest
 
@@ -181,6 +182,7 @@ Result:
 
 ## 7) Post-Handover Follow-Up (same date)
 An additional CI-only Kotlin failure was discovered after the initial hardening commits:
+- Hotfix commit: `06cf03c`
 - Task: `:shopify_flash-list:compileReleaseKotlin`
 - Error source: `@shopify/flash-list@1.4.3` Android file `AutoLayoutView.kt` (`dispatchDraw(Canvas?)` incompatibility)
 - Remediation: bump to `@shopify/flash-list@1.8.3` and update lockfile

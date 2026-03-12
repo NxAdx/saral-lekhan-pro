@@ -15,6 +15,7 @@ Primary goals of this pass:
 - `822744a` - `Harden theme architecture, fix TS blockers, and align Android release config`
 - `62b856d` - `chore: apply safe lockfile security patch`
 - `2862f38` - `docs: add production handover and version docs folder for future maintainers`
+- `06cf03c` - `fix(ci): resolve FlashList Kotlin compile failure in release builds`
 
 Repository/branch:
 - `origin/main`
@@ -197,6 +198,7 @@ To preserve institutional knowledge for future developers/agents:
 
 ## 12) Post-Handover CI Hotfix (same day)
 After this handover, CI surfaced an additional Kotlin compile failure in FlashList:
+- Hotfix commit: `06cf03c`
 - Failure task: `:shopify_flash-list:compileReleaseKotlin`
 - Root issue: old FlashList native Android source (`1.4.3`) used incompatible `dispatchDraw(Canvas?)` signature.
 - Hotfix applied: pin `@shopify/flash-list` to `1.8.3` and regenerate lockfile.

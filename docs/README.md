@@ -10,6 +10,7 @@ Files in this folder:
 - ERRORS-LOGS.md - Important errors, root causes, and fixes (including Google Sign-In mismatch and GitHub Release 403).
 - TASKS.md - Current task checklist and next actions.
 - MASTER-PROJECT-DOCUMENTATION.md - Canonical architecture and implementation context for agents.
+- AGENT-CAPABILITIES-REGISTRY.md - Current automation capabilities, build baseline, and non-negotiable agent constraints.
 - TECHNICAL_ENV_GUIDE.md - Build/toolchain baseline for local + CI.
 - PRODUCTION_HANDOVER_2026-03-08.md - Full file-level handover for the latest production-hardening pass.
 - CHANGE_MANIFEST_2026-03-08.md - Commit-by-commit file manifest for exact engineering traceability.
@@ -17,6 +18,7 @@ Files in this folder:
 Recommended reading order for fast context restore:
 - Latest Production Handover: `PRODUCTION_HANDOVER_2026-03-08.md`
 - Full Change Manifest: `CHANGE_MANIFEST_2026-03-08.md`
+- Agent Capabilities Registry: `AGENT-CAPABILITIES-REGISTRY.md`
 - Master Project Documentation: `MASTER-PROJECT-DOCUMENTATION.md`
 - Error Logs & Fixes: `ERRORS-LOGS.md`
 - CI/CD Release Guide: `CI-CD-GUIDE.md`
