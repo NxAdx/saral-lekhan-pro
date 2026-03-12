@@ -15,7 +15,6 @@ This runbook defines fast rollback paths for the focused UX motion pass:
   - `runtime-flags.json`
 - Native splash files:
   - `android/app/src/main/res/values/styles.xml`
-  - `android/app/src/main/res/values-v31/styles.xml`
   - `android/app/src/main/java/com/sarallekhan/MainActivity.java`
   - `android/app/build.gradle`
   - `src/app/_layout.tsx`
@@ -52,9 +51,8 @@ Native splash changes are not remotely switchable. Rollback requires a new build
 ### Option B: File-level manual revert
 If commit-level revert is not possible, restore these files from the last known stable commit:
 1. `android/app/src/main/res/values/styles.xml`
-2. `android/app/src/main/res/values-v31/styles.xml`
-3. `android/app/src/main/java/com/sarallekhan/MainActivity.java`
-4. `src/app/_layout.tsx`
+2. `android/app/src/main/java/com/sarallekhan/MainActivity.java`
+3. `src/app/_layout.tsx`
 
 Then build and release a hotfix binary.
 

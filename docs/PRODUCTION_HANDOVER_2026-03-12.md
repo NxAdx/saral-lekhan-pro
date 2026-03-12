@@ -38,15 +38,25 @@ This handover captures the focused UX pass completed on 2026-03-12:
 ### D) Single splash migration
 1. Migrated splash styles to Android SplashScreen pattern:
    - `android/app/src/main/res/values/styles.xml`
-   - `android/app/src/main/res/values-v31/styles.xml`
-2. Updated `MainActivity` to SDK 49 compatible startup handoff:
+2. Removed redundant `values-v31` splash override to keep one authoritative splash style.
+3. Updated `MainActivity` to theme-driven startup:
    - `android/app/src/main/java/com/sarallekhan/MainActivity.java`
-   - Uses `setTheme(R.style.AppTheme); super.onCreate(null);`
+   - Uses `super.onCreate(null);` only
+   - Does not force `setTheme(...)` on launch
    - Does not use `SplashScreenManager` (class unavailable in `expo-splash-screen` 0.20.5).
-3. Added required splash attr provider dependency:
+4. Added required splash attr provider dependency:
    - `android/app/build.gradle` -> `implementation("androidx.core:core-splashscreen:1.0.1")`
-4. Kept JS pre-ready fallback plain (non-branded):
+5. Kept JS pre-ready fallback plain (non-branded):
    - `src/app/_layout.tsx`
+
+### E) CI runtime modernization (Node 24 readiness)
+1. Updated GitHub Actions majors in both workflows:
+   - `actions/checkout@v6`
+   - `actions/setup-node@v6`
+   - `actions/setup-java@v5`
+   - `actions/upload-artifact@v7`
+2. Enabled Node 24 runtime for JS actions:
+   - `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at job level.
 
 ### E) Localization keys
 Added editor loading keys across locales:

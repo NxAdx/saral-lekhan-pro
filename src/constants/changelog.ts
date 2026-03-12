@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.5",
+        date: "2026-03-13",
+        changes: {
+            en: [
+                "Startup UX: reduced dual-splash perception by simplifying Android splash transition flow.",
+                "CI Reliability: upgraded GitHub Actions to Node 24-ready action versions.",
+                "Build Pipeline: enabled Node 24 runtime for JS-based GitHub Actions."
+            ],
+            hi: [
+                "Startup UX: reduced dual-splash perception by simplifying Android splash transition flow.",
+                "CI Reliability: upgraded GitHub Actions to Node 24-ready action versions.",
+                "Build Pipeline: enabled Node 24 runtime for JS-based GitHub Actions."
+            ],
+            mr: [
+                "Startup UX: reduced dual-splash perception by simplifying Android splash transition flow.",
+                "CI Reliability: upgraded GitHub Actions to Node 24-ready action versions.",
+                "Build Pipeline: enabled Node 24 runtime for JS-based GitHub Actions."
+            ]
+        }
+    },
+    {
         version: "2.16.4",
         date: "2026-03-08",
         changes: {

@@ -19,6 +19,12 @@ This document provides technical context for developers and AI agents working on
   - minSdk: 21
 - NDK: 23.1.7779620
 - CI command: `./gradlew bundleRelease assembleRelease --no-daemon`
+- CI action runtime baseline:
+  - `actions/checkout@v6`
+  - `actions/setup-node@v6`
+  - `actions/setup-java@v5`
+  - `actions/upload-artifact@v7`
+  - `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
 - Local release-resource verification:
   - `./gradlew :app:processReleaseResources --no-daemon`
   - requires Java 17 and valid signing/env placeholders when release tasks are evaluated.
@@ -35,12 +41,11 @@ This document provides technical context for developers and AI agents working on
 - Required splash items:
   - `windowSplashScreenBackground`
   - `windowSplashScreenAnimatedIcon`
-  - `windowSplashScreenIconBackgroundColor`
   - `postSplashScreenTheme`
-- `MainActivity` must use Expo SDK 49 compatible startup handoff in `onCreate`:
-  - `setTheme(R.style.AppTheme);`
-  - `super.onCreate(null);`
+- `MainActivity` must keep launch flow theme-driven and call `super.onCreate(null)` only.
+- Do not force `setTheme(R.style.AppTheme)` during launch when using `Theme.SplashScreen` + `postSplashScreenTheme`.
 - Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
+- Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
 - `_layout.tsx` must keep pre-ready fallback plain and non-branded.
 
 ## Runtime UX Flags (Rollback Support)

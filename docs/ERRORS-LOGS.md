@@ -317,7 +317,7 @@ Notes
      - `windowSplashScreenAnimatedIcon`
      - `windowSplashScreenIconBackgroundColor`
      - `postSplashScreenTheme`
-  3. MainActivity splash handoff was adjusted during migration; final stable baseline is documented in entry 39 (`setTheme(R.style.AppTheme)` + `super.onCreate(null)` for SDK 49).
+  3. MainActivity splash handoff was adjusted during migration; latest stable baseline is documented in entry 42.
   4. Kept JS pre-ready view plain to avoid visual double splash.
 
 35) Double-splash UX (system splash + branded JS loading) (resolved in focused UX pass)
@@ -391,6 +391,7 @@ Notes
      - `super.onCreate(null);`
   2. Removed `SplashScreenManager` import/call from `MainActivity`.
   3. Updated docs to prevent reintroduction of this regression.
+  4. Follow-up splash UX refinement later removed forced `setTheme(...)`; see entry 42 for current baseline.
 
 40) Local Android compile check blocked by machine JDK/Kotlin target mismatch (known local-only)
 - Symptom:
@@ -402,3 +403,34 @@ Notes
 - Resolution:
   1. Use Java 17 locally to match CI baseline.
   2. Treat CI Ubuntu/Java 17 run as source of truth for release compile validation.
+
+41) GitHub Actions warning: Node.js 20 action runtime deprecation (resolved 2026-03-13)
+- Symptom:
+  1. Build completed, but GitHub Actions annotation warned:
+     - `Node.js 20 actions are deprecated`
+     - affected actions: `checkout`, `setup-node`, `setup-java`, `upload-artifact`.
+- Cause:
+  1. Workflows were still pinned to older action majors running on Node 20 runtime.
+- Resolution:
+  1. Upgraded workflow actions:
+     - `actions/checkout@v6`
+     - `actions/setup-node@v6`
+     - `actions/setup-java@v5`
+     - `actions/upload-artifact@v7`
+  2. Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` in workflow jobs to validate Node 24 runtime now.
+
+42) Dual splash perception persisted after initial splash migration (resolved 2026-03-13)
+- Symptom:
+  1. Users still observed two startup phases during cold launch.
+- Cause:
+  1. Launch path had extra transition complexity:
+     - forced `setTheme(...)` in `MainActivity`
+     - redundant `values-v31` splash style override.
+- Resolution:
+  1. Removed forced theme switch from `MainActivity` and kept `super.onCreate(null)` only.
+  2. Removed redundant `android/app/src/main/res/values-v31/styles.xml`.
+  3. Kept one authoritative splash style in `values/styles.xml` using:
+     - `Theme.App.SplashScreen`
+     - `windowSplashScreenBackground`
+     - `windowSplashScreenAnimatedIcon`
+     - `postSplashScreenTheme`

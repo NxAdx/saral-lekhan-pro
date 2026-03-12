@@ -4,6 +4,7 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 
 ## 1) Automation and Platform Tooling
 - **GitHub Actions**: primary CI/CD for production Android builds (AAB/APK).
+- **Actions runtime policy**: workflows are configured to run JS actions on Node 24 (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`).
 - **ADB**: device diagnostics and log capture.
   - Path: `C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe`
 - **Sentry**: runtime crash and error telemetry.
@@ -38,11 +39,10 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 - **Android splash implementation baseline**:
   1. `Theme.App.SplashScreen` must inherit `Theme.SplashScreen`.
   2. `postSplashScreenTheme` must point to `@style/AppTheme`.
-  3. `MainActivity` must use SDK 49 compatible launch handoff:
-     - `setTheme(R.style.AppTheme);`
-     - `super.onCreate(null);`
-     and must not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
-  4. `android/app/build.gradle` must keep `implementation("androidx.core:core-splashscreen:1.0.1")` (or compatible) to provide splash attrs during resource linking.
+  3. `MainActivity` should keep launch flow theme-driven and call `super.onCreate(null)` only.
+  4. Do not force `setTheme(R.style.AppTheme)` on launch while `Theme.SplashScreen` with `postSplashScreenTheme` is active.
+  5. Do not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
+  6. `android/app/build.gradle` must keep `implementation("androidx.core:core-splashscreen:1.0.1")` (or compatible) to provide splash attrs during resource linking.
 - **FlashList compatibility**:
   - keep `@shopify/flash-list` at `1.8.3` or newer verified-compatible 1.x.
   - `1.4.3` causes CI Kotlin failure in `:shopify_flash-list:compileReleaseKotlin`.

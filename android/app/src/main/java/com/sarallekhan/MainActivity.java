@@ -13,8 +13,7 @@ import expo.modules.ReactActivityDelegateWrapper;
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    // Expo SDK 49 splash integration: hand off from Splash theme to AppTheme before React mount.
-    setTheme(R.style.AppTheme);
+    // Keep launch flow theme-driven (Theme.App.SplashScreen -> postSplashScreenTheme).
     super.onCreate(null);
   }
 

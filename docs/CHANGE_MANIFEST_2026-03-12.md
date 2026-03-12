@@ -28,10 +28,13 @@ Auditable manifest for the focused UX motion pass:
 
 ### Android single splash migration
 - `android/app/src/main/res/values/styles.xml`
-- `android/app/src/main/res/values-v31/styles.xml`
 - `android/app/src/main/java/com/sarallekhan/MainActivity.java`
 - `android/app/build.gradle`
 - `src/app/_layout.tsx`
+
+### CI workflow modernization (2026-03-13 follow-up)
+- `.github/workflows/android-build.yml`
+- `.github/workflows/android-test.yml`
 
 ### Localization keys
 - `src/i18n/locales/en.json`
@@ -71,11 +74,22 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
 1. Updated `android/app/src/main/java/com/sarallekhan/MainActivity.java`:
    - removed `import expo.modules.splashscreen.SplashScreenManager`
    - removed `SplashScreenManager.registerOnActivity(this)`
-   - restored SDK 49 compatible startup handoff:
-     - `setTheme(R.style.AppTheme);`
-     - `super.onCreate(null);`
+   - restored compile-safe SDK 49 startup.
 2. Updated documentation baseline in:
    - `docs/TECHNICAL_ENV_GUIDE.md`
    - `docs/AGENT-CAPABILITIES-REGISTRY.md`
    - `docs/PRODUCTION_HANDOVER_2026-03-12.md`
    - `docs/ERRORS-LOGS.md`
+
+## Follow-Up Hardening (2026-03-13)
+1. Removed Node 20 action-runtime deprecation warning by upgrading workflow actions:
+   - `actions/checkout@v6`
+   - `actions/setup-node@v6`
+   - `actions/setup-java@v5`
+   - `actions/upload-artifact@v7`
+2. Enabled Node 24 JS-action runtime explicitly:
+   - `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
+3. Finalized splash transition baseline to reduce dual-phase effect:
+   - removed redundant `android/app/src/main/res/values-v31/styles.xml`
+   - removed forced `setTheme(...)` from `MainActivity`
+   - kept launch fully theme-driven (`Theme.App.SplashScreen` + `postSplashScreenTheme`)
