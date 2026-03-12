@@ -105,3 +105,14 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `package.json` -> `2.16.6`
    - `app.json` -> `2.16.6`, `versionCode 59`
    - `android/app/build.gradle` -> `versionName 2.16.6`, `versionCode 59`
+
+## Dual-Splash Continuity Fix (2026-03-13, v2.16.7)
+1. Symptom:
+   - Startup no longer crashed, but users still saw split launch phases.
+2. Fix:
+   - changed `AppTheme android:windowBackground` to `@drawable/splashscreen`
+   - updated `android/app/src/main/res/drawable/splashscreen.xml` to include centered `@drawable/splashscreen_image` over splash background.
+3. Release metadata sync:
+   - `package.json` -> `2.16.7`
+   - `app.json` -> `2.16.7`, `versionCode 60`
+   - `android/app/build.gradle` -> `versionName 2.16.7`, `versionCode 60`

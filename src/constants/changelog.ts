@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.7",
+        date: "2026-03-13",
+        changes: {
+            en: [
+                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
+                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
+                "Minor launch UX refinement release."
+            ],
+            hi: [
+                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
+                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
+                "Minor launch UX refinement release."
+            ],
+            mr: [
+                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
+                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
+                "Minor launch UX refinement release."
+            ]
+        }
+    },
+    {
         version: "2.16.6",
         date: "2026-03-13",
         changes: {

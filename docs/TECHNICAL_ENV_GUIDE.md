@@ -43,6 +43,7 @@ This document provides technical context for developers and AI agents working on
   - `windowSplashScreenAnimatedIcon`
   - `postSplashScreenTheme`
 - `MainActivity` must call `setTheme(R.style.AppTheme)` before `super.onCreate(null)` (AppCompat safety baseline for this SDK/runtime mix).
+- `AppTheme` `android:windowBackground` should use branded splash drawable (`@drawable/splashscreen`) to maintain visual continuity and avoid perceived dual splash phase.
 - Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
 - Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
 - `_layout.tsx` must keep pre-ready fallback plain and non-branded.

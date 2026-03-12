@@ -48,6 +48,9 @@ This handover captures the focused UX pass completed on 2026-03-12:
    - `android/app/build.gradle` -> `implementation("androidx.core:core-splashscreen:1.0.1")`
 5. Kept JS pre-ready fallback plain (non-branded):
    - `src/app/_layout.tsx`
+6. Launch continuity refinement (v2.16.7):
+   - `AppTheme` now uses `@drawable/splashscreen` for `android:windowBackground`.
+   - `drawable/splashscreen.xml` now includes centered `splashscreen_image` to reduce perceived dual-splash transition.
 
 ### E) CI runtime modernization (Node 24 readiness)
 1. Updated GitHub Actions majors in both workflows:

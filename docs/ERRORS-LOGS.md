@@ -444,3 +444,14 @@ Notes
 - Resolution:
   1. Restored `setTheme(R.style.AppTheme)` before `super.onCreate(null)` in `MainActivity`.
   2. Updated technical/agent docs to keep this as the mandatory startup safety baseline.
+
+44) Dual splash visual continuity gap after crash hotfix (resolved 2026-03-13 follow-up)
+- Symptom:
+  1. App no longer crashed, but users still perceived two launch phases (logo splash then plain background).
+- Cause:
+  1. `Theme.App.SplashScreen` showed branded icon, but `AppTheme` window background was only solid color.
+  2. Transition from branded splash to plain background looked like a second splash.
+- Resolution:
+  1. Set `AppTheme` window background to branded splash drawable (`@drawable/splashscreen`).
+  2. Updated `android/app/src/main/res/drawable/splashscreen.xml` to include centered `@drawable/splashscreen_image` on top of splash background color.
+  3. Shipped as `v2.16.7` for isolated validation.
