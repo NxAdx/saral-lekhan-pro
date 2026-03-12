@@ -9,13 +9,12 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
 import expo.modules.ReactActivityDelegateWrapper;
-import expo.modules.splashscreen.SplashScreenManager;
 
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    // Keep native splash lifecycle registered at the activity level.
-    SplashScreenManager.registerOnActivity(this);
+    // Expo SDK 49 splash integration: hand off from Splash theme to AppTheme before React mount.
+    setTheme(R.style.AppTheme);
     super.onCreate(null);
   }
 

@@ -61,3 +61,21 @@ Auditable manifest for the focused UX motion pass:
 1. Local Android release verification requires Java 17 to match CI baseline.
 2. Release-resource local checks require release-signing env placeholders and a local google-services file; CI already injects real secrets.
 3. Native splash rollback requires hotfix build; JS loading rollback is remote via runtime flags.
+
+## Post-Merge Hotfix (2026-03-12)
+After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
+- `cannot find symbol: class SplashScreenManager`
+- `cannot find symbol: SplashScreenManager.registerOnActivity(this)`
+
+### Hotfix applied
+1. Updated `android/app/src/main/java/com/sarallekhan/MainActivity.java`:
+   - removed `import expo.modules.splashscreen.SplashScreenManager`
+   - removed `SplashScreenManager.registerOnActivity(this)`
+   - restored SDK 49 compatible startup handoff:
+     - `setTheme(R.style.AppTheme);`
+     - `super.onCreate(null);`
+2. Updated documentation baseline in:
+   - `docs/TECHNICAL_ENV_GUIDE.md`
+   - `docs/AGENT-CAPABILITIES-REGISTRY.md`
+   - `docs/PRODUCTION_HANDOVER_2026-03-12.md`
+   - `docs/ERRORS-LOGS.md`

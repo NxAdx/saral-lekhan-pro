@@ -39,8 +39,10 @@ This handover captures the focused UX pass completed on 2026-03-12:
 1. Migrated splash styles to Android SplashScreen pattern:
    - `android/app/src/main/res/values/styles.xml`
    - `android/app/src/main/res/values-v31/styles.xml`
-2. Updated activity splash lifecycle registration:
+2. Updated `MainActivity` to SDK 49 compatible startup handoff:
    - `android/app/src/main/java/com/sarallekhan/MainActivity.java`
+   - Uses `setTheme(R.style.AppTheme); super.onCreate(null);`
+   - Does not use `SplashScreenManager` (class unavailable in `expo-splash-screen` 0.20.5).
 3. Added required splash attr provider dependency:
    - `android/app/build.gradle` -> `implementation("androidx.core:core-splashscreen:1.0.1")`
 4. Kept JS pre-ready fallback plain (non-branded):

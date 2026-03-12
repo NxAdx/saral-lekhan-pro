@@ -317,7 +317,7 @@ Notes
      - `windowSplashScreenAnimatedIcon`
      - `windowSplashScreenIconBackgroundColor`
      - `postSplashScreenTheme`
-  3. Updated `MainActivity` to call `SplashScreenManager.registerOnActivity(this)` and removed forced `setTheme(AppTheme)` on launch.
+  3. MainActivity splash handoff was adjusted during migration; final stable baseline is documented in entry 39 (`setTheme(R.style.AppTheme)` + `super.onCreate(null)` for SDK 49).
   4. Kept JS pre-ready view plain to avoid visual double splash.
 
 35) Double-splash UX (system splash + branded JS loading) (resolved in focused UX pass)
@@ -375,3 +375,30 @@ Notes
      - `implementation("androidx.core:core-splashscreen:1.0.1")`
   2. Re-ran local release resource verification on Java 17:
      - `:app:processReleaseResources` -> PASS.
+
+39) CI release build failed after MainActivity splash API mismatch (resolved 2026-03-12)
+- Symptom:
+  1. GitHub Actions failed at `:app:compileReleaseJavaWithJavac`.
+  2. Java compile errors:
+     - `cannot find symbol class SplashScreenManager`
+     - `cannot find symbol SplashScreenManager.registerOnActivity(this)`
+- Cause:
+  1. `MainActivity.java` used `expo.modules.splashscreen.SplashScreenManager`.
+  2. Current project baseline (`expo-splash-screen` 0.20.5 / Expo SDK 49) does not provide that class.
+- Resolution:
+  1. Replaced unsupported API usage with SDK 49 compatible `onCreate` flow:
+     - `setTheme(R.style.AppTheme);`
+     - `super.onCreate(null);`
+  2. Removed `SplashScreenManager` import/call from `MainActivity`.
+  3. Updated docs to prevent reintroduction of this regression.
+
+40) Local Android compile check blocked by machine JDK/Kotlin target mismatch (known local-only)
+- Symptom:
+  1. Local command `:app:compileDebugJavaWithJavac` failed before app Java compile with:
+     - `Unknown Kotlin JVM target: 20`
+     - task: `:expo-modules-core$android-annotation:compileKotlin`
+- Cause:
+  1. Local Java/Kotlin toolchain mismatch versus repo baseline.
+- Resolution:
+  1. Use Java 17 locally to match CI baseline.
+  2. Treat CI Ubuntu/Java 17 run as source of truth for release compile validation.

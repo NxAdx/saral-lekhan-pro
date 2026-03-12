@@ -38,7 +38,10 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 - **Android splash implementation baseline**:
   1. `Theme.App.SplashScreen` must inherit `Theme.SplashScreen`.
   2. `postSplashScreenTheme` must point to `@style/AppTheme`.
-  3. `MainActivity` must call `SplashScreenManager.registerOnActivity(this)` and must not force `setTheme(...)` on launch.
+  3. `MainActivity` must use SDK 49 compatible launch handoff:
+     - `setTheme(R.style.AppTheme);`
+     - `super.onCreate(null);`
+     and must not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
   4. `android/app/build.gradle` must keep `implementation("androidx.core:core-splashscreen:1.0.1")` (or compatible) to provide splash attrs during resource linking.
 - **FlashList compatibility**:
   - keep `@shopify/flash-list` at `1.8.3` or newer verified-compatible 1.x.

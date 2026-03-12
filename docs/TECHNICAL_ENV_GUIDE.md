@@ -37,8 +37,10 @@ This document provides technical context for developers and AI agents working on
   - `windowSplashScreenAnimatedIcon`
   - `windowSplashScreenIconBackgroundColor`
   - `postSplashScreenTheme`
-- `MainActivity` must call `SplashScreenManager.registerOnActivity(this)` in `onCreate`.
-- Do not call `setTheme(R.style.AppTheme)` manually during launch in `MainActivity`.
+- `MainActivity` must use Expo SDK 49 compatible startup handoff in `onCreate`:
+  - `setTheme(R.style.AppTheme);`
+  - `super.onCreate(null);`
+- Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
 - `_layout.tsx` must keep pre-ready fallback plain and non-branded.
 
 ## Runtime UX Flags (Rollback Support)
