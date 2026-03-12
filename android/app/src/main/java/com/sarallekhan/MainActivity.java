@@ -13,7 +13,8 @@ import expo.modules.ReactActivityDelegateWrapper;
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    // Keep launch flow theme-driven (Theme.App.SplashScreen -> postSplashScreenTheme).
+    // ReactActivity is AppCompat-based; switch to AppTheme before super to avoid startup theme crashes.
+    setTheme(R.style.AppTheme);
     super.onCreate(null);
   }
 

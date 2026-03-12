@@ -434,3 +434,13 @@ Notes
      - `windowSplashScreenBackground`
      - `windowSplashScreenAnimatedIcon`
      - `postSplashScreenTheme`
+
+43) Startup crash immediately after splash on some devices (resolved 2026-03-13 hotfix)
+- Symptom:
+  1. App showed splash briefly and then crashed on launch.
+- Cause:
+  1. `MainActivity` no longer switched to `AppTheme` before `ReactActivity` (`AppCompatActivity`) startup path.
+  2. This created a runtime theme mismatch risk with AppCompat on certain device/runtime combinations.
+- Resolution:
+  1. Restored `setTheme(R.style.AppTheme)` before `super.onCreate(null)` in `MainActivity`.
+  2. Updated technical/agent docs to keep this as the mandatory startup safety baseline.

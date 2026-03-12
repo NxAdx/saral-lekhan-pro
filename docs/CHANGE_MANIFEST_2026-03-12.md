@@ -91,5 +91,17 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
 3. Finalized splash transition baseline to reduce dual-phase effect:
    - removed redundant `android/app/src/main/res/values-v31/styles.xml`
-   - removed forced `setTheme(...)` from `MainActivity`
+   - temporarily removed forced `setTheme(...)` from `MainActivity` (later reverted in crash hotfix)
    - kept launch fully theme-driven (`Theme.App.SplashScreen` + `postSplashScreenTheme`)
+
+## Emergency Crash Hotfix (2026-03-13, v2.16.6)
+1. Symptom:
+   - App crashed right after splash on some devices.
+2. Root cause:
+   - `MainActivity` no longer switched to `AppTheme` before `ReactActivity` startup.
+3. Fix:
+   - restored `setTheme(R.style.AppTheme);` before `super.onCreate(null);`.
+4. Release metadata sync:
+   - `package.json` -> `2.16.6`
+   - `app.json` -> `2.16.6`, `versionCode 59`
+   - `android/app/build.gradle` -> `versionName 2.16.6`, `versionCode 59`

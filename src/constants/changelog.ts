@@ -13,6 +13,27 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.6",
+        date: "2026-03-13",
+        changes: {
+            en: [
+                "Hotfix: fixed startup crash happening right after splash on some devices.",
+                "Android launch safety: restored AppTheme handoff before ReactActivity startup.",
+                "Stability release for 2.16.5 splash transition changes."
+            ],
+            hi: [
+                "Hotfix: fixed startup crash happening right after splash on some devices.",
+                "Android launch safety: restored AppTheme handoff before ReactActivity startup.",
+                "Stability release for 2.16.5 splash transition changes."
+            ],
+            mr: [
+                "Hotfix: fixed startup crash happening right after splash on some devices.",
+                "Android launch safety: restored AppTheme handoff before ReactActivity startup.",
+                "Stability release for 2.16.5 splash transition changes."
+            ]
+        }
+    },
+    {
         version: "2.16.5",
         date: "2026-03-13",
         changes: {
