@@ -38,6 +38,7 @@ import { TiroDevanagariHindi_400Regular } from '@expo-google-fonts/tiro-devanaga
 
 import { useAiStore } from '../store/aiStore';
 import { useNotesStore } from '../store/notesStore';
+import { useRuntimeUxFlagsStore } from '../store/runtimeUxFlagsStore';
 import { log } from '../utils/Logger';
 import { shallow } from 'zustand/shallow';
 
@@ -93,6 +94,11 @@ export function RootLayout() {
     const init = async () => {
       log.info('RootLayout: Starting atomic initialization.');
 
+      // Runtime UX flags should not block startup; defaults apply immediately.
+      useRuntimeUxFlagsStore.getState().loadFlags().catch((error) => {
+        log.warn('Runtime UX flags load failed at startup.', error as any);
+      });
+
       try {
         log.info('Init DB...');
         await useNotesStore.getState().initDB();
@@ -127,6 +133,10 @@ export function RootLayout() {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         useAuthStore.getState().lockApp();
+        return;
+      }
+      if (nextAppState === 'active') {
+        useRuntimeUxFlagsStore.getState().loadFlags().catch(() => {});
       }
     });
 

@@ -49,7 +49,13 @@
         "findPlaceholder": "எதைத் தேட வேண்டும்...",
         "replacePlaceholder": "எதைக் கொண்டு மாற்ற வேண்டும்...",
         "replace": "மாற்றுக",
-        "replaceAll": "அனைத்தையும் மாற்றுக"
+        "replaceAll": "அனைத்தையும் மாற்றுக",
+        "aiLoadingTitle": "Spark AI is working",
+        "aiLoadingPreparing": "Preparing your request...",
+        "aiLoadingGenerating": "Generating response...",
+        "aiLoadingApplying": "Applying to note...",
+        "aiLoadingPleaseWait": "Please wait. Editing is paused to avoid conflicts.",
+        "aiLoadingError": "Generation failed"
     },
     "settingsScreen": {
         "colorPalette": "வண்ணத் தட்டு (Color Palette)",

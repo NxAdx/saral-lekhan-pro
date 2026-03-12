@@ -1,96 +1,92 @@
-# Technical Environment & Build Guide 🛠️
+# Technical Environment and Build Guide
 
-This document provides the necessary technical context for developers and AI agents to build, maintain, and contribute to **Saral Lekhan Plus**.
+This document provides technical context for developers and AI agents working on **Saral Lekhan Plus**.
 
-## 🏗️ Core Tech Stack
-- **Framework**: [Expo SDK 49](https://expo.dev/) (Managed Workflow / Prebuild)
-- **Runtime**: Node.js v20+ (LTS recommended)
-- **Language**: TypeScript 5.1+
-- **Navigation**: Expo Router v2
-- **State**: Zustand v4
-- **Database**: Expo SQLite v11
-- **Styling**: React Native StyleSheet + Custom Design Tokens (`src/tokens.ts`)
-- **Native**: React Native 0.72.10
+## Core Stack
+- Framework: Expo SDK 49 (prebuild workflow with committed native folders)
+- Runtime: Node.js 20.x
+- Language: TypeScript 5.x
+- Navigation: Expo Router v2
+- State: Zustand
+- Database: Expo SQLite
+- Native baseline: React Native 0.72.10, Java 17, AGP 7.4.2, Gradle 8.0.1
 
-## 🤖 Build Environment Requirements
-To build the production APK natively (`npx expo run:android` or `assembleRelease`), the following environment is required:
+## Build Environment
+- Java: 17 (Temurin/Zulu)
+- Android SDK:
+  - compileSdk: 34
+  - targetSdk: 34
+  - minSdk: 21
+- NDK: 23.1.7779620
+- CI command: `./gradlew bundleRelease assembleRelease --no-daemon`
+- Local release-resource verification:
+  - `./gradlew :app:processReleaseResources --no-daemon`
+  - requires Java 17 and valid signing/env placeholders when release tasks are evaluated.
 
-- **JDK**: Java 17 (Temurin/Zulu; matches CI and current Android toolchain)
-- **Gradle**: 8.0.1 (Configured in `android/gradle/wrapper/gradle-wrapper.properties`)
-- **Android Gradle Plugin (AGP)**: 7.4.2 (`android/build.gradle`)
-- **Android SDK**: 
-  - Compile SDK: 34
-  - Target SDK: 34
-  - Min SDK: 21
-- **NDK**: 23.1.7779620 (or compatible)
+## Local Build Warning
+- If local machine uses Java 20+, Gradle script compilation can fail with:
+  - `Unsupported class file major version 64`
+- Use Java 17 for local Android release verification to match CI.
 
-## CI Baseline (GitHub Actions)
-- **Runner**: `ubuntu-latest` (currently Ubuntu 24.04)
-- **Node**: 20.x
-- **Java**: 17 (`actions/setup-java@v4`)
-- **Build command**: `./gradlew bundleRelease assembleRelease --no-daemon`
+## Android Splash Baseline (Single Splash)
+- Launch activity theme must be `Theme.App.SplashScreen`.
+- `Theme.App.SplashScreen` must inherit from `Theme.SplashScreen`.
+- `android/app/build.gradle` must include `androidx.core:core-splashscreen` so splash attrs resolve at AAPT link time.
+- Required splash items:
+  - `windowSplashScreenBackground`
+  - `windowSplashScreenAnimatedIcon`
+  - `windowSplashScreenIconBackgroundColor`
+  - `postSplashScreenTheme`
+- `MainActivity` must call `SplashScreenManager.registerOnActivity(this)` in `onCreate`.
+- Do not call `setTheme(R.style.AppTheme)` manually during launch in `MainActivity`.
+- `_layout.tsx` must keep pre-ready fallback plain and non-branded.
 
-## Known Android Resource Constraint (Splash)
-- Do not add `postSplashScreenTheme` in `android/app/src/main/res/values-v31/styles.xml` for this stack.
-- Reason: current dependency/toolchain does not expose that attr, causing AAPT2 failure:
-  - `error: style attribute 'attr/postSplashScreenTheme ...' not found`
-- Keep API 31 splash items limited to:
-  - `android:windowSplashScreenBackground`
-  - `android:windowSplashScreenAnimatedIcon`
-  - `android:windowSplashScreenIconBackgroundColor`
-  - `android:windowBackground`
+## Runtime UX Flags (Rollback Support)
+- Store: `src/store/runtimeUxFlagsStore.ts`
+- Remote source URL: `expo.extra.runtimeFlagsUrl` from `app.json`
+- Remote file baseline: `runtime-flags.json` (repo root)
+- Local cache key: `saral-lekhan-runtime-ux-flags-v1`
+- Current flags:
+  - `spark_loading_modal_v1`
+  - `spark_loading_animation_v1`
+- Safe rollback path:
+  - Set `spark_loading_modal_v1=false` in remote flags JSON to revert to legacy inline Spark loading feedback without shipping a new binary.
 
-## 🚀 Getting Started (New Developer/Agent)
-1. **Clone & Install**:
-   ```bash
-   npm install
-   ```
-2. **Environment Secrets**: Ensure `google-services.json` is present in `android/app/` if testing Google Sign-In locally.
-3. **Local Development**:
-   ```bash
-   npx expo start
-   ```
-4. **Native Android Run**:
-   ```bash
-   npx expo run:android
-   ```
+## Startup Rules
+- Root startup owner: `src/app/_layout.tsx`
+- Splash flow:
+  1. `preventAutoHideAsync` at root
+  2. Initialize stores/services
+  3. Hide splash on `coreReady`
+- Never add a second branded JS splash between native splash and app content.
 
-## ⚠️ Critical Logic & Constraints
-- **Startup Chain**: `_layout.tsx` owns native splash lifecycle (`preventAutoHideAsync` + hide on `coreReady`), then routes render in `index.tsx`.
-- **Branding Sync**: Splash background, Loading Gap view, and Adaptive Icon background must ALL match `#d9d7d2`.
-- **Versioning**: Always update `app.json` AND `package.json` before tagging a release.
-- **Security**: `.env` files are untracked via `.gitignore`. `docs/` is intentionally versioned for production handover continuity.
-- **FlashList Compatibility**: Keep `@shopify/flash-list` on `1.8.3` (or newer verified-compatible 1.x) for this stack. `1.4.3` fails CI Kotlin compile with `dispatchDraw` signature errors.
+## Spark AI UX Baseline
+- Spark operations must show explicit generation state.
+- Blocking loading modal is the primary UX when `spark_loading_modal_v1` is enabled.
+- Legacy inline fallback remains available via runtime flag rollback.
+- Generation phases used by editor flows:
+  - `preparing`, `generating`, `applying`, `done`, `error`
 
-## 📦 Documentation Directory
-- `docs/MASTER-PROJECT-DOCUMENTATION.md`: Global architecture and history.
-- `docs/UPDATER-LOGIC.md`: Details on the GitHub-based in-app updater.
-- `docs/App_Color_Palette.md`: Official branding hex codes.
-- `docs/AGENT-CAPABILITIES-REGISTRY.md`: Tooling and MCP context.
+## Compatibility Constraints
+- Keep `@shopify/flash-list` at `1.8.3` or newer verified 1.x compatible release.
+- Keep app version metadata synchronized:
+  - `app.json`
+  - `package.json`
+  - `android/app/build.gradle` (`versionName`, `versionCode`)
 
-## Startup UX Standard (Single Branded Splash)
-- Use Android system splash as the only branded splash on launch.
-- Keep native splash visible during initialization (`preventAutoHideAsync` in root, hide when `coreReady`).
-- Do not show a second JS logo screen while startup tasks run; if fallback is needed, show only a plain background that matches splash color.
-- This mirrors production practice from Android splash migration guidance: avoid duplicate custom splash behavior and transition directly into app content/placeholders.
+## Documentation Discipline
+- `docs/` is version-controlled for production handover continuity.
+- Every production-impacting change must update:
+  - `docs/ERRORS-LOGS.md`
+  - `docs/TECHNICAL_ENV_GUIDE.md`
+  - `docs/AGENT-CAPABILITIES-REGISTRY.md`
+  - current cycle manifest/handover doc
+  - `docs/UX-ANIMATION-ROLLBACK-RUNBOOK.md`
 
-## Current Health Snapshot (2026-03-08)
-- TypeScript:
-  - `npx tsc --noEmit` passes.
-  - Strict unused check (`--noUnusedLocals --noUnusedParameters`) passes.
-- Expo Doctor:
-  - 14/15 checks pass.
-  - Remaining:
-    1. Non-CNG sync warning (native folders committed + app.json native config).
-- Versioning baseline:
-  - `app.json` version: `2.16.4`, `android.versionCode: 57`.
-  - `android/app/build.gradle`: `versionName "2.16.4"`, `versionCode 57`.
-- Known policy-sensitive permissions in Android manifest:
-  - `REQUEST_INSTALL_PACKAGES` is intentionally present for in-app updater flow.
-  - Review distribution model (Play vs direct APK) before release submission.
-
-## References (Official)
-- Android splash migration: https://developer.android.com/develop/ui/views/launch/splash-screen/migrate
-- AndroidX SplashScreen API: https://developer.android.com/reference/androidx/core/splashscreen/SplashScreen
-- Expo splash-screen API: https://docs.expo.dev/versions/latest/sdk/splash-screen/
-- Expo splash behavior caveat (Expo Go vs standalone): https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/
+## References
+- Android splash migration:
+  - https://developer.android.com/develop/ui/views/launch/splash-screen/migrate
+- AndroidX SplashScreen API:
+  - https://developer.android.com/reference/androidx/core/splashscreen/SplashScreen
+- Expo splash-screen API:
+  - https://docs.expo.dev/versions/latest/sdk/splash-screen/

@@ -48,6 +48,7 @@
       ]
     },
     "extra": {
+      "runtimeFlagsUrl": "https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json",
       "eas": {
         "projectId": "d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
       }

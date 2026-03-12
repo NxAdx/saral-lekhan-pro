@@ -302,3 +302,76 @@ Notes
 - Files changed:
   1. `package.json`
   2. `package-lock.json`
+
+34) Android release resource failure with splash attr mismatch (2026-03-08 to 2026-03-12)
+- Symptom:
+  1. CI failed in `:app:bundleReleaseResources`.
+  2. AAPT error: `style attribute 'attr/postSplashScreenTheme ... not found'`.
+- Cause:
+  1. Splash theming was partially migrated and styles were inconsistent across `values` and `values-v31`.
+  2. Activity launch theme path and runtime theme handoff were not aligned to a single Android 12 splash baseline.
+- Resolution:
+  1. Migrated `Theme.App.SplashScreen` to inherit `Theme.SplashScreen` in both `values/styles.xml` and `values-v31/styles.xml`.
+  2. Declared splash keys explicitly:
+     - `windowSplashScreenBackground`
+     - `windowSplashScreenAnimatedIcon`
+     - `windowSplashScreenIconBackgroundColor`
+     - `postSplashScreenTheme`
+  3. Updated `MainActivity` to call `SplashScreenManager.registerOnActivity(this)` and removed forced `setTheme(AppTheme)` on launch.
+  4. Kept JS pre-ready view plain to avoid visual double splash.
+
+35) Double-splash UX (system splash + branded JS loading) (resolved in focused UX pass)
+- Symptom:
+  1. Users saw two launch visuals with different logo scale.
+  2. Perceived as broken startup animation.
+- Cause:
+  1. Native splash remained active.
+  2. Root JS layer rendered a branded secondary loading state.
+- Resolution:
+  1. Native splash kept as the only branded splash.
+  2. Root pre-ready fallback remains plain background only (`#d9d7d2`).
+  3. Startup hide stays gated on `coreReady` in `src/app/_layout.tsx`.
+
+36) Spark AI loading state unclear / duplicate action taps (resolved in focused UX pass)
+- Symptom:
+  1. Users could not clearly tell when Spark AI was generating.
+  2. Inline tiny loading text was easy to miss.
+  3. Rapid taps could trigger overlapping requests.
+- Cause:
+  1. Loading feedback was minimal and non-blocking.
+  2. Generation actions did not enforce consistent phase/state UX.
+- Resolution:
+  1. Added `SparkLoadingModal` blocking UX with explicit phases:
+     - `preparing`, `generating`, `applying`, `done`, `error`
+  2. Applied phase flow and duplicate-tap guards in:
+     - `src/app/editor/new.tsx`
+     - `src/app/editor/[id].tsx`
+  3. Added runtime kill-switch flags:
+     - `spark_loading_modal_v1`
+     - `spark_loading_animation_v1`
+  4. Added reduced-motion fallback and shared motion tokens.
+
+37) Locale text corruption risk during scripted JSON edits (resolved in focused UX pass)
+- Symptom:
+  1. Non-English locale files can become mojibake if edited with incorrect encoding path.
+- Cause:
+  1. Scripted rewrite pass touched multilingual JSON with unsafe encoding handling.
+- Resolution:
+  1. Restored affected locale files from last good git state.
+  2. Reapplied only required new keys via UTF-8 safe script.
+  3. Added process note: always validate locale diff for non-ASCII regressions before commit.
+
+38) Android release resource linking failure after SplashScreen theme migration (resolved 2026-03-12)
+- Symptom:
+  1. `:app:processReleaseResources` failed with AAPT attr errors:
+     - `windowSplashScreenBackground`
+     - `windowSplashScreenAnimatedIcon`
+     - `windowSplashScreenIconBackgroundColor`
+     - `postSplashScreenTheme`
+- Cause:
+  1. App styles were migrated to `Theme.SplashScreen`, but project dependencies did not include AndroidX SplashScreen attr provider resources.
+- Resolution:
+  1. Added dependency in `android/app/build.gradle`:
+     - `implementation("androidx.core:core-splashscreen:1.0.1")`
+  2. Re-ran local release resource verification on Java 17:
+     - `:app:processReleaseResources` -> PASS.

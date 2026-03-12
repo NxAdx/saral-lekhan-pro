@@ -15,9 +15,12 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import { SparkLoadingModal } from '../../components/ui/SparkLoadingModal';
 import { useAiStore } from '../../store/aiStore';
+import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import { useTypography } from '../../store/typographyStore';
 import { AiService } from '../../services/aiService';
+import { SparkGenerationPhase } from '../../types/spark';
 import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
 
@@ -49,6 +52,7 @@ export default function EditNoteScreen() {
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationPhase, setGenerationPhase] = useState<SparkGenerationPhase>('idle');
   const [isDirty, setIsDirty] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -60,11 +64,41 @@ export default function EditNoteScreen() {
   const [imageUrl, setImageUrl] = useState('');
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const ai = useAiStore();
+  const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
+  const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
   const isMounted = useRef(false);
   const [editorHeight, setEditorHeight] = useState<number>(400);
+  const finishGeneration = useCallback(
+    (nextPhase: SparkGenerationPhase) => {
+      setGenerationPhase(nextPhase);
+      const holdMs = sparkLoadingModalEnabled ? 220 : 0;
+      setTimeout(() => {
+        setIsGenerating(false);
+        setGenerationPhase('idle');
+      }, holdMs);
+    },
+    [sparkLoadingModalEnabled]
+  );
+
+  const aiPhaseLabel = useMemo(() => {
+    switch (generationPhase) {
+      case 'preparing':
+        return loc.editor.aiLoadingPreparing;
+      case 'generating':
+        return loc.editor.aiLoadingGenerating;
+      case 'applying':
+        return loc.editor.aiLoadingApplying;
+      case 'done':
+        return loc.editor.done;
+      case 'error':
+        return loc.editor.aiLoadingError;
+      default:
+        return loc.editor.aiLoadingGenerating;
+    }
+  }, [generationPhase, loc.editor]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -328,60 +362,88 @@ export default function EditNoteScreen() {
   }, [note, bodyText]);
 
   const handleAiTitle = async () => {
+    if (isGenerating) return;
+    if (!bodyText.trim()) return;
     setShowAiModal(false);
+    let didSucceed = false;
     try {
-      if (!bodyText.trim()) return;
+      setGenerationPhase('preparing');
       setIsGenerating(true);
+      setGenerationPhase('generating');
       const generatedTitle = await AiService.getSmartTitle(bodyText.trim());
+      setGenerationPhase('applying');
       setTitle(generatedTitle);
+      didSucceed = true;
     } catch (e: any) {
+      setGenerationPhase('error');
       setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to generate title." });
     } finally {
-      setIsGenerating(false);
+      finishGeneration(didSucceed ? 'done' : 'error');
     }
   };
 
   const handleAiSummary = async () => {
+    if (isGenerating) return;
+    if (!bodyText.trim()) return;
     setShowAiModal(false);
+    let didSucceed = false;
     try {
-      if (!bodyText.trim()) return;
+      setGenerationPhase('preparing');
       setIsGenerating(true);
+      setGenerationPhase('generating');
       const summary = await AiService.getSummarization(bodyText.trim());
+      setGenerationPhase('applying');
       setSummaryText(summary);
       setShowSummaryModal(true);
+      didSucceed = true;
     } catch (e: any) {
+      setGenerationPhase('error');
       setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to summarize note." });
     } finally {
-      setIsGenerating(false);
+      finishGeneration(didSucceed ? 'done' : 'error');
     }
   };
 
   const handleCustomAiPrompt = async () => {
+    if (isGenerating) return;
     if (!aiPrompt.trim()) return;
     setShowPromptModal(false);
+    let didSucceed = false;
     try {
+      setGenerationPhase('preparing');
       setIsGenerating(true);
+      setGenerationPhase('generating');
       const output = await AiService.getDynamicGeneration(aiPrompt.trim());
+      setGenerationPhase('applying');
       richText.current?.insertHTML(`<br><br>${markdownToHtml(output)}<br>`);
       setAiPrompt('');
+      didSucceed = true;
     } catch (e: any) {
+      setGenerationPhase('error');
       setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to generate content." });
     } finally {
-      setIsGenerating(false);
+      finishGeneration(didSucceed ? 'done' : 'error');
     }
   };
 
   const handleAiFormat = async () => {
+    if (isGenerating) return;
+    if (!bodyText.trim()) return;
     setShowAiModal(false);
+    let didSucceed = false;
     try {
-      if (!bodyText.trim()) return;
+      setGenerationPhase('preparing');
       setIsGenerating(true);
+      setGenerationPhase('generating');
       const output = await AiService.getFormatNote(bodyText.trim());
+      setGenerationPhase('applying');
       richText.current?.setContentHTML(markdownToHtml(output));
+      didSucceed = true;
     } catch (e: any) {
+      setGenerationPhase('error');
       setAppAlert({ visible: true, title: "Spark AI Error", subtitle: e.message || "Failed to format content." });
     } finally {
-      setIsGenerating(false);
+      finishGeneration(didSucceed ? 'done' : 'error');
     }
   };
 
@@ -461,7 +523,11 @@ export default function EditNoteScreen() {
         <View style={s.headerMid}>
           <Text style={s.headerDate}>{dateStr}</Text>
           {saved && <Text style={s.savedBadge}>{loc.editor.saved}</Text>}
-          {isGenerating && <Text style={[s.savedBadge, { color: colors.accent }]}>✨ {loc.editor.thinking}</Text>}
+          {isGenerating && !sparkLoadingModalEnabled && (
+            <Text style={[s.savedBadge, { color: colors.accent }]}>
+              {loc.editor.thinking || loc.editor.aiLoadingGenerating}
+            </Text>
+          )}
         </View>
 
         <View style={s.headerRight}>
@@ -601,33 +667,46 @@ export default function EditNoteScreen() {
                   <Path d="M21 21l-6-6" />
                 </Svg>
               ),
-              'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>।</Text>,
-              'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>॥</Text>,
+              'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
+              'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
             }}
             onInsertLink={() => setShowLinkModal(true)}
             onPressAddImage={() => setShowImageModal(true)}
             findReplace={() => setShowFindReplaceModal(true)}
-            insertPurnaViram={() => insertHindiPunctuation('।')}
-            insertDoublePurnaViram={() => insertHindiPunctuation('॥')}
+            insertPurnaViram={() => insertHindiPunctuation('\u0964')}
+            insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
           />
 
           <View style={s.bottomBar}>
-            <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} · {wc} {loc.editor.words}</Text>
-            {ai.geminiApiKey && (
+            <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
+            {Boolean(ai.geminiApiKey) ? (
               <Pressable
-                onPress={() => setShowAiModal(true)}
+                onPress={() => {
+                  if (!isGenerating) setShowAiModal(true);
+                }}
                 disabled={isGenerating}
                 style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.accent + '22', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.sm, opacity: isGenerating ? 0.5 : 1 }}
               >
                 <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
                   <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
                 </Svg>
-                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>{isGenerating ? '...' : 'Spark AI'}</Text>
+                <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>
+                  {isGenerating && !sparkLoadingModalEnabled ? '...' : (loc.featureDiscovery.sparkAi || 'Spark AI')}
+                </Text>
               </Pressable>
-            )}
+            ) : null}
           </View>
         </KeyboardAvoidingView>
       </View>
+
+      <SparkLoadingModal
+        visible={sparkLoadingModalEnabled && isGenerating}
+        phase={generationPhase}
+        title={loc.editor.aiLoadingTitle}
+        phaseLabel={aiPhaseLabel}
+        hintText={loc.editor.aiLoadingPleaseWait}
+        enableAnimation={sparkLoadingAnimationEnabled}
+      />
 
       <ThemedModal
         visible={showDeleteModal}
@@ -710,6 +789,7 @@ export default function EditNoteScreen() {
             label: loc.plusFeatures.aiWriteForMe,
             style: 'default',
             onPress: () => {
+              if (isGenerating) return;
               setShowAiModal(false);
               setTimeout(() => setShowPromptModal(true), 300);
             }
@@ -936,3 +1016,5 @@ export default function EditNoteScreen() {
     </View>
   );
 }
+
+
