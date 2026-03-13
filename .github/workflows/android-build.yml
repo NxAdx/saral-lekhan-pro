@@ -146,10 +146,7 @@ jobs:
           chmod +x ./gradlew
 
           # Print the SHA-1 of the Release Keystore so the developer can easily copy it to Firebase
-          echo "=========================================================="
-          echo "🔥 RELEASE KEYSTORE FINGERPRINTS (ADD BOTH TO FIREBASE):"
-          keytool -list -v -keystore app/release.keystore -alias "${{ secrets.ANDROID_KEY_ALIAS }}" -storepass "${{ secrets.ANDROID_STORE_PASSWORD }}" | grep -E "SHA1|SHA256"
-          echo "=========================================================="
+
           
           ./gradlew bundleRelease assembleRelease --no-daemon
         env:
