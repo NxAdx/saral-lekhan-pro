@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { AppState, useColorScheme, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen } from 'expo-router';
@@ -38,7 +38,6 @@ import { shallow } from 'zustand/shallow';
 
 const splashPreventResult = SplashScreen.preventAutoHideAsync();
 (splashPreventResult as any)?.catch?.(() => {});
-
 try {
   Sentry.init({
     dsn: 'https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176',
@@ -55,6 +54,7 @@ export function RootLayout() {
   );
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
+  const hasHiddenSplash = useRef(false);
 
   const [fontsLoaded, fontError] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
@@ -156,11 +156,17 @@ export function RootLayout() {
       <View
         style={{ flex: 1, backgroundColor: finalBgColor }}
         onLayout={() => {
-          try {
-            SplashScreen.hideAsync();
-          } catch {
-            // no-op
-          }
+          if (hasHiddenSplash.current) return;
+          hasHiddenSplash.current = true;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              try {
+                SplashScreen.hideAsync();
+              } catch {
+                // no-op
+              }
+            });
+          });
         }}
       >
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />

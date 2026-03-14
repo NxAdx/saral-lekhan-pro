@@ -13,6 +13,33 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.10",
+        date: "2026-03-14",
+        changes: {
+            en: [
+                "Collapsed the Android launch path back to a single Expo-controlled splash surface to address the remaining double-splash stack.",
+                "Refined the fixed Saral लेखन home title lockup so the Latin and Hindi wordmark sit together more cleanly.",
+                "Raised the editor toolbar height and button padding so selected formatting chips no longer clip at the bottom.",
+                "Added divider and code block tools to the editor as the next low-risk writing feature tranche.",
+                "Kept the image and Biometric Vault fixes from 2.16.9 intact and shipped this as a tagged updater release."
+            ],
+            hi: [
+                "Collapsed the Android launch path back to a single Expo-controlled splash surface to address the remaining double-splash stack.",
+                "Refined the fixed Saral लेखन home title lockup so the Latin and Hindi wordmark sit together more cleanly.",
+                "Raised the editor toolbar height and button padding so selected formatting chips no longer clip at the bottom.",
+                "Added divider and code block tools to the editor as the next low-risk writing feature tranche.",
+                "Kept the image and Biometric Vault fixes from 2.16.9 intact and shipped this as a tagged updater release."
+            ],
+            mr: [
+                "Collapsed the Android launch path back to a single Expo-controlled splash surface to address the remaining double-splash stack.",
+                "Refined the fixed Saral लेखन home title lockup so the Latin and Hindi wordmark sit together more cleanly.",
+                "Raised the editor toolbar height and button padding so selected formatting chips no longer clip at the bottom.",
+                "Added divider and code block tools to the editor as the next low-risk writing feature tranche.",
+                "Kept the image and Biometric Vault fixes from 2.16.9 intact and shipped this as a tagged updater release."
+            ]
+        }
+    },
+    {
         version: "2.16.9",
         date: "2026-03-14",
         changes: {

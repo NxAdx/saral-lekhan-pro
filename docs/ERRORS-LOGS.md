@@ -476,3 +476,19 @@ Notes
   3. Routed editor CSS and small shared controls through `theme.fontSize`.
   4. Flattened `singleRowCard` styling with overflow clipping and zero shadow/elevation.
   5. Released the fix as a tagged updater-visible build (`v2.16.9`).
+
+46) Remaining double-splash stack and editor toolbar chip clipping after `v2.16.9` (resolved 2026-03-14 in `v2.16.10`)
+- Symptom:
+  1. Some devices still showed two splash phases followed by a neutral blank handoff frame.
+  2. Editor active formatting chips were clipped at the bottom.
+  3. Home title lockup for `Saral लेखन` still looked visually off.
+- Cause:
+  1. Native launch path was stacking Android 12 `Theme.SplashScreen` semantics on top of Expo's own `expo-splash-screen` overlay.
+  2. `RichToolbar` has a default 44dp container, but the custom selected pill styling was too close to that height.
+  3. The mixed-script title lockup used brittle Latin/Hindi metrics.
+- Resolution:
+  1. Reverted `Theme.App.SplashScreen` to the Expo-style AppCompat splash background path.
+  2. Removed the now-unused `androidx.core:core-splashscreen` dependency and simplified `MainActivity` back to `super.onCreate(null)`.
+  3. Delayed splash hide until after the first settled root layout paint in `_layout.tsx`.
+  4. Raised toolbar height, added vertical padding, and gave selected toolbar buttons explicit pill radius.
+  5. Retuned the `Saral लेखन` home wordmark metrics and added divider/code tools as the next safe editor feature tranche.

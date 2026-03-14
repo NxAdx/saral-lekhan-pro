@@ -156,3 +156,23 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `package.json` -> `2.16.9`
    - `app.json` -> `2.16.9`, `versionCode 62`
    - `android/app/build.gradle` -> `versionName 2.16.9`, `versionCode 62`
+
+## Splash Stack, Home Title, and Editor Toolbar Follow-Up (2026-03-14, v2.16.10)
+1. Launch path correction:
+   - removed the Android 12 `Theme.SplashScreen` style path that was stacking on top of Expo's own splash overlay
+   - restored Expo-style `Theme.App.SplashScreen` with `android:windowBackground="@drawable/splashscreen"`
+   - removed the now-unused `androidx.core:core-splashscreen` dependency
+   - `MainActivity` now uses plain `super.onCreate(null)`
+   - `_layout.tsx` now hides splash after the first settled root layout paint via chained `requestAnimationFrame`
+2. Home title lockup:
+   - refined `Saral लेखन` mixed-script metrics and baseline alignment
+3. Editor toolbar polish:
+   - increased toolbar height and button breathing room
+   - stopped selected-state pill clipping on Android
+4. Editor feature tranche:
+   - added divider support
+   - added code block support
+5. Release metadata sync:
+   - `package.json` -> `2.16.10`
+   - `app.json` -> `2.16.10`, `versionCode 63`
+   - `android/app/build.gradle` -> `versionName 2.16.10`, `versionCode 63`

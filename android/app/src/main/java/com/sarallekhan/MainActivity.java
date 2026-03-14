@@ -13,8 +13,6 @@ import expo.modules.ReactActivityDelegateWrapper;
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    // ReactActivity is AppCompat-based; switch to AppTheme before super to avoid startup theme crashes.
-    setTheme(R.style.AppTheme);
     super.onCreate(null);
   }
 

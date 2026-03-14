@@ -20,7 +20,7 @@ import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
 const HOME_BRAND_EN = 'Saral';
-const HOME_BRAND_HI = 'लेखन';
+const HOME_BRAND_HI = '\u0932\u0947\u0916\u0928';
 
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
@@ -201,22 +201,24 @@ export default function HomeScreen() {
     },
     appNameRow: {
       flexDirection: 'row',
-      alignItems: 'flex-end',
+      alignItems: 'baseline',
     },
     appNameLatin: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 29,
-      lineHeight: 34,
-      letterSpacing: -0.5,
+      fontSize: 31,
+      lineHeight: 38,
+      letterSpacing: -1.1,
       includeFontPadding: false,
     },
     appNameHindi: {
       color: colors.ink,
-      fontFamily: 'Hind-Bold',
-      fontSize: 31,
-      lineHeight: 34,
-      marginLeft: 6,
+      fontFamily: font.branding,
+      fontSize: 34,
+      lineHeight: 38,
+      marginLeft: 8,
+      letterSpacing: 0,
+      transform: [{ translateY: 1 }],
       includeFontPadding: false,
     },
     appSub: {
@@ -499,3 +501,4 @@ export default function HomeScreen() {
     </View>
   );
 }
+

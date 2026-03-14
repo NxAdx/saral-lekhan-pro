@@ -125,3 +125,15 @@ Before making further release-facing changes:
    - `singleRowCard` now clips overflow and explicitly flattens elevation/shadow
 5. Release operation
    - direct updater installs require a GitHub Release produced from a pushed tag (`vX.Y.Z`)
+
+## 8) Follow-Up Stabilization (`v2.16.10`, 2026-03-14)
+1. Splash ownership correction
+   - removed the stacked Android 12 `Theme.SplashScreen` path
+   - returned to Expo's single-surface splash baseline for SDK 49
+   - delayed splash hide until the first settled root-layout paint
+2. Home header polish
+   - retuned the `Saral लेखन` brand lockup for cleaner Latin/Hindi coexistence
+3. Editor polish
+   - fixed active toolbar chip clipping by raising toolbar metrics
+4. Editor feature increment
+   - added divider and code block tools as the next safe writing features

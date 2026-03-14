@@ -314,14 +314,19 @@ export default function NewNoteScreen() {
       borderTopWidth: 1.5,
       borderTopColor: colors.stroke,
       paddingHorizontal: 6,
-      paddingVertical: 4,
+      paddingTop: 6,
+      paddingBottom: 8,
+      height: 58,
+      overflow: 'visible',
     },
     toolbarItem: {
-      height: 40,
-      borderRadius: 12,
+      height: 44,
+      minHeight: 44,
+      borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
       marginHorizontal: 2,
+      marginVertical: 2,
     },
   }), [colors, font, radius, shadow]);
 
@@ -379,6 +384,9 @@ export default function NewNoteScreen() {
                   h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(40 * theme.fontSize)}px !important; margin-top: 10px; margin-bottom: 10px; }
                   h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(32 * theme.fontSize)}px !important; margin-top: 8px; margin-bottom: 8px; }
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
+                  pre { background-color: ${colors.bgRaised}; border: 1px solid ${colors.strokeDim}; color: ${colors.ink}; padding: 14px 16px; border-radius: 14px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; line-height: ${Math.round(22 * theme.fontSize)}px; white-space: pre-wrap; }
+                  code { background-color: ${colors.bgRaised}; color: ${colors.ink}; border-radius: 6px; padding: 2px 4px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; }
+                  hr { border: 0; border-top: 1px solid ${colors.stroke}; margin: 20px 0; }
                   ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
                   li { font-size: 1em !important; margin: 6px 0; }
                   .x-todo { padding-left: 0 !important; margin: 12px 0; }
@@ -434,8 +442,9 @@ export default function NewNoteScreen() {
           iconSize={18}
           iconGap={24}
           itemStyle={s.toolbarItem}
-          selectedButtonStyle={{ backgroundColor: colors.accent + '18' }}
-          unselectedButtonStyle={{ backgroundColor: 'transparent' }}
+          flatContainerStyle={{ paddingVertical: 2 }}
+          selectedButtonStyle={{ backgroundColor: colors.accent + '18', borderRadius: 14 }}
+          unselectedButtonStyle={{ backgroundColor: 'transparent', borderRadius: 14 }}
           actions={[
             actions.setBold,
             actions.setItalic,
@@ -443,6 +452,8 @@ export default function NewNoteScreen() {
             actions.checkboxList,
             actions.insertBulletsList,
             actions.insertOrderedList,
+            actions.line,
+            actions.code,
             actions.heading1,
             actions.heading2,
             actions.blockquote,
@@ -474,6 +485,16 @@ export default function NewNoteScreen() {
                 <Rect x="4" y="4" width="16" height="16" rx="3" />
                 <Path d="M8 12l3 3l5 -6" />
               </Svg>
+            ),
+            [actions.line]: ({ tintColor }: any) => (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round">
+                <Path d="M5 12h14" />
+              </Svg>
+            ),
+            [actions.code]: ({ tintColor }: any) => (
+              <Text style={{ color: tintColor, fontFamily: font.mono, fontSize: 13, fontWeight: '700', includeFontPadding: false }}>
+                {'</>'}
+              </Text>
             ),
             'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
             'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
