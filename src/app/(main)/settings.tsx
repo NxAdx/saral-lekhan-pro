@@ -273,7 +273,7 @@ export default function SettingsScreen() {
         title: { fontFamily: font.sansBold, fontSize: 22, color: colors.ink },
         content: { padding: 20, paddingBottom: 100 },
 
-        sectionTitle: { fontFamily: font.sansBold, fontSize: 13, color: colors.accent, textTransform: 'uppercase', marginBottom: 12, marginTop: 24, letterSpacing: 1 },
+        sectionTitle: { fontFamily: font.sansBold, fontSize: 13 * theme.fontSize, color: colors.accent, textTransform: 'uppercase', marginBottom: 12, marginTop: 24, letterSpacing: 1 },
 
         // Live Preview
         previewBox: { marginBottom: 10 },
@@ -291,7 +291,13 @@ export default function SettingsScreen() {
             backgroundColor: colors.bgRaised,
             borderRadius: theme.radius.lg,
             borderWidth: 1,
-            borderColor: colors.strokeDim,
+            borderColor: colors.stroke,
+            overflow: 'hidden',
+            elevation: 0,
+            shadowColor: 'transparent',
+            shadowOpacity: 0,
+            shadowRadius: 0,
+            shadowOffset: { width: 0, height: 0 },
             marginBottom: 16,
         },
         listItem: {
@@ -314,7 +320,7 @@ export default function SettingsScreen() {
         },
         modeBtnLast: { borderRightWidth: 0 },
         activeMode: { backgroundColor: colors.accent },
-        modeText: { fontFamily: font.sansSemi, fontSize: 13 },
+        modeText: { fontFamily: font.sansSemi, fontSize: 13 * theme.fontSize },
 
         pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
 
@@ -335,7 +341,7 @@ export default function SettingsScreen() {
         themeCircle: { width: 24, height: 24, borderRadius: 12 },
         themeLineLong: { height: 4, borderRadius: 2, width: '80%', marginBottom: 6 },
         themeLineShort: { height: 4, borderRadius: 2, width: '50%', marginBottom: 12 },
-        themeLabel: { fontFamily: font.sans, fontSize: 11, textAlign: 'center' },
+        themeLabel: { fontFamily: font.sans, fontSize: 11 * theme.fontSize, textAlign: 'center' },
         listDivider: { height: 1, backgroundColor: colors.strokeDim, marginLeft: 16 },
     }), [colors, font, theme.radius, theme.isDark, settings.nightMode, settings.themeId]);
 

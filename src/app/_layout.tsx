@@ -55,7 +55,6 @@ export function RootLayout() {
   );
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
-  const [rootLayoutMeasured, setRootLayoutMeasured] = React.useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
@@ -133,22 +132,12 @@ export function RootLayout() {
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
-  const splashReady = coreReady && rootLayoutMeasured;
 
   useEffect(() => {
     if (!coreReady) return;
     log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
   }, [finalBgColor, isDark, themeId, coreReady]);
-
-  useEffect(() => {
-    if (!splashReady) return;
-    try {
-      SplashScreen.hideAsync();
-    } catch {
-      // no-op
-    }
-  }, [splashReady]);
 
   const navTheme = useMemo(() => ({
     dark: isDark,
@@ -159,7 +148,7 @@ export function RootLayout() {
   }), [isDark, finalBgColor]);
 
   if (!coreReady) {
-    return <View style={{ flex: 1, backgroundColor: finalBgColor }} />;
+    return null;
   }
 
   return (
@@ -167,8 +156,10 @@ export function RootLayout() {
       <View
         style={{ flex: 1, backgroundColor: finalBgColor }}
         onLayout={() => {
-          if (!rootLayoutMeasured) {
-            setRootLayoutMeasured(true);
+          try {
+            SplashScreen.hideAsync();
+          } catch {
+            // no-op
           }
         }}
       >

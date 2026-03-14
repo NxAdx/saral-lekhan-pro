@@ -455,3 +455,24 @@ Notes
   1. Reverted `AppTheme` window background to plain `@color/splashscreen_background`.
   2. Updated `_layout.tsx` to hide splash only after startup is ready and the first root layout is measured.
   3. Shipped the corrected launch handoff in `v2.16.8`.
+
+45) Residual splash gap, intermittent editor image failures, and font-size inconsistency after `v2.16.8` (resolved 2026-03-14 in `v2.16.9`)
+- Symptom:
+  1. Some devices still showed a second splash perception followed by a blank `#d9d7d2` frame.
+  2. Editor gallery images sometimes rendered as a broken image icon.
+  3. Font switching still felt inconsistent in editor and small settings controls.
+  4. `Biometric Vault` card still looked like it had a clipped shadow / double border.
+- Cause:
+  1. `_layout.tsx` still rendered a plain pre-ready React view before hiding the native splash.
+  2. Gallery insertions used `expo-image-picker` Base64 data but labeled the data URI with the source asset MIME type instead of the actual JPEG payload returned by Expo.
+  3. Editor body CSS and small reusable controls still used raw `settings.fontSize`, bypassing family-specific font normalization.
+  4. The single-row settings card did not clip overflow or explicitly flatten elevation/shadow.
+- Resolution:
+  1. Changed `_layout.tsx` pre-ready path to `return null`, and kept splash hide attached to the first real root layout.
+  2. Changed editor gallery insertion to:
+     - request `base64: true`
+     - embed picker Base64 as `data:image/jpeg;base64,...`
+     - fall back to file-read conversion only when needed
+  3. Routed editor CSS and small shared controls through `theme.fontSize`.
+  4. Flattened `singleRowCard` styling with overflow clipping and zero shadow/elevation.
+  5. Released the fix as a tagged updater-visible build (`v2.16.9`).

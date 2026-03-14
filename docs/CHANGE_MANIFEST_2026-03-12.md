@@ -134,3 +134,25 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `package.json` -> `2.16.8`
    - `app.json` -> `2.16.8`, `versionCode 61`
    - `android/app/build.gradle` -> `versionName 2.16.8`, `versionCode 61`
+
+## Startup, Editor, and Release Follow-Up (2026-03-14, v2.16.9)
+1. Residual issues addressed after device verification:
+   - removed the remaining plain JS fallback during splash handoff
+   - fixed intermittent editor gallery image failures
+   - tightened font scaling consistency in editor and settings pills
+   - flattened `Biometric Vault` card geometry
+2. Startup correction:
+   - `src/app/_layout.tsx` now returns `null` until startup is ready
+   - splash hides only from the first real root layout
+3. Editor media correction:
+   - `expo-image-picker` gallery insert now uses `base64: true`
+   - picker Base64 is embedded as `data:image/jpeg;base64,...`
+4. Typography correction:
+   - editor body CSS now uses `theme.fontSize`
+   - `TagPill` now scales from `theme.fontSize`
+5. Release/update correction:
+   - updater-visible direct installs require a tagged GitHub Release, not only a branch build
+6. Release metadata sync:
+   - `package.json` -> `2.16.9`
+   - `app.json` -> `2.16.9`, `versionCode 62`
+   - `android/app/build.gradle` -> `versionName 2.16.9`, `versionCode 62`

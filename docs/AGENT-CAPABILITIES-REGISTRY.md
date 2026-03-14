@@ -5,6 +5,10 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 ## 1) Automation and Platform Tooling
 - **GitHub Actions**: primary CI/CD for production Android builds (AAB/APK).
 - **Actions runtime policy**: workflows are configured to run JS actions on Node 24 (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`).
+- **GitHub updater contract**:
+  - the in-app updater reads **GitHub Releases**, not Actions artifacts.
+  - branch pushes alone are not enough for direct installs.
+  - updater-visible hotfixes must ship as a tagged release (`refs/tags/v*`).
 - **ADB**: device diagnostics and log capture.
   - Path: `C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe`
 - **Sentry**: runtime crash and error telemetry.
@@ -43,6 +47,15 @@ This registry tracks practical capabilities and hard constraints for AI agents w
   4. Do not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
   5. `AppTheme` must use a plain launch background color, not the branded splash drawable, or Android can show a second branded splash phase.
   6. `android/app/build.gradle` must keep `implementation("androidx.core:core-splashscreen:1.0.1")` (or compatible) to provide splash attrs during resource linking.
+  7. `_layout.tsx` must return `null` before startup is ready and hide the splash only from the first real root layout, not from a plain JS fallback view.
+- **Editor image embedding baseline**:
+  1. Gallery images inserted into the Pell editor must be embedded, not left as transient `file://` or `content://` URIs.
+  2. `expo-image-picker` Base64 payloads must be treated as `image/jpeg` when building the data URI for the editor.
+- **Typography consistency baseline**:
+  1. User-facing text that should track font-family normalization must use `theme.fontSize` or shared typography tokens.
+  2. Avoid raw `settings.fontSize` for editor/body sizing when the chosen font family has its own compensation scale.
+- **Settings surface styling baseline**:
+  - single-row settings cards should clip overflow and avoid implicit elevation/shadow so borders stay clean on Android.
 - **FlashList compatibility**:
   - keep `@shopify/flash-list` at `1.8.3` or newer verified-compatible 1.x.
   - `1.4.3` causes CI Kotlin failure in `:shopify_flash-list:compileReleaseKotlin`.
@@ -62,3 +75,14 @@ This registry tracks practical capabilities and hard constraints for AI agents w
   3. latest cycle handover doc (`docs/PRODUCTION_HANDOVER_YYYY-MM-DD.md`)
   4. latest cycle manifest (`docs/CHANGE_MANIFEST_YYYY-MM-DD.md`)
   5. rollback runbook when UX/runtime-control behavior changes (`docs/UX-ANIMATION-ROLLBACK-RUNBOOK.md`)
+
+## 7) Approved Reference Apps
+- **Mihon**
+  - reference for bounded native splash ownership and controlled exit timing.
+  - local path: `D:/Development/Production/research/mihon`
+- **ImageToolbox**
+  - reference for centralized settings/theme state and visually stable preference rows.
+  - local path: `D:/Development/Production/research/ImageToolbox`
+- **Metrolist**
+  - reference for clean settings grouping, low-elevation card treatment, and multi-language settings UX.
+  - local path: `D:/Development/Production/research/Metrolist`

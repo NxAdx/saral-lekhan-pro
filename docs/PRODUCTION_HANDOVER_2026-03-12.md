@@ -110,3 +110,18 @@ Before making further release-facing changes:
 2. Read `docs/UX-ANIMATION-ROLLBACK-RUNBOOK.md`.
 3. Keep `runtime-flags.json` and app config URL synchronized.
 4. Validate with Java 17 for Android release checks.
+
+## 7) Follow-Up Stabilization (`v2.16.9`, 2026-03-14)
+1. `_layout.tsx`
+   - pre-ready branch now returns `null`
+   - splash hides only from the first actual root layout
+2. Editor gallery images
+   - picker Base64 is treated as JPEG data for embedded editor images
+   - this replaces the mismatched MIME path that caused intermittent broken-image placeholders
+3. Typography
+   - editor CSS and `TagPill` now size from `theme.fontSize`
+   - this keeps font-family compensation active outside token-based text
+4. Settings geometry
+   - `singleRowCard` now clips overflow and explicitly flattens elevation/shadow
+5. Release operation
+   - direct updater installs require a GitHub Release produced from a pushed tag (`vX.Y.Z`)

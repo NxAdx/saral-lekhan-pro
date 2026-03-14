@@ -46,7 +46,7 @@ This document provides technical context for developers and AI agents working on
 - `AppTheme` `android:windowBackground` should stay plain (`@color/splashscreen_background`) so Android does not show a second branded splash phase after the system splash.
 - Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
 - Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
-- `_layout.tsx` must keep pre-ready fallback plain and non-branded, and hide the splash only after the first app layout is measured.
+- `_layout.tsx` must not render a plain JS fallback screen before startup is ready; return `null` and hide the splash only from the first real root layout.
 
 ## Runtime UX Flags (Rollback Support)
 - Store: `src/store/runtimeUxFlagsStore.ts`
@@ -64,8 +64,35 @@ This document provides technical context for developers and AI agents working on
 - Splash flow:
   1. `preventAutoHideAsync` at root
   2. Initialize stores/services
-  3. Hide splash after `coreReady` and the first root layout pass
+  3. Return `null` while startup is still blocked
+  4. Hide splash after `coreReady` and the first real root layout pass
 - Never add a second branded JS splash between native splash and app content.
+
+## Editor Media Rules
+- `react-native-pell-rich-editor` content must not depend on temporary `file://` or `content://` gallery URIs.
+- For picked gallery images:
+  1. prefer `expo-image-picker` `base64: true`
+  2. embed the result as `data:image/jpeg;base64,...`
+  3. only fall back to manual file reads when picker Base64 is unavailable
+- Existing saved HTML should normalize stale local image URIs on load when possible.
+
+## Typography Rules
+- Font-family normalization lives in:
+  - `src/constants/fontConfig.ts`
+  - `src/store/themeStore.ts`
+  - `src/store/typographyStore.ts`
+- UI elements that should remain visually consistent across app fonts must size from:
+  - `theme.fontSize`, or
+  - shared typography tokens from `useTypography()`
+- Avoid raw `settings.fontSize` for editor body text or reusable pills, because it bypasses family-specific scale compensation.
+
+## Release/Updater Rules
+- The direct updater checks GitHub Releases, not GitHub Actions artifacts.
+- To ship an updater-visible Android hotfix:
+  1. push `main`
+  2. create tag `vX.Y.Z`
+  3. push tag
+  4. verify the release workflow publishes APK assets to GitHub Releases
 
 ## Spark AI UX Baseline
 - Spark operations must show explicit generation state.

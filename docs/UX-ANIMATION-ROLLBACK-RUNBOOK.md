@@ -75,3 +75,4 @@ Run after rollout and after rollback.
 - Keep startup background alignment on `#d9d7d2` during both normal and rollback states.
 - If local build uses Java 20+, switch to Java 17 before Android verification (avoids `Unsupported class file major version 64`).
 - Keep `androidx.core:core-splashscreen` dependency present when `Theme.SplashScreen` is used.
+- For updater-visible hotfixes, branch builds are not sufficient; push a version tag so GitHub Releases receives the APK asset.

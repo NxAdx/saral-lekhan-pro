@@ -324,11 +324,15 @@ export default function EditNoteScreen() {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.72,
+        quality: 0.45,
+        base64: true,
       });
 
       if (!result.canceled && result.assets[0].uri) {
-        const dataUri = await imageUriToDataUri(result.assets[0].uri);
+        const asset = result.assets[0];
+        const dataUri = asset.base64
+          ? `data:image/jpeg;base64,${asset.base64}`
+          : await imageUriToDataUri(asset.uri);
         richText.current?.insertImage(dataUri);
         setShowImageModal(false);
         log.info("Image inserted as Base64 data URI");
@@ -610,9 +614,9 @@ export default function EditNoteScreen() {
                     color: colors.inkMid,
                     placeholderColor: colors.inkDim,
                     cssText: `
-                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.6; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
-                    h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
-                    h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
+                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * theme.fontSize}px; line-height: ${Math.round(26 * theme.fontSize)}px; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
+                    h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(40 * theme.fontSize)}px !important; margin-top: 10px; margin-bottom: 10px; }
+                    h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(32 * theme.fontSize)}px !important; margin-top: 8px; margin-bottom: 8px; }
                     blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
                     ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
                     li { font-size: 1em !important; margin: 6px 0; }
@@ -864,7 +868,7 @@ export default function EditNoteScreen() {
               backgroundColor: colors.bg,
               color: colors.ink,
               fontFamily: font.sans,
-              fontSize: 14 * settings.fontSize,
+              fontSize: 14 * theme.fontSize,
               borderWidth: 1,
               borderColor: colors.strokeDim,
               minHeight: 80,
@@ -898,7 +902,7 @@ export default function EditNoteScreen() {
         onClose={() => setShowSummaryModal(false)}
         customContent={
           <ScrollView style={{ maxHeight: 300, backgroundColor: colors.bg, padding: 12, borderRadius: radius.md, borderWidth: 1, borderColor: colors.strokeDim }}>
-            <Text style={{ fontFamily: font.sans, fontSize: 14 * settings.fontSize, color: colors.inkMid, lineHeight: 22 * settings.fontSize }}>
+            <Text style={{ fontFamily: font.sans, fontSize: 14 * theme.fontSize, color: colors.inkMid, lineHeight: 22 * theme.fontSize }}>
               {stripMarkdown(summaryText)}
             </Text>
           </ScrollView>
