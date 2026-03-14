@@ -1,14 +1,14 @@
 import { AppFontType, AppLanguage, normalizeAppFont } from '../store/settingsStore';
 
 export const FONT_SCALES: Record<AppFontType, number> = {
-    hind: 1.0,
-    poppins: 0.96,
+    hind: 0.98,
+    poppins: 1.0,
     notoSans: 1.0,
-    baloo2: 1.01,
+    baloo2: 0.95,
 };
 
 const DEVANAGARI_LANGUAGES: readonly AppLanguage[] = ['Hi', 'Mr'];
-const DEVANAGARI_SENSITIVE_FONTS: readonly AppFontType[] = ['poppins'];
+const DEVANAGARI_SENSITIVE_FONTS: readonly AppFontType[] = ['poppins', 'notoSans'];
 
 export function getEffectiveAppFont(appFont: string, language: AppLanguage): AppFontType {
     const normalizedFont = normalizeAppFont(appFont);

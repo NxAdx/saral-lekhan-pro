@@ -43,10 +43,10 @@ This document provides technical context for developers and AI agents working on
   - `windowSplashScreenAnimatedIcon`
   - `postSplashScreenTheme`
 - `MainActivity` must call `setTheme(R.style.AppTheme)` before `super.onCreate(null)` (AppCompat safety baseline for this SDK/runtime mix).
-- `AppTheme` `android:windowBackground` should use branded splash drawable (`@drawable/splashscreen`) to maintain visual continuity and avoid perceived dual splash phase.
+- `AppTheme` `android:windowBackground` should stay plain (`@color/splashscreen_background`) so Android does not show a second branded splash phase after the system splash.
 - Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
 - Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
-- `_layout.tsx` must keep pre-ready fallback plain and non-branded.
+- `_layout.tsx` must keep pre-ready fallback plain and non-branded, and hide the splash only after the first app layout is measured.
 
 ## Runtime UX Flags (Rollback Support)
 - Store: `src/store/runtimeUxFlagsStore.ts`
@@ -64,7 +64,7 @@ This document provides technical context for developers and AI agents working on
 - Splash flow:
   1. `preventAutoHideAsync` at root
   2. Initialize stores/services
-  3. Hide splash on `coreReady`
+  3. Hide splash after `coreReady` and the first root layout pass
 - Never add a second branded JS splash between native splash and app content.
 
 ## Spark AI UX Baseline

@@ -23,6 +23,7 @@ import { AiService } from '../../services/aiService';
 import { SparkGenerationPhase } from '../../types/spark';
 import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
+import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -70,7 +71,9 @@ export default function EditNoteScreen() {
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
   const isMounted = useRef(false);
+  const isApplyingInitialContent = useRef(false);
   const [editorHeight, setEditorHeight] = useState<number>(400);
+  const [editorReady, setEditorReady] = useState(false);
   const finishGeneration = useCallback(
     (nextPhase: SparkGenerationPhase) => {
       setGenerationPhase(nextPhase);
@@ -103,6 +106,7 @@ export default function EditNoteScreen() {
   useEffect(() => {
     isMounted.current = true;
     log.info(`Opening note: ${id}`);
+    setEditorReady(false);
 
     if (note) {
       setTitle(note.title);
@@ -144,6 +148,40 @@ export default function EditNoteScreen() {
       clearTimeout(timer);
     };
   }, [id, note?.id]);
+
+  useEffect(() => {
+    if (!editorReady || !note) return;
+
+    let cancelled = false;
+
+    const applyEditorContent = async () => {
+      const normalizedHtml = await normalizeEditorHtmlImages(note.body || '');
+      if (cancelled) return;
+
+      isApplyingInitialContent.current = true;
+      richText.current?.setContentHTML(normalizedHtml);
+      setBodyText(stripMarkdown(normalizedHtml));
+
+      if (normalizedHtml !== note.body) {
+        updateNote(note.id, { body: normalizedHtml });
+      }
+
+      setTimeout(() => {
+        if (!cancelled) {
+          isApplyingInitialContent.current = false;
+        }
+      }, 250);
+    };
+
+    applyEditorContent().catch((error) => {
+      log.warn('Failed to normalize editor images on load.', error as any);
+      isApplyingInitialContent.current = false;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editorReady, note?.id]);
 
   const showSaved = useCallback(() => {
     setSaved(true);
@@ -286,17 +324,11 @@ export default function EditNoteScreen() {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7, // Slightly lower for performance with base64
+        quality: 0.72,
       });
 
       if (!result.canceled && result.assets[0].uri) {
-        const uri = result.assets[0].uri;
-
-        // Read file as Base64 to ensure persistence and compatibility
-        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-        const type = uri.split('.').pop() || 'png';
-        const dataUri = `data:image/${type};base64,${base64}`;
-
+        const dataUri = await imageUriToDataUri(result.assets[0].uri);
         richText.current?.insertImage(dataUri);
         setShowImageModal(false);
         log.info("Image inserted as Base64 data URI");
@@ -478,7 +510,16 @@ export default function EditNoteScreen() {
       backgroundColor: colors.bgRaised,
       borderTopWidth: 1.5,
       borderTopColor: colors.stroke,
-    }
+      paddingHorizontal: 6,
+      paddingVertical: 4,
+    },
+    toolbarItem: {
+      height: 40,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 2,
+    },
   }), [colors, font, shadow, radius]);
 
   if (!note) {
@@ -561,10 +602,9 @@ export default function EditNoteScreen() {
                 <RichEditor
                   key={id}
                   ref={richText}
-                  initialContentHTML={note.body}
+                  initialContentHTML=""
                   placeholder={loc.editor.bodyPlaceholder}
-                  // @ts-ignore
-                  androidHardwareAccelerationDisabled={true}
+                  editorInitializedCallback={() => setEditorReady(true)}
                   editorStyle={{
                     backgroundColor: colors.bg,
                     color: colors.inkMid,
@@ -574,14 +614,17 @@ export default function EditNoteScreen() {
                     h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
                     h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
                     blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                    ul, ol { padding-left: 20px; font-size: 1em !important; }
-                    li { font-size: 1em !important; }
-                    .x-todo-box { margin-right: 8px; }
-                    img { max-width: 100%; height: auto; border-radius: 12px; margin: 10px 0; }
+                    ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
+                    li { font-size: 1em !important; margin: 6px 0; }
+                    .x-todo { padding-left: 0 !important; margin: 12px 0; }
+                    .x-todo li { list-style: none; display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
+                    .x-todo-box { position: static !important; left: 0 !important; display: inline-flex; width: 20px; min-width: 20px; height: 20px; align-items: center; justify-content: center; margin-top: 3px; }
+                    .x-todo-box input { position: static !important; width: 18px; height: 18px; margin: 0; accent-color: ${colors.accent}; }
+                    img { display: block; max-width: 100%; height: auto; border-radius: 16px; margin: 12px 0; }
                   `
                   }}
                   onChange={(html) => {
-                    if (!isMounted.current) return;
+                    if (!isMounted.current || isApplyingInitialContent.current) return;
                     const stripped = html.replace(/<[^>]*>?/gm, ' ');
                     setBodyText(stripped);
                     setIsDirty(true);
@@ -621,18 +664,23 @@ export default function EditNoteScreen() {
             iconTint={colors.ink}
             selectedIconTint={colors.accent}
             disabledIconTint={colors.inkDim}
+            iconSize={18}
+            iconGap={24}
+            itemStyle={s.toolbarItem}
+            selectedButtonStyle={{ backgroundColor: colors.accent + '18' }}
+            unselectedButtonStyle={{ backgroundColor: 'transparent' }}
             actions={[
-              actions.undo,
-              actions.redo,
               actions.setBold,
               actions.setItalic,
               actions.setUnderline,
+              actions.checkboxList,
+              actions.insertBulletsList,
+              actions.insertOrderedList,
               actions.heading1,
               actions.heading2,
-              actions.insertBulletsList,
-              actions.checkboxList,
-              actions.insertOrderedList,
               actions.blockquote,
+              actions.undo,
+              actions.redo,
               actions.insertLink,
               actions.insertImage,
               'findReplace',

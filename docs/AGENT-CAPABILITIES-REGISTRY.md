@@ -41,7 +41,7 @@ This registry tracks practical capabilities and hard constraints for AI agents w
   2. `postSplashScreenTheme` must point to `@style/AppTheme`.
   3. `MainActivity` must call `setTheme(R.style.AppTheme)` before `super.onCreate(null)` (AppCompat safety for this SDK/runtime combination).
   4. Do not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
-  5. `AppTheme` must use branded splash drawable as `android:windowBackground` to avoid perceived dual-splash transition.
+  5. `AppTheme` must use a plain launch background color, not the branded splash drawable, or Android can show a second branded splash phase.
   6. `android/app/build.gradle` must keep `implementation("androidx.core:core-splashscreen:1.0.1")` (or compatible) to provide splash attrs during resource linking.
 - **FlashList compatibility**:
   - keep `@shopify/flash-list` at `1.8.3` or newer verified-compatible 1.x.

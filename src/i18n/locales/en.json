@@ -14,8 +14,9 @@
     "trashEmptySub": "Deleted notes will appear here",
     "restore": "Restore",
     "deleteForever": "Delete Forever",
-    "exportOptions": "Share / Export",
-    "exportPdf": "Export to PDF",
+    "exportOptions": "Share / Print",
+    "exportPdf": "Print",
+    "print": "Print",
     "exportImg": "Save as Image",
     "editor": {
         "titlePlaceholder": "Title...",
@@ -89,8 +90,8 @@
         "copyLogs": "Copy Logs",
         "emailReport": "Email Report",
         "logsCopied": "Logs copied to clipboard!",
-        "aboutDeveloper": "Designed & Developed by",
-        "developerNames": "Aadarsh Lokhande & Antigravity"
+        "aboutDeveloper": "Designed by",
+        "developerNames": "Aadarsh Lokhande"
     },
     "support": {
         "title": "Help & Support",

@@ -19,6 +19,7 @@ import { useTypography } from '../../store/typographyStore';
 import { SparkGenerationPhase } from '../../types/spark';
 import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
+import { imageUriToDataUri } from '../../utils/editorMedia';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -57,6 +58,23 @@ export default function NewNoteScreen() {
 
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const editorListBreakoutScript = useMemo(() => `
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      let node = range.startContainer;
+      while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') {
+        node = node.parentNode;
+      }
+      if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
+        e.preventDefault();
+        document.execCommand('outdent', false, null);
+      }
+    });
+    true;
+  `, []);
   const finishGeneration = useCallback(
     (nextPhase: SparkGenerationPhase) => {
       setGenerationPhase(nextPhase);
@@ -98,6 +116,15 @@ export default function NewNoteScreen() {
     BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
   }, [isDirty, settings.autoSave]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // @ts-ignore - Pell exposes injectJavascript on the ref.
+      richText.current?.injectJavascript(editorListBreakoutScript);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [editorListBreakoutScript]);
 
   const handleSave = useCallback(async () => {
     const html = await richText.current?.getContentHtml();
@@ -146,14 +173,23 @@ export default function NewNoteScreen() {
   };
 
   const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.72,
+      });
 
-    if (!result.canceled && result.assets[0].uri) {
-      richText.current?.insertImage(result.assets[0].uri);
-      setShowImageModal(false);
+      if (!result.canceled && result.assets[0].uri) {
+        const dataUri = await imageUriToDataUri(result.assets[0].uri);
+        richText.current?.insertImage(dataUri);
+        setShowImageModal(false);
+      }
+    } catch (error: any) {
+      setAppAlert({
+        visible: true,
+        title: 'Image Error',
+        subtitle: error?.message || 'Could not load the selected image.',
+      });
     }
   };
 
@@ -273,7 +309,16 @@ export default function NewNoteScreen() {
       backgroundColor: colors.bgRaised,
       borderTopWidth: 1.5,
       borderTopColor: colors.stroke,
-    }
+      paddingHorizontal: 6,
+      paddingVertical: 4,
+    },
+    toolbarItem: {
+      height: 40,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 2,
+    },
   }), [colors, font, radius, shadow]);
 
   const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
@@ -320,8 +365,6 @@ export default function NewNoteScreen() {
               ref={richText}
               initialContentHTML=""
               placeholder={loc.editor.bodyPlaceholder}
-              // @ts-ignore
-              androidHardwareAccelerationDisabled={true}
               editorStyle={{
                 backgroundColor: colors.bg,
                 color: colors.inkMid,
@@ -332,9 +375,13 @@ export default function NewNoteScreen() {
                   h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
                   h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                  ul, ol { padding-left: 20px; font-size: 1em !important; }
-                  li { font-size: 1em !important; }
-                  .x-todo-box { margin-right: 8px; }
+                  ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
+                  li { font-size: 1em !important; margin: 6px 0; }
+                  .x-todo { padding-left: 0 !important; margin: 12px 0; }
+                  .x-todo li { list-style: none; display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
+                  .x-todo-box { position: static !important; left: 0 !important; display: inline-flex; width: 20px; min-width: 20px; height: 20px; align-items: center; justify-content: center; margin-top: 3px; }
+                  .x-todo-box input { position: static !important; width: 18px; height: 18px; margin: 0; accent-color: ${colors.accent}; }
+                  img { display: block; max-width: 100%; height: auto; border-radius: 16px; margin: 12px 0; }
                 `
               }}
               onChange={(html) => {
@@ -380,18 +427,23 @@ export default function NewNoteScreen() {
           iconTint={colors.ink}
           selectedIconTint={colors.accent}
           disabledIconTint={colors.inkDim}
+          iconSize={18}
+          iconGap={24}
+          itemStyle={s.toolbarItem}
+          selectedButtonStyle={{ backgroundColor: colors.accent + '18' }}
+          unselectedButtonStyle={{ backgroundColor: 'transparent' }}
           actions={[
-            actions.undo,
-            actions.redo,
             actions.setBold,
             actions.setItalic,
             actions.setUnderline,
+            actions.checkboxList,
+            actions.insertBulletsList,
+            actions.insertOrderedList,
             actions.heading1,
             actions.heading2,
-            actions.insertBulletsList,
-            actions.checkboxList,
-            actions.insertOrderedList,
             actions.blockquote,
+            actions.undo,
+            actions.redo,
             actions.insertLink,
             actions.insertImage,
             'insertPurnaViram',

@@ -55,14 +55,13 @@ export function RootLayout() {
   );
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
+  const [rootLayoutMeasured, setRootLayoutMeasured] = React.useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
     'Hind-Medium': require('../../assets/fonts/Hind-Medium.ttf'),
     'Hind-SemiBold': require('../../assets/fonts/Hind-SemiBold.ttf'),
     'Hind-Bold': require('../../assets/fonts/Hind-Bold.ttf'),
-    'VesperLibre-Black': require('../../assets/fonts/VesperLibre-Black.ttf'),
-    'DMMono-Regular': require('../../assets/fonts/DMMono-Regular.ttf'),
     Poppins: Poppins_400Regular,
     'Poppins-Medium': Poppins_500Medium,
     'Poppins-SemiBold': Poppins_600SemiBold,
@@ -134,6 +133,7 @@ export function RootLayout() {
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
+  const splashReady = coreReady && rootLayoutMeasured;
 
   useEffect(() => {
     if (!coreReady) return;
@@ -142,16 +142,13 @@ export function RootLayout() {
   }, [finalBgColor, isDark, themeId, coreReady]);
 
   useEffect(() => {
-    if (!coreReady) return;
+    if (!splashReady) return;
     try {
       SplashScreen.hideAsync();
     } catch {
       // no-op
     }
-  }, [coreReady]);
-
-  // Keep pre-ready state visually blank so users perceive one branded splash.
-  const gapColor = '#d9d7d2';
+  }, [splashReady]);
 
   const navTheme = useMemo(() => ({
     dark: isDark,
@@ -162,12 +159,19 @@ export function RootLayout() {
   }), [isDark, finalBgColor]);
 
   if (!coreReady) {
-    return <View style={{ flex: 1, backgroundColor: gapColor }} />;
+    return <View style={{ flex: 1, backgroundColor: finalBgColor }} />;
   }
 
   return (
     <ThemeProvider value={navTheme}>
-      <View style={{ flex: 1, backgroundColor: finalBgColor }}>
+      <View
+        style={{ flex: 1, backgroundColor: finalBgColor }}
+        onLayout={() => {
+          if (!rootLayoutMeasured) {
+            setRootLayoutMeasured(true);
+          }
+        }}
+      >
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
         <LockScreen />
       </View>

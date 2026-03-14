@@ -13,23 +13,50 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.8",
+        date: "2026-03-14",
+        changes: {
+            en: [
+                "Refined the fixed home title lockup for Saral लेखन.",
+                "Stabilized editor image loading by embedding picked images for reliable reloads.",
+                "Improved editor toolbar spacing and checklist styling for smoother writing.",
+                "Adjusted Android splash handoff to remove the duplicated branded splash and blank gap.",
+                "Retuned font normalization and cleaned the Biometric Vault card styling in Settings."
+            ],
+            hi: [
+                "Saral लेखन होम टाइटल लॉकअप को और बेहतर किया गया।",
+                "एडिटर में चुनी गई इमेज को एम्बेड करके लोडिंग को अधिक भरोसेमंद बनाया गया।",
+                "एडिटर टूलबार स्पेसिंग और चेकलिस्ट स्टाइलिंग को स्मूद लेखन के लिए सुधारा गया।",
+                "Android splash handoff को समायोजित करके डुप्लीकेट branded splash और blank gap हटाया गया।",
+                "फ़ॉन्ट normalization को बेहतर किया गया और Settings में Biometric Vault कार्ड को साफ़ किया गया।"
+            ],
+            mr: [
+                "Saral लेखन होम टायटल लॉकअप अधिक नीट केला.",
+                "एडिटरमध्ये निवडलेल्या प्रतिमा एम्बेड करून इमेज लोडिंग अधिक विश्वासार्ह केले.",
+                "स्मूथ लेखनासाठी एडिटर टूलबार स्पेसिंग आणि चेकलिस्ट स्टायलिंग सुधारले.",
+                "Android splash handoff समायोजित करून डुप्लिकेट branded splash आणि blank gap काढला.",
+                "फॉन्ट normalization सुधारले आणि Settings मधील Biometric Vault कार्ड अधिक स्वच्छ केले."
+            ]
+        }
+    },
+    {
         version: "2.16.7",
         date: "2026-03-13",
         changes: {
             en: [
-                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
-                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
-                "Minor launch UX refinement release."
+                "Attempted Android splash continuity refinement before the final correction in 2.16.8.",
+                "Kept the crash-safe AppTheme handoff required for this Expo 49 Android startup path.",
+                "Intermediate launch UX refinement release."
             ],
             hi: [
-                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
-                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
-                "Minor launch UX refinement release."
+                "2.16.8 की अंतिम correction से पहले Android splash continuity को refine करने का प्रयास किया गया।",
+                "Expo 49 Android startup path के लिए आवश्यक crash-safe AppTheme handoff को बनाए रखा गया।",
+                "मध्यवर्ती launch UX refinement release।"
             ],
             mr: [
-                "Startup polish: fixed dual-splash feel by keeping branded splash continuity during AppTheme handoff.",
-                "Android theme update: AppTheme now uses branded splash drawable as launch window background.",
-                "Minor launch UX refinement release."
+                "2.16.8 मधील अंतिम correctionपूर्वी Android splash continuity refine करण्याचा प्रयत्न केला.",
+                "या Expo 49 Android startup path साठी आवश्यक crash-safe AppTheme handoff कायम ठेवला.",
+                "मधला launch UX refinement release."
             ]
         }
     },

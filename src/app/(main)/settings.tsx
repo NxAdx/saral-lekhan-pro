@@ -287,6 +287,13 @@ export default function SettingsScreen() {
             overflow: 'hidden',
             marginBottom: 16,
         },
+        singleRowCard: {
+            backgroundColor: colors.bgRaised,
+            borderRadius: theme.radius.lg,
+            borderWidth: 1,
+            borderColor: colors.strokeDim,
+            marginBottom: 16,
+        },
         listItem: {
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -609,8 +616,8 @@ export default function SettingsScreen() {
 
                 {/* SECURITY & PRIVACY */}
                 <Text style={s.sectionTitle}>Security & Privacy</Text>
-                <View style={s.listBlock}>
-                    <View style={s.listItem}>
+                <View style={s.singleRowCard}>
+                    <View style={[s.listItem, s.listItemNoBorder]}>
                         <View style={s.listContent}>
                             <Text style={s.listLabel}>{loc.plusFeatures.biometricTitle}</Text>
                             <Text style={s.listSub}>

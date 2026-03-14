@@ -48,9 +48,10 @@ This handover captures the focused UX pass completed on 2026-03-12:
    - `android/app/build.gradle` -> `implementation("androidx.core:core-splashscreen:1.0.1")`
 5. Kept JS pre-ready fallback plain (non-branded):
    - `src/app/_layout.tsx`
-6. Launch continuity refinement (v2.16.7):
-   - `AppTheme` now uses `@drawable/splashscreen` for `android:windowBackground`.
-   - `drawable/splashscreen.xml` now includes centered `splashscreen_image` to reduce perceived dual-splash transition.
+6. Launch continuity correction (v2.16.8):
+   - `AppTheme` now uses plain `@color/splashscreen_background` for `android:windowBackground`.
+   - `_layout.tsx` now hides splash only after startup is ready and the first root layout is measured.
+   - This avoids the extra branded splash phase and the blank `#d9d7d2` handoff gap seen in `v2.16.7`.
 
 ### E) CI runtime modernization (Node 24 readiness)
 1. Updated GitHub Actions majors in both workflows:

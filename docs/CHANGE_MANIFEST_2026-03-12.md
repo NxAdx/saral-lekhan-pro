@@ -116,3 +116,21 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `package.json` -> `2.16.7`
    - `app.json` -> `2.16.7`, `versionCode 60`
    - `android/app/build.gradle` -> `versionName 2.16.7`, `versionCode 60`
+
+## Launch and Editor Stabilization (2026-03-14, v2.16.8)
+1. User-facing regressions addressed:
+   - fixed duplicated home title styling for `Saral लेखन`
+   - reduced editor toolbar friction and improved checklist spacing
+   - normalized editor-picked images so local URIs do not break after reload
+   - corrected Android splash handoff to remove the extra branded phase and blank gap
+   - cleaned the Settings `Biometric Vault` card geometry
+2. Native/runtime splash corrections:
+   - `AppTheme android:windowBackground` reverted to plain `@color/splashscreen_background`
+   - `_layout.tsx` now hides splash only after startup is ready and the first root layout is measured
+3. Typography corrections:
+   - rebalanced supported font scaling
+   - forced Devanagari-safe fallback for `Noto Sans` in Hindi/Marathi contexts
+4. Release metadata sync:
+   - `package.json` -> `2.16.8`
+   - `app.json` -> `2.16.8`, `versionCode 61`
+   - `android/app/build.gradle` -> `versionName 2.16.8`, `versionCode 61`

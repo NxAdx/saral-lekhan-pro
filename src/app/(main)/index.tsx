@@ -19,7 +19,8 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
-const HOME_BRAND_TITLE = 'Saral लेखन';
+const HOME_BRAND_EN = 'Saral';
+const HOME_BRAND_HI = 'लेखन';
 
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
@@ -198,20 +199,40 @@ export default function HomeScreen() {
     headerLeft: {
       flex: 1,
     },
-    appName: {
-      ...type.headlineLarge,
-      fontFamily: 'Hind-Bold',
+    appNameRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+    },
+    appNameLatin: {
       color: colors.ink,
-      fontSize: 28,
+      fontFamily: 'Poppins-Bold',
+      fontSize: 29,
       lineHeight: 34,
+      letterSpacing: -0.5,
+      includeFontPadding: false,
+    },
+    appNameHindi: {
+      color: colors.ink,
+      fontFamily: 'Hind-Bold',
+      fontSize: 31,
+      lineHeight: 34,
+      marginLeft: 6,
+      includeFontPadding: false,
     },
     appSub: {
       ...type.labelMedium,
-      fontFamily: font.sansMed,
+      fontFamily: 'Poppins-Medium',
       color: colors.inkDim,
-      letterSpacing: 1.2,
+      letterSpacing: 1.6,
       textTransform: 'uppercase',
-      marginTop: 2,
+      marginTop: 6,
+    },
+    selectionTitle: {
+      ...type.headlineLarge,
+      fontFamily: 'Poppins-Bold',
+      color: colors.ink,
+      fontSize: 24,
+      lineHeight: 30,
     },
     chip: {
       paddingHorizontal: 16,
@@ -251,7 +272,7 @@ export default function HomeScreen() {
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     fabWrap: { position: 'absolute', bottom: 32, right: 28 },
     circleBtn: {
-      width: 42, height: 42, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
+      width: 44, height: 44, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
       backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
       ...shadow.gentle, shadowColor: colors.shadow
     },
@@ -268,7 +289,7 @@ export default function HomeScreen() {
                 <Path d="M10 10l4 4m0 -4l-4 4" />
               </Svg>
             </Pressable>
-            <Text style={[s.appName, { fontSize: 24 }]}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
+            <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
             <View style={{ flex: 1 }} />
             <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
               <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -290,7 +311,10 @@ export default function HomeScreen() {
         ) : (
           <>
             <View style={s.headerLeft}>
-              <Text style={s.appName}>{HOME_BRAND_TITLE}</Text>
+              <View style={s.appNameRow}>
+                <Text style={s.appNameLatin}>{HOME_BRAND_EN}</Text>
+                <Text style={s.appNameHindi}>{HOME_BRAND_HI}</Text>
+              </View>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>
