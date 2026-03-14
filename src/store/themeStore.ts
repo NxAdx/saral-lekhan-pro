@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { shallow } from 'zustand/shallow';
 import { sharedTokens, themes } from '../tokens';
-import { useSettingsStore, AppFontType } from './settingsStore';
+import { useSettingsStore, AppFontType, normalizeAppFont } from './settingsStore';
 import { FONT_SCALES, resolveEffectiveAppFont } from '../constants/fontConfig';
 
 type ThemeValue = {
@@ -47,20 +47,6 @@ const getFontSet = (type: AppFontType) => {
                 sansSemi: 'Baloo2-SemiBold',
                 sansBold: 'Baloo2-Bold',
             };
-        case 'yantramanav':
-            return {
-                sans: 'Yantramanav',
-                sansMed: 'Yantramanav-Medium',
-                sansSemi: 'Yantramanav-Medium',
-                sansBold: 'Yantramanav-Bold',
-            };
-        case 'tiro':
-            return {
-                sans: 'TiroDevanagari',
-                sansMed: 'TiroDevanagari',
-                sansSemi: 'TiroDevanagari',
-                sansBold: 'TiroDevanagari',
-            };
         case 'hind':
         default:
             return {
@@ -96,17 +82,18 @@ export const useTheme = () => {
         return { ...(isDark ? themeEntry.dark : themeEntry.light) };
     }, [themeId, isDark]);
 
-    const effectiveFont = resolveEffectiveAppFont(appFont, language);
+    const normalizedFont = normalizeAppFont(appFont);
+    const effectiveFont = resolveEffectiveAppFont(normalizedFont, language);
     const activeFontSet = useMemo(() => getFontSet(effectiveFont), [effectiveFont]);
-    const fontScale = FONT_SCALES[appFont] || 1.0;
+    const fontScale = FONT_SCALES[effectiveFont] || 1.0;
 
     const customFont = useMemo(() => ({
         ...activeFontSet,
-        display: 'VesperLibre-Black',
-        mono: 'DMMono-Regular',
-        // Marathi and Devanagari-oriented layouts remain stable with these families.
-        branding: appFont === 'tiro' || appFont === 'notoSans' ? activeFontSet.sansBold : 'Hind-Bold',
-    }), [activeFontSet, appFont]);
+        // Keep legacy token names but map them to the active UI family.
+        display: activeFontSet.sansBold,
+        mono: activeFontSet.sansMed,
+        branding: 'Hind-Bold',
+    }), [activeFontSet]);
 
     return useMemo<ThemeValue>(() => ({
         colors,

@@ -29,12 +29,6 @@ import {
   Baloo2_600SemiBold,
   Baloo2_700Bold,
 } from '@expo-google-fonts/baloo-2';
-import {
-  Yantramanav_400Regular,
-  Yantramanav_500Medium,
-  Yantramanav_700Bold,
-} from '@expo-google-fonts/yantramanav';
-import { TiroDevanagariHindi_400Regular } from '@expo-google-fonts/tiro-devanagari-hindi';
 
 import { useAiStore } from '../store/aiStore';
 import { useNotesStore } from '../store/notesStore';
@@ -81,10 +75,6 @@ export function RootLayout() {
     'Baloo2-Medium': Baloo2_500Medium,
     'Baloo2-SemiBold': Baloo2_600SemiBold,
     'Baloo2-Bold': Baloo2_700Bold,
-    Yantramanav: Yantramanav_400Regular,
-    'Yantramanav-Medium': Yantramanav_500Medium,
-    'Yantramanav-Bold': Yantramanav_700Bold,
-    TiroDevanagari: TiroDevanagariHindi_400Regular,
   });
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
@@ -106,19 +96,15 @@ export function RootLayout() {
         log.error('DB Init Failed', e as any);
       }
 
-      try {
-        log.info('Init Auth...');
-        await useAuthStore.getState().initialize();
-      } catch (e) {
-        log.error('Auth Init Failed', e as any);
-      }
-
-      try {
-        log.info('Init AI...');
-        await useAiStore.getState().initialize();
-      } catch (e) {
-        log.error('AI Init Failed', e as any);
-      }
+      // Keep non-critical startup work off the first-frame path.
+      setTimeout(() => {
+        useAuthStore.getState().initialize().catch((error) => {
+          log.error('Auth Init Failed', error as any);
+        });
+        useAiStore.getState().initialize().catch((error) => {
+          log.error('AI Init Failed', error as any);
+        });
+      }, 0);
     };
 
     init();

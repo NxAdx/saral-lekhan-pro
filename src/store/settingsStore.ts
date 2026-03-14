@@ -5,7 +5,19 @@ import { ThemeName } from '../tokens';
 
 export type AppLanguage = 'En' | 'Hi' | 'Bn' | 'Te' | 'Mr' | 'Ta';
 export type NightMode = 'system' | 'light' | 'dark';
-export type AppFontType = 'hind' | 'poppins' | 'notoSans' | 'baloo2' | 'yantramanav' | 'tiro';
+export type AppFontType = 'hind' | 'poppins' | 'notoSans' | 'baloo2';
+
+export function normalizeAppFont(font: string | undefined | null): AppFontType {
+    switch (font) {
+        case 'poppins':
+        case 'notoSans':
+        case 'baloo2':
+        case 'hind':
+            return font;
+        default:
+            return 'hind';
+    }
+}
 
 interface SettingsState {
     language: AppLanguage;
@@ -30,7 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
             nightMode: 'system',
             themeId: 'classic',
             fontSize: 1.0,
-            appFont: 'poppins',
+            appFont: 'hind',
             autoSave: true,
 
             setLanguage: (l) => set({ language: l }),
@@ -41,12 +53,20 @@ export const useSettingsStore = create<SettingsState>()(
                 set({ themeId: newTheme as ThemeName });
             },
             setFontSize: (s) => set({ fontSize: s }),
-            setAppFont: (f) => set({ appFont: f }),
+            setAppFont: (f) => set({ appFont: normalizeAppFont(f) }),
             setAutoSave: (b) => set({ autoSave: b }),
         }),
         {
             name: 'saral-lekhan-settings-storage',
             storage: createJSONStorage(() => AsyncStorage),
+            merge: (persistedState, currentState) => {
+                const typedState = (persistedState as Partial<SettingsState>) || {};
+                return {
+                    ...currentState,
+                    ...typedState,
+                    appFont: normalizeAppFont(typedState.appFont),
+                };
+            },
         }
     )
 );

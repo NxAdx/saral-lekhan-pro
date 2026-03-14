@@ -334,6 +334,7 @@ export default function NewNoteScreen() {
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
                   ul, ol { padding-left: 20px; font-size: 1em !important; }
                   li { font-size: 1em !important; }
+                  .x-todo-box { margin-right: 8px; }
                 `
               }}
               onChange={(html) => {
@@ -388,6 +389,7 @@ export default function NewNoteScreen() {
             actions.heading1,
             actions.heading2,
             actions.insertBulletsList,
+            actions.checkboxList,
             actions.insertOrderedList,
             actions.blockquote,
             actions.insertLink,
@@ -409,6 +411,12 @@ export default function NewNoteScreen() {
                 <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <Circle cx="8.5" cy="8.5" r="1.5" />
                 <Path d="M21 15l-5-5L5 21" />
+              </Svg>
+            ),
+            [actions.checkboxList]: ({ tintColor }: any) => (
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Rect x="4" y="4" width="16" height="16" rx="3" />
+                <Path d="M8 12l3 3l5 -6" />
               </Svg>
             ),
             'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,

@@ -19,6 +19,8 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
+const HOME_BRAND_TITLE = 'Saral लेखन';
+
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
   const now = new Date();
@@ -42,6 +44,7 @@ export default function HomeScreen() {
 
   const [selectedTag, setSelectedTag] = useState<string>(ALL_TAG_ID);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
@@ -77,16 +80,31 @@ export default function HomeScreen() {
 
   const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim().toLowerCase());
+    }, 120);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const searchIndex = useMemo(() => {
+    return notes.map((note) => ({
+      note,
+      haystack: [
+        note.title,
+        stripMarkdown(note.body),
+        note.tag || '',
+      ].join(' ').toLowerCase(),
+    }));
+  }, [notes]);
+
   const filteredNotes = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = debouncedSearchQuery;
     if (!q) return notes;
-    return notes.filter(
-      (n) =>
-        n.title.toLowerCase().includes(q) ||
-        stripMarkdown(n.body).toLowerCase().includes(q) ||
-        (n.tag || '').toLowerCase().includes(q)
-    );
-  }, [notes, searchQuery]);
+    return searchIndex
+      .filter(({ haystack }) => haystack.includes(q))
+      .map(({ note }) => note);
+  }, [notes, searchIndex, debouncedSearchQuery]);
 
   const toggleSelection = useCallback((id: number) => {
     setSelectedIds(prev => {
@@ -182,17 +200,18 @@ export default function HomeScreen() {
     },
     appName: {
       ...type.headlineLarge,
-      fontFamily: font.sansBold, // Reverted to sansBold as per older UI
+      fontFamily: 'Hind-Bold',
       color: colors.ink,
-      fontSize: 26, // Reduced to force one line and match smaller look
+      fontSize: 28,
+      lineHeight: 34,
     },
     appSub: {
       ...type.labelMedium,
-      fontFamily: font.mono, // Spaced mono look
+      fontFamily: font.sansMed,
       color: colors.inkDim,
-      letterSpacing: 2.5,
+      letterSpacing: 1.2,
       textTransform: 'uppercase',
-      marginTop: -2,
+      marginTop: 2,
     },
     chip: {
       paddingHorizontal: 16,
@@ -271,7 +290,7 @@ export default function HomeScreen() {
         ) : (
           <>
             <View style={s.headerLeft}>
-              <Text style={s.appName}>{loc.appName}</Text>
+              <Text style={s.appName}>{HOME_BRAND_TITLE}</Text>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>

@@ -5,6 +5,8 @@ import Constants from 'expo-constants';
 const { UpdaterModule } = NativeModules;
 
 export const APP_VERSION = (Constants.expoConfig?.version || '0.0.0').replace(/^v/, '');
+export const DISTRIBUTION_CHANNEL = String(Constants.expoConfig?.extra?.distributionChannel || 'direct');
+export const UPDATER_MODE = String(Constants.expoConfig?.extra?.updaterMode || 'github');
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
 
@@ -33,6 +35,7 @@ export interface UpdateInfo {
  * Checks the public GitHub repository for the latest release.
  */
 export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
+    if (UPDATER_MODE !== 'github') return null;
     try {
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }
@@ -92,6 +95,7 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
  */
 export async function checkInstallPermission(): Promise<boolean> {
     if (Platform.OS !== 'android') return true;
+    if (UPDATER_MODE !== 'github') return false;
     try {
         return await UpdaterModule.canInstallPackages();
     } catch {
@@ -104,6 +108,7 @@ export async function checkInstallPermission(): Promise<boolean> {
  */
 export async function requestInstallPermission(): Promise<void> {
     if (Platform.OS !== 'android') return;
+    if (UPDATER_MODE !== 'github') return;
     try {
         await UpdaterModule.openInstallPermissionSettings();
     } catch (e) {
@@ -121,6 +126,7 @@ export async function downloadAndInstallApk(
     onProgress?: (progress: number) => void
 ): Promise<boolean> {
     if (Platform.OS !== 'android') return false;
+    if (UPDATER_MODE !== 'github') return false;
 
     // Check permission first
     const hasPermission = await checkInstallPermission();

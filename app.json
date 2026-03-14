@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "saral-lekhan",
+    "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
     "version": "2.16.7",
@@ -49,6 +49,8 @@
     },
     "extra": {
       "runtimeFlagsUrl": "https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json",
+      "distributionChannel": "direct",
+      "updaterMode": "github",
       "eas": {
         "projectId": "d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
       }

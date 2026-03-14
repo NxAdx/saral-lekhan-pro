@@ -41,12 +41,10 @@ const PREMIUM_THEMES: { id: ThemeName; label: string }[] = [
 ];
 
 const FONT_OPTIONS: { id: AppFontType; label: string }[] = [
+    { id: 'hind', label: 'Hind' },
     { id: 'poppins', label: 'Poppins' },
     { id: 'notoSans', label: 'Noto Sans' },
     { id: 'baloo2', label: 'Baloo 2' },
-    { id: 'yantramanav', label: 'Yantramanav' },
-    { id: 'tiro', label: 'Tiro Devanagari' },
-    { id: 'hind', label: 'Hind (Original)' },
 ];
 
 const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
@@ -747,10 +745,10 @@ export default function SettingsScreen() {
                 {/* About Developer Section */}
                 <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>
                     <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>
-                        {loc.settingsScreen.aboutDeveloper}
+                        Designed by
                     </Text>
                     <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.accent, marginTop: 4 }}>
-                        {loc.settingsScreen.developerNames}
+                        Aadarsh Lokhande
                     </Text>
                     <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
                         {`SARAL LEKHAN PLUS ENGINE v${APP_VERSION}`}

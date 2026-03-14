@@ -307,9 +307,10 @@ export default function EditNoteScreen() {
     }
   };
 
-  const handleExportPDF = useCallback(async () => {
+  const handlePrint = useCallback(async () => {
     try {
       if (!note) return;
+      setShowExportModal(false);
       const htmlContent = `
         <html>
           <head>
@@ -330,16 +331,7 @@ export default function EditNoteScreen() {
           </body>
         </html>
       `;
-      // By supplying the filename, some OS share dialogs will use it
-      const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false });
-
-      // Create a friendly name
-      const safeTitle = (note.title || 'Untitled_Note').replace(/[^a-zA-Z0-9 -]/g, '').trim().replace(/ /g, '_');
-      const newUri = `${FileSystem.cacheDirectory}${safeTitle}.pdf`;
-      await FileSystem.copyAsync({ from: uri, to: newUri });
-
-      // Provide an explicit UTI and title for the Share dialog
-      await Sharing.shareAsync(newUri, { UTI: '.pdf', mimeType: 'application/pdf', dialogTitle: safeTitle });
+      await Print.printAsync({ html: htmlContent });
     } catch (e) {
       console.warn(e);
     }
@@ -579,13 +571,14 @@ export default function EditNoteScreen() {
                     placeholderColor: colors.inkDim,
                     cssText: `
                   body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.6; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
-                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
-                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
-                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                  ul, ol { padding-left: 20px; font-size: 1em !important; }
-                  li { font-size: 1em !important; }
-                  img { max-width: 100%; height: auto; border-radius: 12px; margin: 10px 0; }
-                `
+                    h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
+                    h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
+                    blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
+                    ul, ol { padding-left: 20px; font-size: 1em !important; }
+                    li { font-size: 1em !important; }
+                    .x-todo-box { margin-right: 8px; }
+                    img { max-width: 100%; height: auto; border-radius: 12px; margin: 10px 0; }
+                  `
                   }}
                   onChange={(html) => {
                     if (!isMounted.current) return;
@@ -637,6 +630,7 @@ export default function EditNoteScreen() {
               actions.heading1,
               actions.heading2,
               actions.insertBulletsList,
+              actions.checkboxList,
               actions.insertOrderedList,
               actions.blockquote,
               actions.insertLink,
@@ -659,6 +653,12 @@ export default function EditNoteScreen() {
                   <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                   <Circle cx="8.5" cy="8.5" r="1.5" />
                   <Path d="M21 15l-5-5L5 21" />
+                </Svg>
+              ),
+              [actions.checkboxList]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="4" y="4" width="16" height="16" rx="3" />
+                  <Path d="M8 12l3 3l5 -6" />
                 </Svg>
               ),
               'findReplace': ({ tintColor }: any) => (
@@ -733,16 +733,17 @@ export default function EditNoteScreen() {
         onClose={() => setShowExportModal(false)}
         actions={[
           {
-            label: loc.exportPdf,
+            label: (loc as any).print || "Print",
             style: 'default',
             icon: (
               <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <Path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                <Path d="M9 15l2 2l4 -4" />
+                <Path d="M7 8V4h10v4" />
+                <Path d="M7 16h10v4H7z" />
+                <Path d="M6 12h.01" />
+                <Path d="M6 16H5a2 2 0 0 1 -2 -2v-2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-1" />
               </Svg>
             ),
-            onPress: handleExportPDF
+            onPress: handlePrint
           },
           {
             label: loc.exportMd || "Save as MD",
