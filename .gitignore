@@ -29,7 +29,6 @@ local.properties
 ios/build/
 ios/Pods/
 ios/.symlinks/
-ios/build/
 
 # IDE & Config
 .vscode/
@@ -50,6 +49,9 @@ ss/
 .env*
 security/
 
-# Keep markdown docs versioned, ignore heavy source/prototype assets in docs
-docs/*.html
-docs/*.docx
+# Privacy & Research
+docs/
+brain/
+*.md
+!README.md
+!CHANGELOG.md
