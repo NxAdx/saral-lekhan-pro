@@ -20,7 +20,7 @@ import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
 const HOME_BRAND_EN = 'Saral';
-const HOME_BRAND_HI = '\u0932\u0947\u0916\u0928';
+const HOME_BRAND_HI = 'Lekhan';
 
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
@@ -202,10 +202,10 @@ export default function HomeScreen() {
     },
     appNameHindi: {
       color: colors.ink,
-      fontFamily: 'Hind-Bold',
+      fontFamily: 'Poppins-Bold',
       fontSize: 34,
       lineHeight: 44,
-      letterSpacing: 0,
+      letterSpacing: -0.8,
       includeFontPadding: false,
     },
     appSub: {

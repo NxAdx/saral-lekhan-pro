@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.2",
+        date: "2026-03-15",
+        title: {
+            en: "Extreme Splash Removal & Brand Revert",
+            hi: "एक्सट्रीम स्प्लैश रिमूवल और ब्रांड रिवर्ट",
+        },
+        changes: {
+            en: [
+                "Implemented 'Invisible Splash' strategy to bypass mandatory Android 12 splash screen.",
+                "Reverted Home branding back to 'Saral Lekhan' using Poppins typography for stability.",
+                "Optimized startup sequence to hide native splash immediately on mount.",
+                "Fixed CI/CD build warnings and upgraded GitHub Actions to v4."
+            ],
+            hi: [
+                "अनिवार्य 'Android 12' स्प्लैश स्क्रीन को बायपास करने के लिए 'इनविजिबल स्प्लैश' रणनीति लागू की गई।",
+                "स्थिरता के लिए पॉपिन्स टाइपोग्राफी का उपयोग करके होम ब्रांडिंग को वापस 'Saral Lekhan' में बदल दिया गया।",
+                "माउंट होने पर नेटिव स्प्लैश को तुरंत छिपाने के लिए स्टार्टअप सीक्वेंस को अनुकूलित किया गया।",
+                "CI/CD बिल्ड चेतावनियों को ठीक किया गया और GitHub Actions को v4 पर अपग्रेड किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.1",
         date: "2026-03-15",
         title: {

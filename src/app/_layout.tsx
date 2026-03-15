@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react-native';
 import { Stack, useRootNavigationState } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
+import * as SplashScreen from 'expo-splash-screen'; // Re-added
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
@@ -35,6 +36,9 @@ import { useNotesStore } from '../store/notesStore';
 import { useRuntimeUxFlagsStore } from '../store/runtimeUxFlagsStore';
 import { log } from '../utils/Logger';
 import { shallow } from 'zustand/shallow';
+
+// Direct Splash Authority: Prevent it from showing altogether if possible, or hide immediately.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 try {
   Sentry.init({
@@ -77,6 +81,10 @@ export function RootLayout() {
   const coreReady = (fontsLoaded || fontError || isStartupTimeout) && (isLoaded || isStartupTimeout);
 
   useEffect(() => {
+    // Hide splash screen immediately on first component mount.
+    // In SDK 49, this is the most reliable way to "skip" the splash.
+    SplashScreen.hideAsync().catch(() => {});
+
     const init = async () => {
       log.info('RootLayout: Starting atomic initialization.');
       useRuntimeUxFlagsStore.getState().loadFlags().catch(() => {});
@@ -129,7 +137,8 @@ export function RootLayout() {
     },
   }), [isDark, finalBgColor]);
 
-  // Direct Launch: No SplashScreen logic, no Animated overlay.
+  // Direct Launch: No custom Animated overlays. 
+  // The native splash is hidden in useEffect[0] above.
   return (
     <ThemeProvider value={navTheme}>
       <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
