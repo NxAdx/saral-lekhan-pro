@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { AppState, useColorScheme, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
-import { Stack, SplashScreen } from 'expo-router';
+import { Stack, SplashScreen, useRootNavigationState } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
 import { LockScreen } from '../components/ui/LockScreen';
@@ -55,6 +55,7 @@ export function RootLayout() {
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
   const hasHiddenSplash = useRef(false);
+  const rootNavigationState = useRootNavigationState();
 
   const [fontsLoaded, fontError] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
@@ -139,6 +140,21 @@ export function RootLayout() {
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
   }, [finalBgColor, isDark, themeId, coreReady]);
 
+  useEffect(() => {
+    if (!coreReady || !rootNavigationState?.key || hasHiddenSplash.current) return;
+    hasHiddenSplash.current = true;
+
+    const frame = requestAnimationFrame(() => {
+      try {
+        SplashScreen.hideAsync();
+      } catch {
+        // no-op
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [coreReady, rootNavigationState?.key]);
+
   const navTheme = useMemo(() => ({
     dark: isDark,
     colors: {
@@ -153,22 +169,7 @@ export function RootLayout() {
 
   return (
     <ThemeProvider value={navTheme}>
-      <View
-        style={{ flex: 1, backgroundColor: finalBgColor }}
-        onLayout={() => {
-          if (hasHiddenSplash.current) return;
-          hasHiddenSplash.current = true;
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              try {
-                SplashScreen.hideAsync();
-              } catch {
-                // no-op
-              }
-            });
-          });
-        }}
-      >
+      <View style={{ flex: 1, backgroundColor: finalBgColor }}>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
         <LockScreen />
       </View>

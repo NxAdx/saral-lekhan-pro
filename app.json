@@ -3,7 +3,7 @@
     "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.16.10",
+    "version": "2.16.11",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 63,
+      "versionCode": 64,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
       ],
@@ -59,6 +59,8 @@
       "url": "https://u.expo.dev/d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
     },
     "plugins": [
+      "expo-router",
+      "expo-splash-screen",
       "@react-native-google-signin/google-signin"
     ]
   }

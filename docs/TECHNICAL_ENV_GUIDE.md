@@ -36,14 +36,14 @@ This document provides technical context for developers and AI agents working on
 
 ## Android Splash Baseline (Single Splash)
 - Launch activity theme must be `Theme.App.SplashScreen`.
-- On the current stable Expo SDK 49 baseline, `Theme.App.SplashScreen` should remain the Expo-style AppCompat splash theme using:
+- On the current stable Expo SDK 49 baseline, `Theme.App.SplashScreen` should inherit `AppTheme` and override:
   - `android:windowBackground="@drawable/splashscreen"`
 - Do not combine `Theme.SplashScreen` plus Expo's own splash overlay on this project; that produces a visible double-splash stack.
 - `MainActivity` should use plain `super.onCreate(null)` for the stable splash path.
-- `AppTheme` `android:windowBackground` should stay plain (`@color/splashscreen_background`) so any unavoidable handoff frame is neutral rather than a second branded splash.
+- `AppTheme` should not keep the splash background on `android:windowBackground`; otherwise Android can fall through to a plain `#d9d7d2` frame after splash hide.
 - Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
 - Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
-- `_layout.tsx` must not render a plain JS fallback screen before startup is ready; return `null` and hide the splash only from the first real root layout, ideally after the first settled paint tick.
+- `_layout.tsx` must not render a plain JS fallback screen before startup is ready; return `null` and hide the splash only after startup and root navigation state are both ready.
 
 ## Runtime UX Flags (Rollback Support)
 - Store: `src/store/runtimeUxFlagsStore.ts`
@@ -83,13 +83,14 @@ This document provides technical context for developers and AI agents working on
   - shared typography tokens from `useTypography()`
 - Avoid raw `settings.fontSize` for editor body text or reusable pills, because it bypasses family-specific scale compensation.
 - Keep the home brand lockup `Saral लेखन` on fixed brand fonts/metrics instead of tying it to user-selected app fonts.
+- Keep `Saral` on `Poppins-Bold` and `लेखन` on `Hind-Bold`; do not move the whole wordmark onto a single shared family.
 
 ## Editor Toolbar Rules
 - `react-native-pell-rich-editor` `RichToolbar` defaults to a 44dp container.
-- If custom selected-state pills are clipped on Android:
-  1. raise the toolbar container height above 44dp
-  2. add explicit vertical padding to the FlatList container
-  3. keep custom toolbar item height below the total container height
+- For this app, keep the toolbar visually compact and prefer:
+  1. 44dp overall toolbar height
+  2. slimmer selected-state underline or accent edge treatment
+  3. smaller item height inside the default container instead of growing the whole bar upward
 
 ## Release/Updater Rules
 - The direct updater checks GitHub Releases, not GitHub Actions artifacts.

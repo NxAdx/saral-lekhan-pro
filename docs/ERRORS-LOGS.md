@@ -492,3 +492,21 @@ Notes
   3. Delayed splash hide until after the first settled root layout paint in `_layout.tsx`.
   4. Raised toolbar height, added vertical padding, and gave selected toolbar buttons explicit pill radius.
   5. Retuned the `Saral लेखन` home wordmark metrics and added divider/code tools as the next safe editor feature tranche.
+
+47) Residual blank handoff frame, brand-word clipping, and oversized editor toolbar after `v2.16.10` (resolved 2026-03-15 in `v2.16.11`)
+- Symptom:
+  1. Some devices still showed a second splash perception and a plain `#d9d7d2` handoff frame.
+  2. The `Saral ????` title still rendered awkwardly on device, especially the Hindi half.
+  3. The editor toolbar stopped clipping, but only by growing upward too much.
+  4. Code blocks worked technically but did not read as intentional writing blocks.
+- Cause:
+  1. `Theme.App.SplashScreen` no longer used Android 12 splash attrs, but it still did not match Expo's actual generated SDK 49 baseline.
+  2. `AppTheme` still owned the splash background color, so the activity could fall through to a plain splash-colored frame.
+  3. The brand lockup still used separate brittle metrics for Latin/Hindi halves.
+  4. The toolbar fix relied on extra container height rather than a slimmer active-state treatment.
+- Resolution:
+  1. Changed `Theme.App.SplashScreen` to inherit `AppTheme` and removed the splash-colored `windowBackground` from `AppTheme`.
+  2. Hid splash only after startup and root navigation state were both ready.
+  3. Restored the `Saral` wordmark to `Poppins-Bold`, kept `????` on `Hind-Bold`, and rendered them as one nested title.
+  4. Returned the toolbar to a compact 44dp bar with an underline-style active state.
+  5. Upgraded code block styling with a clear `CODE` label and stronger block treatment.

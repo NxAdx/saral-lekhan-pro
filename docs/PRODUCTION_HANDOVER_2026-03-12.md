@@ -137,3 +137,18 @@ Before making further release-facing changes:
    - fixed active toolbar chip clipping by raising toolbar metrics
 4. Editor feature increment
    - added divider and code block tools as the next safe writing features
+
+## 9) Follow-Up Stabilization (`v2.16.11`, 2026-03-15)
+1. Splash ownership correction
+   - matched Expo's generated SDK 49 splash theme pattern by making `Theme.App.SplashScreen` inherit `AppTheme`
+   - removed the splash background from `AppTheme` so Android cannot fall through to a plain `#d9d7d2` frame
+   - hid splash only after startup and root navigation state were both ready
+2. Home header polish
+   - kept the Latin half on `Poppins-Bold`
+   - kept the Hindi half on `Hind-Bold`
+   - rendered `Saral ????` as a nested wordmark instead of two brittle sibling text nodes
+3. Editor toolbar polish
+   - returned to a compact 44dp toolbar
+   - replaced filled selected pills with an underline-style active state
+4. Code block UX
+   - upgraded `pre` styling with a `CODE` label, accent rail, and clearer monospace surface

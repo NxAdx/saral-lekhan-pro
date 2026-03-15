@@ -201,25 +201,23 @@ export default function HomeScreen() {
     },
     appNameRow: {
       flexDirection: 'row',
-      alignItems: 'baseline',
+      alignItems: 'flex-end',
     },
-    appNameLatin: {
+    appNameWordmark: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 31,
-      lineHeight: 38,
-      letterSpacing: -1.1,
+      fontSize: 30,
+      lineHeight: 40,
+      letterSpacing: -0.8,
       includeFontPadding: false,
     },
     appNameHindi: {
       color: colors.ink,
-      fontFamily: font.branding,
-      fontSize: 34,
-      lineHeight: 38,
-      marginLeft: 8,
+      fontFamily: 'Hind-Bold',
+      fontSize: 32,
+      lineHeight: 42,
       letterSpacing: 0,
-      transform: [{ translateY: 1 }],
-      includeFontPadding: false,
+      includeFontPadding: true,
     },
     appSub: {
       ...type.labelMedium,
@@ -314,8 +312,10 @@ export default function HomeScreen() {
           <>
             <View style={s.headerLeft}>
               <View style={s.appNameRow}>
-                <Text style={s.appNameLatin}>{HOME_BRAND_EN}</Text>
-                <Text style={s.appNameHindi}>{HOME_BRAND_HI}</Text>
+                <Text style={s.appNameWordmark}>
+                  {HOME_BRAND_EN}{' '}
+                  <Text style={s.appNameHindi}>{HOME_BRAND_HI}</Text>
+                </Text>
               </View>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
@@ -366,7 +366,7 @@ export default function HomeScreen() {
         />
         {searchQuery.length > 0 && (
           <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
-            <Text style={s.clearBtn}>✕</Text>
+            <Text style={s.clearBtn}>{'\u2715'}</Text>
           </Pressable>
         )}
       </View>

@@ -49,7 +49,10 @@ This note records the open-source reference apps reviewed for Saral Lekhan stabi
 
 ## Decisions for Saral Lekhan
 - Keep Expo SDK 49 splash path stable for now, but follow Mihon's principle of native-first splash ownership.
-- On this Expo 49 baseline, that means avoiding a second Android 12 `Theme.SplashScreen` layer and letting Expo own the single splash surface.
+- On this Expo 49 baseline, that means avoiding a second Android 12 `Theme.SplashScreen` layer and matching Expo's generated plugin path:
+  - `Theme.App.SplashScreen` inherits `AppTheme`
+  - only the splash theme owns `@drawable/splashscreen`
+  - `AppTheme` does not keep the splash color as its own `windowBackground`
 - Keep settings cards visually flatter, following Metrolist's low-elevation grouping.
 - Continue moving small controls and editor text sizing onto shared typography state, following ImageToolbox's centralized settings model.
-- Apply the same consistency mindset to the editor toolbar: stable container metrics first, decorative selected states second.
+- Apply the same consistency mindset to the editor toolbar: stable container metrics first, slim selected-state cues second.

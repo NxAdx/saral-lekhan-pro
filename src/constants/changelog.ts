@@ -13,6 +13,33 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.16.11",
+        date: "2026-03-15",
+        changes: {
+            en: [
+                "Aligned Android splash handling with Expo's generated SDK 49 pattern so the splash theme inherits AppTheme instead of carrying a second handoff background.",
+                "Delayed splash hide until the root navigation state is ready to reduce the extra blank frame after launch.",
+                "Refined the Saral लेखन home wordmark so the Hindi half keeps its proper glyph shape without disturbing the Latin title styling.",
+                "Restored a slimmer editor toolbar highlight so active formatting no longer gets cropped while keeping the bar compact.",
+                "Upgraded code block styling with a clearer CODE label, accent rail, and stronger monospace surface so it reads like an intentional block."
+            ],
+            hi: [
+                "Aligned Android splash handling with Expo's generated SDK 49 pattern so the splash theme inherits AppTheme instead of carrying a second handoff background.",
+                "Delayed splash hide until the root navigation state is ready to reduce the extra blank frame after launch.",
+                "Refined the Saral लेखन home wordmark so the Hindi half keeps its proper glyph shape without disturbing the Latin title styling.",
+                "Restored a slimmer editor toolbar highlight so active formatting no longer gets cropped while keeping the bar compact.",
+                "Upgraded code block styling with a clearer CODE label, accent rail, and stronger monospace surface so it reads like an intentional block."
+            ],
+            mr: [
+                "Aligned Android splash handling with Expo's generated SDK 49 pattern so the splash theme inherits AppTheme instead of carrying a second handoff background.",
+                "Delayed splash hide until the root navigation state is ready to reduce the extra blank frame after launch.",
+                "Refined the Saral लेखन home wordmark so the Hindi half keeps its proper glyph shape without disturbing the Latin title styling.",
+                "Restored a slimmer editor toolbar highlight so active formatting no longer gets cropped while keeping the bar compact.",
+                "Upgraded code block styling with a clearer CODE label, accent rail, and stronger monospace surface so it reads like an intentional block."
+            ]
+        }
+    },
+    {
         version: "2.16.10",
         date: "2026-03-14",
         changes: {

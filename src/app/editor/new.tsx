@@ -314,19 +314,18 @@ export default function NewNoteScreen() {
       borderTopWidth: 1.5,
       borderTopColor: colors.stroke,
       paddingHorizontal: 6,
-      paddingTop: 6,
-      paddingBottom: 8,
-      height: 58,
-      overflow: 'visible',
+      paddingTop: 0,
+      paddingBottom: 4,
+      height: 44,
     },
     toolbarItem: {
-      height: 44,
-      minHeight: 44,
-      borderRadius: 14,
+      height: 36,
+      minHeight: 36,
+      borderRadius: 10,
       alignItems: 'center',
       justifyContent: 'center',
       marginHorizontal: 2,
-      marginVertical: 2,
+      marginVertical: 0,
     },
   }), [colors, font, radius, shadow]);
 
@@ -384,8 +383,10 @@ export default function NewNoteScreen() {
                   h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(40 * theme.fontSize)}px !important; margin-top: 10px; margin-bottom: 10px; }
                   h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(32 * theme.fontSize)}px !important; margin-top: 8px; margin-bottom: 8px; }
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                  pre { background-color: ${colors.bgRaised}; border: 1px solid ${colors.strokeDim}; color: ${colors.ink}; padding: 14px 16px; border-radius: 14px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; line-height: ${Math.round(22 * theme.fontSize)}px; white-space: pre-wrap; }
+                  pre { position: relative; background-color: ${colors.bgRaised}; border: 1px solid ${colors.stroke}; border-left: 4px solid ${colors.accent}; color: ${colors.ink}; padding: 38px 16px 14px; border-radius: 16px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; line-height: ${Math.round(22 * theme.fontSize)}px; white-space: pre-wrap; overflow-x: auto; }
+                  pre::before { content: 'CODE'; position: absolute; top: 10px; left: 12px; color: ${colors.accent}; background-color: ${colors.accent}18; border: 1px solid ${colors.accent}44; border-radius: 999px; padding: 3px 8px; font-family: 'Poppins-SemiBold'; font-size: ${10 * theme.fontSize}px; letter-spacing: 1px; }
                   code { background-color: ${colors.bgRaised}; color: ${colors.ink}; border-radius: 6px; padding: 2px 4px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; }
+                  pre code { display: block; background: transparent; padding: 0; border-radius: 0; color: inherit; white-space: pre-wrap; }
                   hr { border: 0; border-top: 1px solid ${colors.stroke}; margin: 20px 0; }
                   ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
                   li { font-size: 1em !important; margin: 6px 0; }
@@ -442,9 +443,9 @@ export default function NewNoteScreen() {
           iconSize={18}
           iconGap={24}
           itemStyle={s.toolbarItem}
-          flatContainerStyle={{ paddingVertical: 2 }}
-          selectedButtonStyle={{ backgroundColor: colors.accent + '18', borderRadius: 14 }}
-          unselectedButtonStyle={{ backgroundColor: 'transparent', borderRadius: 14 }}
+          flatContainerStyle={{ paddingBottom: 4 }}
+          selectedButtonStyle={{ backgroundColor: 'transparent', borderBottomWidth: 2.5, borderBottomColor: colors.accent }}
+          unselectedButtonStyle={{ backgroundColor: 'transparent' }}
           actions={[
             actions.setBold,
             actions.setItalic,

@@ -41,22 +41,23 @@ This registry tracks practical capabilities and hard constraints for AI agents w
   1. native launch splash must be the only branded splash.
   2. JS pre-ready state must stay plain (non-branded gap fill only).
 - **Android splash implementation baseline**:
-  1. On Expo SDK 49 with `expo-splash-screen` 0.20.5, `Theme.App.SplashScreen` must stay on the Expo-style AppCompat path (`android:windowBackground=@drawable/splashscreen`).
+  1. On Expo SDK 49 with `expo-splash-screen` 0.20.5, `Theme.App.SplashScreen` must inherit `AppTheme` and override only `android:windowBackground=@drawable/splashscreen` to match Expo's generated Android plugin path.
   2. Do not stack Android 12 `Theme.SplashScreen` on top of Expo's own splash overlay in this project; that creates a visible double-splash sequence.
   3. `MainActivity` should use plain `super.onCreate(null)` for the current stable splash path.
   4. Do not reference `SplashScreenManager` (not present in `expo-splash-screen` 0.20.5).
-  5. `AppTheme` should keep a plain launch background color so any unavoidable handoff frame is neutral, not branded.
-  6. `_layout.tsx` must return `null` before startup is ready and hide the splash only from the first real root layout, ideally after the next paint tick.
+  5. `AppTheme` should not own the splash background; otherwise the activity can fall through to a plain branded-color frame after the native splash hides.
+  6. `_layout.tsx` must return `null` before startup is ready and hide the splash only after both startup and root navigation state are ready.
 - **Editor image embedding baseline**:
   1. Gallery images inserted into the Pell editor must be embedded, not left as transient `file://` or `content://` URIs.
   2. `expo-image-picker` Base64 payloads must be treated as `image/jpeg` when building the data URI for the editor.
 - **Editor toolbar baseline**:
   1. `react-native-pell-rich-editor` `RichToolbar` has a default 44dp container; selected states will crop if the custom item height approaches the container height.
-  2. For this app, keep toolbar height above 44dp and give selected buttons their own border radius and vertical breathing room.
+  2. For this app, prefer a slimmer underline-style selected state inside the 44dp container instead of a tall filled pill.
 - **Typography consistency baseline**:
   1. User-facing text that should track font-family normalization must use `theme.fontSize` or shared typography tokens.
   2. Avoid raw `settings.fontSize` for editor/body sizing when the chosen font family has its own compensation scale.
   3. The home brand lockup `Saral लेखन` is brand-controlled, not user-font-controlled.
+  4. Keep the Latin half on `Poppins-Bold`; only the Devanagari half should use `Hind-Bold`.
 - **Settings surface styling baseline**:
   - single-row settings cards should clip overflow and avoid implicit elevation/shadow so borders stay clean on Android.
 - **FlashList compatibility**:

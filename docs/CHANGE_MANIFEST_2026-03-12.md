@@ -176,3 +176,22 @@ After commit `1786605`, CI failed in `:app:compileReleaseJavaWithJavac` with:
    - `package.json` -> `2.16.10`
    - `app.json` -> `2.16.10`, `versionCode 63`
    - `android/app/build.gradle` -> `versionName 2.16.10`, `versionCode 63`
+
+## Splash, Wordmark, and Toolbar Refinement (2026-03-15, v2.16.11)
+1. Splash correction:
+   - changed `Theme.App.SplashScreen` to inherit `AppTheme`
+   - removed `android:windowBackground` splash color from `AppTheme`
+   - `_layout.tsx` now hides splash after startup and root navigation state are both ready
+2. Home brand lockup:
+   - kept `Saral` on `Poppins-Bold`
+   - kept `????` on `Hind-Bold`
+   - rendered the title as one nested wordmark to avoid Hindi clipping and baseline drift
+3. Editor toolbar correction:
+   - restored compact 44dp toolbar height
+   - replaced tall selected pills with slimmer underline-style active states
+4. Code block UX refinement:
+   - added `CODE` label chip and accent rail to `pre` blocks so they read as intentional code surfaces
+5. Release metadata sync:
+   - `package.json` -> `2.16.11`
+   - `app.json` -> `2.16.11`, `versionCode 64`
+   - `android/app/build.gradle` -> `versionName 2.16.11`, `versionCode 64`
