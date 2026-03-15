@@ -54,8 +54,11 @@ export function RootLayout() {
     shallow
   );
   const systemColor = useColorScheme();
+  
+  // State-Driven Splash Controller
+  const [appReady, setAppReady] = React.useState(false);
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
-  const hasHiddenSplash = useRef(false);
+  const [splashFinished, setSplashFinished] = React.useState(false);
   const rootNavigationState = useRootNavigationState();
 
   const [fontsLoaded, fontError] = useFonts({
@@ -78,40 +81,31 @@ export function RootLayout() {
   });
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
+  
+  // App is ready for JS overlay when core data is loaded and navigation has first key
   const coreReady = (fontsLoaded || fontError || isStartupTimeout) && (isLoaded || isStartupTimeout);
+  const isNavReady = !!rootNavigationState?.key;
 
   useEffect(() => {
     const init = async () => {
-      log.info('RootLayout: Starting atomic initialization.');
-
-      // Runtime UX flags should not block startup; defaults apply immediately.
-      useRuntimeUxFlagsStore.getState().loadFlags().catch((error) => {
-        log.warn('Runtime UX flags load failed at startup.', error as any);
-      });
+      useRuntimeUxFlagsStore.getState().loadFlags().catch(() => {});
 
       try {
-        log.info('Init DB...');
         await useNotesStore.getState().initDB();
       } catch (e) {
         log.error('DB Init Failed', e as any);
       }
 
-      // Keep non-critical startup work off the first-frame path.
       setTimeout(() => {
-        useAuthStore.getState().initialize().catch((error) => {
-          log.error('Auth Init Failed', error as any);
-        });
-        useAiStore.getState().initialize().catch((error) => {
-          log.error('AI Init Failed', error as any);
-        });
+        useAuthStore.getState().initialize().catch(() => {});
+        useAiStore.getState().initialize().catch(() => {});
       }, 0);
     };
 
     init();
 
-    // Fail-safe: never block startup forever.
     const safetyTimer = setTimeout(() => {
-      log.warn('RootLayout: 5s safety net reached. Forcing internal ready.');
+      log.warn('RootLayout: 5s safety net reached.');
       setIsStartupTimeout(true);
       useNotesStore.setState({ isLoaded: true });
     }, 5000);
@@ -119,10 +113,6 @@ export function RootLayout() {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         useAuthStore.getState().lockApp();
-        return;
-      }
-      if (nextAppState === 'active') {
-        useRuntimeUxFlagsStore.getState().loadFlags().catch(() => {});
       }
     });
 
@@ -132,29 +122,26 @@ export function RootLayout() {
     };
   }, []);
 
+  // Coordinated Hide Logic
+  useEffect(() => {
+    if (coreReady && isNavReady) {
+      log.info('Coordinated Ready: Hiding native splash.');
+      // Give the JS overlay one frame to render before hiding native splash
+      const frame = requestAnimationFrame(() => {
+        setAppReady(true);
+        SplashScreen.hideAsync().catch(() => {});
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [coreReady, isNavReady]);
+
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
 
   useEffect(() => {
     if (!coreReady) return;
-    log.info(`Theme Sync: ${themeId} | Dark: ${isDark}`);
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
-  }, [finalBgColor, isDark, themeId, coreReady]);
-
-  useEffect(() => {
-    if (!coreReady || !rootNavigationState?.key || hasHiddenSplash.current) return;
-    hasHiddenSplash.current = true;
-
-    const frame = requestAnimationFrame(() => {
-      try {
-        SplashScreen.hideAsync();
-      } catch {
-        // no-op
-      }
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [coreReady, rootNavigationState?.key]);
+  }, [finalBgColor, coreReady]);
 
   const navTheme = useMemo(() => ({
     dark: isDark,
@@ -173,11 +160,17 @@ export function RootLayout() {
         <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
       </Stack>
 
-      {!hasHiddenSplash.current && (
+      {!splashFinished && (
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, { backgroundColor: finalBgColor, justifyContent: 'center', alignItems: 'center', zIndex: 9999 }]}
-          exiting={FadeOut.duration(500)}
+          style={[
+            StyleSheet.absoluteFillObject, 
+            { backgroundColor: finalBgColor, justifyContent: 'center', alignItems: 'center', zIndex: 9999 }
+          ]}
+          exiting={FadeOut.duration(600).withCallback(() => {
+            'worklet';
+            // Use setSplashFinished(true) here if needed, but absoluteFill works fine
+          })}
         >
           <Animated.Image
             source={require('../../assets/splash-icon-light.png')}

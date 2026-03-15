@@ -38,7 +38,6 @@ export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const lang = useSettingsStore(s => s.language);
-  // Fallback to English if the cached language from an older version doesn't exist anymore
   const loc = strings[lang] || strings['En'];
   const { colors, font, radius, shadow, spacing } = theme;
   const type = useTypography();
@@ -52,7 +51,6 @@ export default function HomeScreen() {
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const [updateModal, setUpdateModal] = useState<{ visible: boolean; title: string; subtitle: string; version: string }>({ visible: false, title: '', subtitle: '', version: '' });
 
-  // Selection Mode State
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -62,11 +60,9 @@ export default function HomeScreen() {
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
 
-  // Global App Update Checker
   useEffect(() => {
     const runUpdateCheck = async () => {
       const info = await checkForUpdate();
-      // On Home screen, we ONLY notify if it's a genuine NEW version (isReinstall will be false by my logic)
       if (info && info.hasUpdate && !info.isReinstall) {
         setUpdateModal({
           visible: true,
@@ -112,7 +108,6 @@ export default function HomeScreen() {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-
       if (next.size === 0) setIsSelectionMode(false);
       return next;
     });
@@ -135,7 +130,6 @@ export default function HomeScreen() {
   const handleBulkExport = useCallback(async () => {
     const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
     if (selectedNotes.length === 0) return;
-
     try {
       const content = selectedNotes.map(n => `## ${n.title}\n\n${n.body}`).join('\n\n---\n\n');
       const filename = `saral_export_${Date.now()}.md`;
@@ -159,21 +153,17 @@ export default function HomeScreen() {
         type: ['text/markdown', 'text/plain'],
         copyToCacheDirectory: true
       });
-
       if (result.canceled || !result.assets || result.assets.length === 0) return;
       const file = result.assets[0];
       const ext = file.name.split('.').pop()?.toLowerCase();
-
       if (ext !== 'md' && ext !== 'txt') {
         setAppAlert({ visible: true, title: loc.home.importFailedTitle, subtitle: loc.editor.mdOnly || "Only Markdown files supported" });
         return;
       }
-
       let content = await FileSystem.readAsStringAsync(file.uri);
       if (ext === 'md') {
         content = markdownToHtml(content);
       }
-
       const newTitle = file.name.replace(/\.[^/.]+$/, "");
       const generatedId = addNote({ title: newTitle, body: content, tag: '', pinned: false });
       router.push(`/editor/${generatedId}`);
@@ -187,7 +177,6 @@ export default function HomeScreen() {
     setShowImportModal(true);
   }, []);
 
-  // Create dynamic styles
   const s = useMemo(() => StyleSheet.create({
     root: {
       flex: 1,
@@ -201,7 +190,7 @@ export default function HomeScreen() {
     },
     appNameRow: {
       flexDirection: 'row',
-      alignItems: 'flex-end',
+      alignItems: 'baseline', // Fixed: use baseline for nested text strategy
     },
     appNameWordmark: {
       color: colors.ink,
@@ -225,7 +214,7 @@ export default function HomeScreen() {
       color: colors.inkDim,
       letterSpacing: 1.6,
       textTransform: 'uppercase',
-      marginTop: 6,
+      marginTop: 2,
     },
     selectionTitle: {
       ...type.headlineLarge,
@@ -290,7 +279,7 @@ export default function HomeScreen() {
               </Svg>
             </Pressable>
             <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
-            <View style={{ flex: 1 }} />
+            <div style={{ flex: 1 }} />
             <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
               <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
@@ -311,10 +300,10 @@ export default function HomeScreen() {
         ) : (
           <>
             <View style={s.headerLeft}>
-              <View style={s.appNameRow}>
+              <Text style={s.appNameRow}>
                 <Text style={s.appNameWordmark}>{HOME_BRAND_EN}</Text>
                 <Text style={s.appNameHindi}> {HOME_BRAND_HI}</Text>
-              </View>
+              </Text>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>
@@ -346,7 +335,6 @@ export default function HomeScreen() {
           </>
         )}
       </View>
-
       <View style={s.searchWrap}>
         <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <Path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
@@ -368,7 +356,6 @@ export default function HomeScreen() {
           </Pressable>
         )}
       </View>
-
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tagRail} style={s.tagRailOuter}>
         <TagPill label={loc.allTag} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
         {uniqueTags.map((tag) => (
@@ -376,14 +363,13 @@ export default function HomeScreen() {
         ))}
       </ScrollView>
     </View >
-  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors]);
+  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
 
   if (!isLoaded) return null;
 
   return (
     <View style={s.root}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
-
       <FlashList
         data={filteredNotes}
         keyExtractor={(item) => String(item.id)}
@@ -417,30 +403,19 @@ export default function HomeScreen() {
           </View>
         }
       />
-
       <View style={s.fabWrap} pointerEvents="box-none">
         <FAB onPress={onNewNote} />
       </View>
-
       <ThemedModal
         visible={showImportModal}
         title={loc.home.importTitle}
         subtitle={loc.home.importSub}
         onClose={() => setShowImportModal(false)}
         actions={[
-          {
-            label: loc.home.importChoose,
-            style: 'default',
-            onPress: handleImportFile
-          },
-          {
-            label: loc.editor.cancel,
-            style: 'cancel',
-            onPress: () => setShowImportModal(false)
-          }
+          { label: loc.home.importChoose, style: 'default', onPress: handleImportFile },
+          { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowImportModal(false) }
         ]}
       />
-
       <ThemedModal
         visible={showBulkDeleteModal}
         title={loc.editor.deleteNote}
@@ -455,25 +430,16 @@ export default function HomeScreen() {
               clearSelection();
             }
           },
-          {
-            label: loc.editor.cancel,
-            style: 'cancel',
-            onPress: () => setShowBulkDeleteModal(false)
-          }
+          { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowBulkDeleteModal(false) }
         ]}
       />
-
       <ThemedModal
         visible={appAlert.visible}
         title={appAlert.title}
         subtitle={appAlert.subtitle}
         onClose={() => setAppAlert(prev => ({ ...prev, visible: false }))}
         actions={[
-          {
-            label: loc.settingsScreen.ok,
-            style: 'default',
-            onPress: () => setAppAlert(prev => ({ ...prev, visible: false }))
-          }
+          { label: loc.settingsScreen.ok, style: 'default', onPress: () => setAppAlert(prev => ({ ...prev, visible: false })) }
         ]}
       />
       <ThemedModal
@@ -481,11 +447,7 @@ export default function HomeScreen() {
         onClose={() => setUpdateModal(prev => ({ ...prev, visible: false }))}
         title={updateModal.title + " - " + updateModal.subtitle}
         actions={[
-          {
-            label: "Later",
-            onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
-            style: 'cancel'
-          },
+          { label: "Later", onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })), style: 'cancel' },
           {
             label: "Update Now",
             onPress: () => {
@@ -499,4 +461,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
