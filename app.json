@@ -3,7 +3,7 @@
     "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.17.5",
+    "version": "2.17.6",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -13,7 +13,7 @@
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 75,
+      "versionCode": 76,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
       ],

@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.6",
+        date: "2026-03-15",
+        title: {
+            en: "Instant Polish",
+            hi: "इंस्टेंट पॉलिश",
+        },
+        changes: {
+            en: [
+                "Fixed home title layout to prevent '..' truncation with three header icons.",
+                "Implemented 'Pure Nothing' Startup using a transparent native window for instant reveal.",
+                "Synchronized native themes to follow system behavior without flash color delay.",
+                "Cleaned up repository tracking by ignoring sensitive and tool-generated folders."
+            ],
+            hi: [
+                "तीन हेडर आइकन के साथ '..' ट्रंकेशन को रोकने के लिए होम टाइटल लेआउट को ठीक किया गया।",
+                "तत्काल प्रकटीकरण के लिए पारदर्शी नेटिव विंडो का उपयोग करके 'प्योर नथिंग' स्टार्टअप लागू किया गया।",
+                "फ्लैश कलर देरी के बिना सिस्टम व्यवहार का पालन करने के लिए नेटiv थीम को सिंक्रोनाइज़ किया गया।",
+                "सेंसिटिव और टूल-जनरेटेड फोल्डर को अनदेखा करके रिपॉजिटरी ट्रैकिंग को क्लीन किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.5",
         date: "2026-03-15",
         title: {

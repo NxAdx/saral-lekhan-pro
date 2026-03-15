@@ -186,7 +186,7 @@ export default function HomeScreen() {
     listContent: { paddingBottom: 100 },
     noteContainer: { paddingHorizontal: 20 },
     headerLeft: {
-      flex: 1,
+      flexShrink: 1, // Allow title to take only needed space
     },
     appNameRow: {
       flexDirection: 'row',
@@ -195,17 +195,17 @@ export default function HomeScreen() {
     appNameWordmark: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 32,
-      lineHeight: 38,
-      letterSpacing: -1,
+      fontSize: 28, // Reduced from 32 to fit
+      lineHeight: 34,
+      letterSpacing: -0.4,
       includeFontPadding: false,
     },
     appNameHindi: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 32,
-      lineHeight: 38,
-      letterSpacing: -1,
+      fontSize: 28, // Reduced from 32 to fit
+      lineHeight: 34,
+      letterSpacing: -0.4,
       includeFontPadding: false,
     },
     appSub: {
