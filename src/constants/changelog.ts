@@ -21,6 +21,26 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.1",
+        date: "2026-03-15",
+        title: {
+            en: "Splash Screen Removal",
+            hi: "स्प्लैश स्क्रीन को हटाना",
+        },
+        changes: {
+            en: [
+                "Completely removed both native and JS splash screens for direct app launch.",
+                "Optimized startup sequence for immediate UI rendering.",
+                "Removed expo-splash-screen dependency to reduce app size and complexity."
+            ],
+            hi: [
+                "सीधे ऐप लॉन्च के लिए नेटिव और JS दोनों स्प्लैश स्क्रीन को पूरी तरह से हटा दिया गया है।",
+                "तत्काल UI रेंडरिंग के लिए स्टार्टअप सीक्वेंस अनुकूलित किया गया।",
+                "ऐप के आकार और जटिलता को कम करने के लिए expo-splash-screen डिपेंडेंसी हटा दी गई।"
+            ]
+        }
+    },
+    {
         version: "2.17.0",
         date: "2026-03-15",
         title: {

@@ -42,7 +42,6 @@
     "expo-router": "^2.0.15",
     "expo-secure-store": "~12.3.1",
     "expo-sharing": "~11.5.0",
-    "expo-splash-screen": "~0.20.5",
     "expo-sqlite": "~11.3.3",
     "expo-status-bar": "~1.6.0",
     "expo-system-ui": "~2.4.0",
@@ -73,5 +72,5 @@
       ]
     }
   },
-  "version": "2.17.0"
+  "version": "2.17.1"
 }

@@ -3,7 +3,7 @@
     "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.17.0",
+    "version": "2.17.1",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -11,18 +11,9 @@
     ],
     "icon": "./assets/ios-light.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash-icon-light.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#d9d7d2",
-      "dark": {
-        "image": "./assets/splash-icon-light.png",
-        "backgroundColor": "#d9d7d2"
-      }
-    },
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 70,
+      "versionCode": 71,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
       ],
@@ -60,7 +51,6 @@
     },
     "plugins": [
       "expo-router",
-      "expo-splash-screen",
       "@react-native-google-signin/google-signin"
     ]
   }
