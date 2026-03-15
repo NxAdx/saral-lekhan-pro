@@ -35,13 +35,9 @@ This document provides technical context for developers and AI agents working on
 - Use Java 17 for local Android release verification to match CI.
 
 ## Android Splash Baseline (Single Splash)
-- Launch activity theme must be `Theme.App.SplashScreen`.
-- On the current stable Expo SDK 49 baseline, `Theme.App.SplashScreen` should inherit `AppTheme` and override:
-  - `android:windowBackground="@drawable/splashscreen"`
-- Do not combine `Theme.SplashScreen` plus Expo's own splash overlay on this project; that produces a visible double-splash stack.
-- `MainActivity` should use plain `super.onCreate(null)` for the stable splash path.
-- `AppTheme` should not keep the splash background on `android:windowBackground`; otherwise Android can fall through to a plain `#d9d7d2` frame after splash hide.
-- Do not import/use `expo.modules.splashscreen.SplashScreenManager` on SDK 49 (`expo-splash-screen` 0.20.5); that symbol does not exist and will fail CI Java compile.
+### Startup Flow
+- **Direct Launch**: The app does not use a splash screen. This reduces complexity and eliminates "flash" issues during startup.
+- **Initialization**: Core DB and theme loading are optimized for immediate rendering.
 - Keep splash style declarations in `values/styles.xml`; avoid redundant `values-v31` overrides unless there is a proven device-specific need.
 - `_layout.tsx` must not render a plain JS fallback screen before startup is ready; return `null` and hide the splash only after startup and root navigation state are both ready.
 

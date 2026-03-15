@@ -31,12 +31,14 @@ export const APP_CHANGELOG: ChangelogItem[] = [
             en: [
                 "Completely removed both native and JS splash screens for direct app launch.",
                 "Optimized startup sequence for immediate UI rendering.",
-                "Removed expo-splash-screen dependency to reduce app size and complexity."
+                "Removed expo-splash-screen dependency to reduce app size and complexity.",
+                "Deleted all legacy splash assets (images and documentation) to keep the project clean."
             ],
             hi: [
                 "सीधे ऐप लॉन्च के लिए नेटिव और JS दोनों स्प्लैश स्क्रीन को पूरी तरह से हटा दिया गया है।",
                 "तत्काल UI रेंडरिंग के लिए स्टार्टअप सीक्वेंस अनुकूलित किया गया।",
-                "ऐप के आकार और जटिलता को कम करने के लिए expo-splash-screen डिपेंडेंसी हटा दी गई।"
+                "ऐप के आकार और जटिलता को कम करने के लिए expo-splash-screen डिपेंडेंसी हटा दी गई।",
+                "प्रोजेक्ट को साफ रखने के लिए सभी पुराने स्प्लैश एसेट्स (इमेज और डॉक्यूमेंटेशन) को हटा दिया गया।"
             ]
         }
     },
