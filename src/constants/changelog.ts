@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.0",
+        date: "2026-03-15",
+        title: {
+            en: "Brand & Startup Logic Rewrite",
+            hi: "ब्रांड और स्टार्टअप लॉजिक का पुनर्लेखन",
+        },
+        changes: {
+            en: [
+                "Full rewrite of splash screen transition logic using state-driven coordination.",
+                "Redesigned Home branding ('Saral लेखन') using Nested Text strategy for pixel-perfect baseline alignment.",
+                "Optimized app initialization to eliminate startup blinks and UI jumps.",
+                "Enhanced theme synchronization for seamless transition from native to JS layer."
+            ],
+            hi: [
+                "स्टेट-ड्रिवन और समन्वित स्प्लैश स्क्रीन ट्रांजिशन का पुनर्लेखन।",
+                "पिक्सेल-परफेक्ट अलाइनमेंट के लिए नेस्टेड टेक्स्ट रणनीति का उपयोग करके 'सरल लेखन' की री-डिजाइनिंग।",
+                "स्टार्टअप ब्लिंक्स और UI जंप्स को खत्म करने के लिए ऐप इनिशियलाइजेशन का अनुकूलन।",
+                "नेटिव से JS लेयर तक निर्बाध संक्रमण के लिए थीम सिंक्रोनाइज़ेशन में सुधार।"
+            ]
+        }
+    },
+    {
         version: '2.16.12',
         date: '2026-03-15',
         title: { en: 'Splash & Typography Fixes', hi: 'स्प्लैश और टाइपोग्राफी फिक्स' },

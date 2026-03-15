@@ -129,7 +129,7 @@ export function RootLayout() {
       // Give the JS overlay one frame to render before hiding native splash
       const frame = requestAnimationFrame(() => {
         setAppReady(true);
-        SplashScreen.hideAsync().catch(() => {});
+        SplashScreen.hideAsync();
       });
       return () => cancelAnimationFrame(frame);
     }
