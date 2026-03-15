@@ -195,17 +195,17 @@ export default function HomeScreen() {
     appNameWordmark: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 34,
-      lineHeight: 44,
-      letterSpacing: -0.8,
+      fontSize: 32,
+      lineHeight: 38,
+      letterSpacing: -1,
       includeFontPadding: false,
     },
     appNameHindi: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 34,
-      lineHeight: 44,
-      letterSpacing: -0.8,
+      fontSize: 32,
+      lineHeight: 38,
+      letterSpacing: -1,
       includeFontPadding: false,
     },
     appSub: {
@@ -300,7 +300,7 @@ export default function HomeScreen() {
         ) : (
           <>
             <View style={s.headerLeft}>
-              <Text style={s.appNameRow}>
+              <Text style={s.appNameRow} numberOfLines={1}>
                 <Text style={s.appNameWordmark}>{HOME_BRAND_EN}</Text>
                 <Text style={s.appNameHindi}> {HOME_BRAND_HI}</Text>
               </Text>

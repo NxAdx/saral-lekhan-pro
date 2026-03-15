@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.4",
+        date: "2026-03-15",
+        title: {
+            en: "Stability & Layout Hotfix",
+            hi: "स्थिरता और लेआउट हॉटफिक्स",
+        },
+        changes: {
+            en: [
+                "Fixed the persistent update notification loop by syncing environment versions.",
+                "Minimized the white startup flash by enforcing native background themes.",
+                "Restored the home title wordmark to a single-line layout.",
+                "Optimized app initialization flow for faster production builds."
+            ],
+            hi: [
+                "एनवायरनमेंट वर्शन्स को सिंक करके लगातार अपडेट अधिसूचना लूप को ठीक किया गया।",
+                "नेटिव बैकग्राउंड थीम लागू करके सफेद स्टार्टअप फ्लैश को कम किया गया।",
+                "होम टाइटल वर्डमार्क को सिंगल-लाइन लेआउट में वापस लाया गया।",
+                "तेज उत्पादन बिल्ड के लिए ऐप इनिशियलाइजेशन फ्लो को अनुकूलित किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.2",
         date: "2026-03-15",
         title: {
