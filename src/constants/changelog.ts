@@ -1,6 +1,14 @@
 export interface ChangelogItem {
     version: string;
     date: string;
+    title?: {
+        en: string;
+        hi: string;
+        mr?: string;
+        bn?: string;
+        te?: string;
+        ta?: string;
+    };
     changes: {
         en: string[];
         hi: string[];
@@ -12,6 +20,25 @@ export interface ChangelogItem {
 }
 
 export const APP_CHANGELOG: ChangelogItem[] = [
+    {
+        version: '2.16.12',
+        date: '2026-03-15',
+        title: { en: 'Splash & Typography Fixes', hi: 'स्प्लैश और टाइपोग्राफी फिक्स' },
+        changes: {
+            en: [
+                'Fixed "dual splash" perception with seamless JS-layer logo alignment.',
+                'Added soft fade-out transition for app startup.',
+                'Refined "Saral लेखन" typography and baseline alignment in Home header.',
+                'Optimized font weights for Devanagari script consistency.'
+            ],
+            hi: [
+                'निर्बाध JS-लेयर लोगो संरेखण के साथ "डुअल स्प्लैश" समस्या को ठीक किया गया।',
+                'ऐप स्टार्टअप के लिए सॉफ्ट फेड-आउट ट्रांजिशन जोड़ा गया।',
+                'होम हेडर में "सरल लेखन" टाइपोग्राफी और बेसलाइन संरेखण को परिष्कृत किया गया।',
+                'देवनागरी लिपि की स्थिरता के लिए फ़ॉन्ट वेट को अनुकूलित किया गया।'
+            ]
+        }
+    },
     {
         version: "2.16.11",
         date: "2026-03-15",

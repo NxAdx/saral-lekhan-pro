@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { AppState, useColorScheme, View } from 'react-native';
+import { AppState, useColorScheme, View, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, SplashScreen, useRootNavigationState } from 'expo-router';
+import Animated, { FadeOut } from 'react-native-reanimated';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
 import { LockScreen } from '../components/ui/LockScreen';
@@ -163,16 +164,28 @@ export function RootLayout() {
     },
   }), [isDark, finalBgColor]);
 
-  if (!coreReady) {
-    return null;
-  }
-
   return (
     <ThemeProvider value={navTheme}>
-      <View style={{ flex: 1, backgroundColor: finalBgColor }}>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: finalBgColor } }} />
-        <LockScreen />
-      </View>
+      <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+        <Stack.Screen name="(main)" options={{ headerShown: false }} />
+        <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+        <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+      </Stack>
+
+      {!hasHiddenSplash.current && (
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFillObject, { backgroundColor: finalBgColor, justifyContent: 'center', alignItems: 'center', zIndex: 9999 }]}
+          exiting={FadeOut.duration(500)}
+        >
+          <Animated.Image
+            source={require('../../assets/splash-icon-light.png')}
+            style={{ width: 160, height: 160 }}
+            resizeMode="contain"
+          />
+        </Animated.View>
+      )}
     </ThemeProvider>
   );
 }

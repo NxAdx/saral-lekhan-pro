@@ -206,18 +206,18 @@ export default function HomeScreen() {
     appNameWordmark: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 30,
-      lineHeight: 40,
+      fontSize: 34,
+      lineHeight: 44,
       letterSpacing: -0.8,
       includeFontPadding: false,
     },
     appNameHindi: {
       color: colors.ink,
       fontFamily: 'Hind-Bold',
-      fontSize: 32,
-      lineHeight: 42,
+      fontSize: 34,
+      lineHeight: 44,
       letterSpacing: 0,
-      includeFontPadding: true,
+      includeFontPadding: false,
     },
     appSub: {
       ...type.labelMedium,
@@ -312,10 +312,8 @@ export default function HomeScreen() {
           <>
             <View style={s.headerLeft}>
               <View style={s.appNameRow}>
-                <Text style={s.appNameWordmark}>
-                  {HOME_BRAND_EN}{' '}
-                  <Text style={s.appNameHindi}>{HOME_BRAND_HI}</Text>
-                </Text>
+                <Text style={s.appNameWordmark}>{HOME_BRAND_EN}</Text>
+                <Text style={s.appNameHindi}> {HOME_BRAND_HI}</Text>
               </View>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
