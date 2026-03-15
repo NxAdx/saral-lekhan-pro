@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.5",
+        date: "2026-03-15",
+        title: {
+            en: "Maximum Direct Launch",
+            hi: "अधिकतम डायरेक्ट लॉन्च",
+        },
+        changes: {
+            en: [
+                "Achieved 'Pure No-Splash' experience by purging all splash configs and dependencies.",
+                "Removed legacy expo-splash-screen bridge to reduce startup latency.",
+                "Optimized native theme to launch directly into the app background color.",
+                "Verified repository hygiene and documentation privacy."
+            ],
+            hi: [
+                "सभी स्पलैश कॉन्फ़िगरेशन और डिपेंडेंसी को हटाकर 'प्योर नो-स्पलैश' अनुभव प्राप्त किया गया।",
+                "स्टार्टअप विलंबता को कम करने के लिए लीगेसी एक्सपो-स्पलैश-स्क्रीन ब्रिज को हटाया गया।",
+                "सीधे ऐप बैकग्राउंड कलर में लॉन्च करने के लिए नेटिव थीम को अनुकूलित किया गया।",
+                "रिपॉजिटरी हाइजीन और डॉक्यूमेंटेशन प्राइवेसी को सत्यापित किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.4",
         date: "2026-03-15",
         title: {
