@@ -381,7 +381,7 @@ export default function HomeScreen() {
         ListHeaderComponent={ListHeader}
         renderItem={({ item, index }) => (
           <Animated.View 
-            entering={FadeInDown.delay(index * 80).duration(600).springify().damping(15)}
+            entering={FadeInDown.delay(index * 50).duration(300).springify().damping(18).stiffness(120)}
             style={s.noteContainer}
           >
             <BentoCard

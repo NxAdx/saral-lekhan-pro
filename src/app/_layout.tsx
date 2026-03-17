@@ -60,8 +60,11 @@ export function RootLayout(props: any) {
     shallow
   );
 
-  const revealProgress = useSharedValue(0);
+  const logoScale = useSharedValue(1);
   const logoOpacity = useSharedValue(1);
+  const bgOpacity = useSharedValue(1);
+  const contentOpacity = useSharedValue(0);
+  const contentScale = useSharedValue(0.95);
   const [showSplash, setShowSplash] = React.useState(true);
 
   // HYPER-INSTANT: Hydrate store from native pre-load props immediately
@@ -95,30 +98,39 @@ export function RootLayout(props: any) {
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
-  const coreReady = !!rootNavigationState; 
+  const coreReady = !!rootNavigationState;
+  const SPLASH_ANIM_DURATION = 400; // Refined for ultra-fast feel
+  const LOGO_EXIT_DURATION = 350;
+  const CONTENT_ENTRANCE_DURATION = 450;
 
   const contentStyle = useAnimatedStyle(() => ({
-    opacity: revealProgress.value,
-    transform: [{ scale: interpolate(revealProgress.value, [0, 1], [0.95, 1], Extrapolate.CLAMP) }],
+    opacity: contentOpacity.value,
+    transform: [{ scale: contentScale.value }],
   }));
 
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
-    transform: [{ scale: interpolate(logoOpacity.value, [1, 0], [1, 1.5], Extrapolate.CLAMP) }],
+    transform: [{ scale: logoScale.value }],
+  }));
+
+  const splashBgStyle = useAnimatedStyle(() => ({
+    opacity: bgOpacity.value,
   }));
 
   useEffect(() => {
     if (coreReady && fontsLoaded) {
-      // Start the cinematic handoff
-      logoOpacity.value = withTiming(0, { duration: 600, easing: Easing.bezier(0.4, 0, 0.2, 1) });
-      revealProgress.value = withDelay(200, withTiming(1, { 
-        duration: 800, 
-        easing: Easing.bezier(0.4, 0, 0.2, 1) 
-      }, (finished) => {
+      // 🚀 Ultra-fast transition sequence
+      logoScale.value = withDelay(100, withTiming(1.2, { duration: LOGO_EXIT_DURATION, easing: Easing.out(Easing.exp) }));
+      logoOpacity.value = withDelay(150, withTiming(0, { duration: LOGO_EXIT_DURATION * 0.8 }));
+      
+      bgOpacity.value = withDelay(250, withTiming(0, { duration: CONTENT_ENTRANCE_DURATION, easing: Easing.inOut(Easing.quad) }, (finished) => {
         if (finished) {
           runOnJS(setShowSplash)(false);
         }
       }));
+      
+      contentOpacity.value = withDelay(200, withTiming(1, { duration: CONTENT_ENTRANCE_DURATION, easing: Easing.out(Easing.exp) }));
+      contentScale.value = withDelay(200, withTiming(1, { duration: CONTENT_ENTRANCE_DURATION, easing: Easing.out(Easing.back(0.5)) }));
     }
   }, [coreReady, fontsLoaded]);
 

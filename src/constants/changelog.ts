@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.15",
+        date: "2026-03-17",
+        title: {
+            en: "Simple Notes Perfection",
+            hi: "सरल नोट्स पूर्णता",
+        },
+        changes: {
+            en: [
+                "Ultra-Fast Reveal: High-speed, 400ms cinematic entry transition.",
+                "Seamless UI Handoff: Eliminated 'falling elements' and grey flashes.",
+                "Material 3 Polish: Refined dashboard staggered animations (60fps).",
+                "Native Sync: Optimized Android splash screen weight and color matching."
+            ],
+            hi: [
+                "अल्ट्रा-फास्ट रिवील: हाई-स्पीड, 400ms सिनेमैटिक एंट्री ट्रांजिशन।",
+                "सीमलेस यूआई हैंडऑफ़: 'फॉलिंग एलीमेंट्स' और ग्रे फ्लैश को खत्म किया गया।",
+                "मटेरियल 3 पॉलिश: रिफाइंड डैशबोर्ड स्टैचर्ड एनिमेशन (60fps)।",
+                "नेटिव सिंक: ऑप्टिमाइज्ड एंड्रॉइड स्पैश स्क्रीन वेट और कलर मैचिंग।"
+            ]
+        }
+    },
+    {
         version: "2.17.14",
         date: "2026-03-17",
         title: {
