@@ -35,6 +35,7 @@ import { useNotesStore } from '../store/notesStore';
 import { useRuntimeUxFlagsStore } from '../store/runtimeUxFlagsStore';
 import { log } from '../utils/Logger';
 import { shallow } from 'zustand/shallow';
+import { SmoothLanding } from '../components/ui/SmoothLanding';
 
 try {
   Sentry.init({
@@ -74,7 +75,9 @@ export function RootLayout() {
   });
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
-  const coreReady = (fontsLoaded || fontError || isStartupTimeout) && (isLoaded || isStartupTimeout);
+  // DECISION: Unblock startup from fonts to prevent colored-blank-wait.
+  // We gate only on Data (isLoaded) or Timeout.
+  const coreReady = isLoaded || isStartupTimeout;
 
   useEffect(() => {
     const init = async () => {
@@ -137,6 +140,7 @@ export function RootLayout() {
         <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
         <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
       </Stack>
+      {!coreReady && <SmoothLanding isDark={isDark} />}
       <LockScreen />
     </ThemeProvider>
   );

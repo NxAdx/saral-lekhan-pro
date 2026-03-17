@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.8",
+        date: "2026-03-17",
+        title: {
+            en: "Smooth Landing",
+            hi: "स्मूद लैंडिंग",
+        },
+        changes: {
+            en: [
+                "Implemented 'Smooth Landing' skeleton to eliminate the 'elements falling' effect during startup.",
+                "Decoupled font loading from the startup sequence for a truly 'Instant' visual pounce.",
+                "Calibrated native background colors to perfectly match the app's 'Classic' theme tokens.",
+                "Reduced frame-drop during initial render by staggering heavy component mounts."
+            ],
+            hi: [
+                "स्टार्टअप के दौरान 'एलिमेंट्स गिरने' के प्रभाव को खत्म करने के लिए 'स्मूद लैंडिंग' स्केलेटन लागू किया गया।",
+                "वास्तव में 'इंस्टेंट' विजुअल अनुभव के लिए स्टार्टअप अनुक्रम से फ़ॉन्ट लोडिंग को अलग किया गया।",
+                "ऐप के 'क्लासिक' थीम टोकन से पूरी तरह मेल खाने के लिए नेटिव बैकग्राउंड कलर को कैलिब्रेट किया गया।",
+                "भारी कंपोनेंट माउंट को रोककर प्रारंभिक रेंडर के दौरान फ्रेम-ड्रॉप को कम किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.7",
         date: "2026-03-17",
         title: {
