@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.12",
+        date: "2026-03-17",
+        title: {
+            en: "Premium Entry (v2.17.12)",
+            hi: "प्रीमियम एंट्री (v2.17.12)",
+        },
+        changes: {
+            en: [
+                "Eliminated the grey startup flash by re-enabling native window preview with synchronized themes.",
+                "Implemented hardware-accelerated 60fps fade-in to mask initial layout shifts.",
+                "Enabled React Native New Architecture for direct native-to-JS performance.",
+                "Restored the original adaptive icon identity with a clean white background."
+            ],
+            hi: [
+                "सिंक्रोनाइज़्ड थीम के साथ नेटिव विंडो प्रीव्यू को फिर से सक्षम करके स्टार्टअप ग्रे फ्लैश को खत्म किया गया।",
+                "प्रारंभिक लेआउट शिफ्ट को छिपाने के लिए हार्डवेयर-एक्सेलेरेटेड 60fps फेड-इन लागू किया गया।",
+                "डायरेक्ट नेटिव-टू-जेएस प्रदर्शन के लिए रिएक्ट नेटिव न्यू आर्किटेक्चर को सक्षम किया गया।",
+                "क्लीन व्हाइट बैकग्राउंड के साथ मूल एडेप्टिव आइकन पहचान को बहाल किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.11",
         date: "2026-03-17",
         title: {

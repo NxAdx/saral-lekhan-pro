@@ -45,11 +45,15 @@ try {
   // Guard startup in case Sentry native init fails on specific builds.
 }
 
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
+
 export function RootLayout(props: any) {
   const { themeId, nightMode } = useSettingsStore(
     (s) => ({ themeId: s.themeId, nightMode: s.nightMode }),
     shallow
   );
+
+  const rootOpacity = useSharedValue(0);
 
   // HYPER-INSTANT: Hydrate store from native pre-load props immediately
   useMemo(() => {
@@ -83,7 +87,18 @@ export function RootLayout(props: any) {
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
   // User wants INSTANT. We unblock everything and let the UI handle empty states gracefully.
-  const coreReady = true; 
+  const coreReady = !!rootNavigationState; 
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: rootOpacity.value,
+    flex: 1,
+  }));
+
+  useEffect(() => {
+    if (coreReady && fontsLoaded) {
+      rootOpacity.value = withTiming(1, { duration: 600 });
+    }
+  }, [coreReady, fontsLoaded]);
 
   useEffect(() => {
     const init = async () => {
@@ -139,15 +154,17 @@ export function RootLayout(props: any) {
   }), [isDark, finalBgColor]);
 
   return (
-    <ThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-        <Stack.Screen name="(main)" options={{ headerShown: false }} />
-        <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-        <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-      </Stack>
-      <LockScreen />
-    </ThemeProvider>
+    <Animated.View style={animatedStyle}>
+      <ThemeProvider value={navTheme}>
+        <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+          <Stack.Screen name="(main)" options={{ headerShown: false }} />
+          <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+          <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+        </Stack>
+        <LockScreen />
+      </ThemeProvider>
+    </Animated.View>
   );
 }
 

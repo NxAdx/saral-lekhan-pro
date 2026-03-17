@@ -3,7 +3,7 @@
     "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.17.11",
+    "version": "2.17.12",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -13,13 +13,14 @@
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 81,
+      "versionCode": 82,
+      "newArchEnabled": true,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-adaptive.png",
-        "backgroundColor": "#d9d7d2"
+        "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "resize",
       "intentFilters": [
