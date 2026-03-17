@@ -386,6 +386,7 @@ export default function HomeScreen() {
               onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
               onLongPress={() => handleLongPress(item.id)}
               date={formatDate(item.updated_at, loc)}
+              selected={selectedIds.has(item.id)}
               />
           </View>
         )}
