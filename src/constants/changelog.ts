@@ -21,22 +21,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
-        version: "2.17.10",
+        version: "2.17.11",
         date: "2026-03-17",
         title: {
-            en: "Hyper-Instant Launch (Hotfix)",
-            hi: "हाइपर-इंस्टेंट लॉन्च (हॉटफिक्स)",
+            en: "Hyper-Instant Launch (Hotfix v2)",
+            hi: "हाइपर-इंस्टेंट लॉन्च (हॉटफिक्स v2)",
         },
         changes: {
             en: [
-                "Fixed missing native imports in MainActivity.java to restore build stability.",
-                "Implemented 'Direct-to-Native' data pre-loading to eliminate the startup 'elements falling' effect.",
-                "Injected initial notes directly from SQLite via Android native layer for Frame-One content."
+                "Resolved critical build failures caused by missing 'android.os.Build' and 'BuildConfig' imports.",
+                "Stabilized 'Direct-to-Native' data pre-loading for production environments.",
+                "Ensured seamless Frame-One content rendering from SQLite."
             ],
             hi: [
-                "बिल्ड स्टेबिलिटी को बहाल करने के लिए MainActivity.java में गायब नेटिव इंपोर्ट को ठीक किया गया।",
-                "स्टार्टअप 'एलिमेंट्स गिरने' के प्रभाव को खत्म करने के लिए 'डायरेक्ट-टू-नेटिव' डेटा प्री-लोडिंग लागू किया गया।",
-                "फ्रेम-वन कंटेंट के लिए एंड्रॉइड नेटिव लेयर के माध्यम से सीधे SQLite से प्रारंभिक नोट्स इंजेक्ट किए गए।"
+                "गायब 'android.os.Build' और 'BuildConfig' इंपोर्ट के कारण होने वाली महत्वपूर्ण बिल्ड विफलताओं को हल किया गया।",
+                "प्रोडक्शन वातावरण के लिए 'डायरेक्ट-टू-नेटिव' डेटा प्री-लोडिंग को स्थिर किया गया।",
+                "SQLite से निर्बाध फ्रेम-वन कंटेंट रेंडरिंग सुनिश्चित की गई।"
             ]
         }
     },
