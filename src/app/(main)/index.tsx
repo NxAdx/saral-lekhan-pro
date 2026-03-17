@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
 } from 'react-native';
@@ -378,8 +379,11 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
-        renderItem={({ item }) => (
-          <View style={s.noteContainer}>
+        renderItem={({ item, index }) => (
+          <Animated.View 
+            entering={FadeInDown.delay(index * 80).duration(600).springify().damping(15)}
+            style={s.noteContainer}
+          >
             <BentoCard
               note={item}
               onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
@@ -387,7 +391,7 @@ export default function HomeScreen() {
               date={formatDate(item.updated_at, loc)}
               selected={selectedIds.has(item.id)}
             />
-          </View>
+          </Animated.View>
         )}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         ListEmptyComponent={

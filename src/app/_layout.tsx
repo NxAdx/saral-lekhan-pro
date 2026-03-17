@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { AppState, useColorScheme, View, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, useRootNavigationState } from 'expo-router';
@@ -8,9 +8,7 @@ import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { themes } from '../tokens';
-import {
-  useFonts,
-} from '@expo-google-fonts/hind';
+import { useFonts } from '@expo-google-fonts/hind';
 import {
   Poppins_400Regular,
   Poppins_500Medium,
@@ -45,7 +43,16 @@ try {
   // Guard startup in case Sentry native init fails on specific builds.
 }
 
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  withDelay, 
+  Easing,
+  runOnJS,
+  interpolate,
+  Extrapolate
+} from 'react-native-reanimated';
 
 export function RootLayout(props: any) {
   const { themeId, nightMode } = useSettingsStore(
@@ -53,7 +60,9 @@ export function RootLayout(props: any) {
     shallow
   );
 
-  const rootOpacity = useSharedValue(0);
+  const revealProgress = useSharedValue(0);
+  const logoOpacity = useSharedValue(1);
+  const [showSplash, setShowSplash] = React.useState(true);
 
   // HYPER-INSTANT: Hydrate store from native pre-load props immediately
   useMemo(() => {
@@ -63,10 +72,9 @@ export function RootLayout(props: any) {
   }, []);
 
   const systemColor = useColorScheme();
-  const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
   const rootNavigationState = useRootNavigationState();
 
-  const [fontsLoaded, fontError] = useFonts({
+  const [fontsLoaded] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
     'Hind-Medium': require('../../assets/fonts/Hind-Medium.ttf'),
     'Hind-SemiBold': require('../../assets/fonts/Hind-SemiBold.ttf'),
@@ -85,18 +93,32 @@ export function RootLayout(props: any) {
     'Baloo2-Bold': Baloo2_700Bold,
   });
 
-  const isLoaded = useNotesStore((s) => s.isLoaded);
-  // User wants INSTANT. We unblock everything and let the UI handle empty states gracefully.
+  const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
+  const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
   const coreReady = !!rootNavigationState; 
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: rootOpacity.value,
-    flex: 1,
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: revealProgress.value,
+    transform: [{ scale: interpolate(revealProgress.value, [0, 1], [0.95, 1], Extrapolate.CLAMP) }],
+  }));
+
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ scale: interpolate(logoOpacity.value, [1, 0], [1, 1.5], Extrapolate.CLAMP) }],
   }));
 
   useEffect(() => {
     if (coreReady && fontsLoaded) {
-      rootOpacity.value = withTiming(1, { duration: 600 });
+      // Start the cinematic handoff
+      logoOpacity.value = withTiming(0, { duration: 600, easing: Easing.bezier(0.4, 0, 0.2, 1) });
+      revealProgress.value = withDelay(200, withTiming(1, { 
+        duration: 800, 
+        easing: Easing.bezier(0.4, 0, 0.2, 1) 
+      }, (finished) => {
+        if (finished) {
+          runOnJS(setShowSplash)(false);
+        }
+      }));
     }
   }, [coreReady, fontsLoaded]);
 
@@ -104,26 +126,17 @@ export function RootLayout(props: any) {
     const init = async () => {
       log.info('RootLayout: Starting atomic initialization.');
       useRuntimeUxFlagsStore.getState().loadFlags().catch(() => {});
-
       try {
         await useNotesStore.getState().initDB();
       } catch (e) {
         log.error('DB Init Failed', e as any);
       }
-
       setTimeout(() => {
         useAuthStore.getState().initialize().catch(() => {});
         useAiStore.getState().initialize().catch(() => {});
       }, 0);
     };
-
     init();
-
-    const safetyTimer = setTimeout(() => {
-      log.warn('RootLayout: 5s safety net reached. Forcing internal ready.');
-      setIsStartupTimeout(true);
-      useNotesStore.setState({ isLoaded: true });
-    }, 5000);
 
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
@@ -132,18 +145,13 @@ export function RootLayout(props: any) {
     });
 
     return () => {
-      clearTimeout(safetyTimer);
       subscription.remove();
     };
   }, []);
 
-  const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
-  const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
-
   useEffect(() => {
-    if (!coreReady) return;
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
-  }, [finalBgColor, coreReady]);
+  }, [finalBgColor]);
 
   const navTheme = useMemo(() => ({
     dark: isDark,
@@ -154,17 +162,28 @@ export function RootLayout(props: any) {
   }), [isDark, finalBgColor]);
 
   return (
-    <Animated.View style={animatedStyle}>
-      <ThemeProvider value={navTheme}>
-        <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-          <Stack.Screen name="(main)" options={{ headerShown: false }} />
-          <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-          <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-        </Stack>
-        <LockScreen />
-      </ThemeProvider>
-    </Animated.View>
+    <View style={{ flex: 1, backgroundColor: finalBgColor }}>
+      {showSplash && (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: finalBgColor, zIndex: 10, justifyContent: 'center', alignItems: 'center' }]}>
+          <Animated.Image 
+            source={require('../../assets/icon-transparent.png')} 
+            style={[{ width: 120, height: 120 }, logoStyle]}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+      <Animated.View style={[{ flex: 1 }, contentStyle]}>
+        <ThemeProvider value={navTheme}>
+          <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+            <Stack.Screen name="(main)" options={{ headerShown: false }} />
+            <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+            <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+          </Stack>
+          <LockScreen />
+        </ThemeProvider>
+      </Animated.View>
+    </View>
   );
 }
 

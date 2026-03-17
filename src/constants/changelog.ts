@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.13",
+        date: "2026-03-17",
+        title: {
+            en: "Cinematic Entry (v2.17.13)",
+            hi: "सिनेमैटिक एंट्री (v2.17.13)",
+        },
+        changes: {
+            en: [
+                "Implemented 'Radial Scale' reveal for a luxury app startup experience.",
+                "Orchestrated staggered 'Glide-In' animations for the Bento dashboard.",
+                "Achieved zero-gap theme transition by locking native splash hex codes.",
+                "Fixed all perceived 'falling elements' via coordinate JS-Native handoff."
+            ],
+            hi: [
+                "एक लक्ज़री ऐप स्टार्टअप अनुभव के लिए 'रेडियल स्केल' रिवील लागू किया गया।",
+                "बेंटो डैशबोर्ड के लिए मंचित 'ग्लाइड-इन' एनिमेशन को व्यवस्थित किया गया।",
+                "नेटिव स्प्लैश हेक्स कोड को लॉक करके जीरो-गैप थीम ट्रांजिशन हासिल किया गया।",
+                "समन्वित JS-नेटिव हैंडऑफ के माध्यम से सभी बोधगम्य 'गिरने वाले तत्वों' को ठीक किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.12",
         date: "2026-03-17",
         title: {
