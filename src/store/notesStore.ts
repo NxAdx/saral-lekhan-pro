@@ -45,11 +45,25 @@ interface NotesState {
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
   resetDB: () => void;
+  bootstrap: (initialNotesJson?: string) => void;
 }
 
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   isLoaded: false,
+
+  bootstrap: (json) => {
+    if (!json) return;
+    try {
+      const parsed = JSON.parse(json);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        log.info(`Bootstrapping store with ${parsed.length} native-preloaded notes`);
+        set({ notes: parsed, isLoaded: true });
+      }
+    } catch (e) {
+      log.error("Bootstrap parsing failed", e);
+    }
+  },
 
   initDB: () => {
     db.transaction((tx) => {

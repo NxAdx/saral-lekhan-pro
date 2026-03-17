@@ -1,16 +1,15 @@
-package com.sarallekhan;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
-import android.os.Build;
-import android.os.Bundle;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import com.facebook.react.ReactActivity;
-import com.facebook.react.ReactActivityDelegate;
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-import com.facebook.react.defaults.DefaultReactActivityDelegate;
-
-import expo.modules.ReactActivityDelegateWrapper;
+import java.io.File;
 
 public class MainActivity extends ReactActivity {
+  private static final String TAG = "MainActivity";
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
@@ -39,8 +38,55 @@ public class MainActivity extends ReactActivity {
         DefaultNewArchitectureEntryPoint.getFabricEnabled()) {
           @Override
           protected Bundle getLaunchOptions() {
-            // This can be used to pass initial props to JS if needed
-            return super.getLaunchOptions();
+            Bundle bundle = super.getLaunchOptions();
+            if (bundle == null) bundle = new Bundle();
+
+            try {
+                String notesJson = fetchInitialNotes();
+                if (notesJson != null) {
+                    bundle.putString("initialNotes", notesJson);
+                    Log.d(TAG, "Passed initialNotes to JS: " + notesJson.length() + " chars");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to pre-fetch notes", e);
+            }
+            return bundle;
+          }
+
+          private String fetchInitialNotes() {
+              SQLiteDatabase db = null;
+              Cursor cursor = null;
+              try {
+                  // Expo SQLite path: /data/user/0/com.sarallekhan/databases/saral_lekhan.db
+                  File dbFile = getDatabasePath("saral_lekhan.db");
+                  if (!dbFile.exists()) {
+                      Log.d(TAG, "DB file not found at " + dbFile.getAbsolutePath());
+                      return null;
+                  }
+
+                  db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+                  cursor = db.rawQuery("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY updated_at DESC LIMIT 20", null);
+
+                  JSONArray array = new JSONArray();
+                  while (cursor.moveToNext()) {
+                      JSONObject obj = new JSONObject();
+                      obj.put("id", cursor.getLong(cursor.getColumnIndexOrThrow("id")));
+                      obj.put("title", cursor.getString(cursor.getColumnIndexOrThrow("title")));
+                      obj.put("body", cursor.getString(cursor.getColumnIndexOrThrow("body")));
+                      obj.put("tag", cursor.getString(cursor.getColumnIndexOrThrow("tag")));
+                      obj.put("created_at", cursor.getLong(cursor.getColumnIndexOrThrow("created_at")));
+                      obj.put("updated_at", cursor.getLong(cursor.getColumnIndexOrThrow("updated_at")));
+                      obj.put("pinned", cursor.getInt(cursor.getColumnIndexOrThrow("pinned")) == 1);
+                      array.put(obj);
+                  }
+                  return array.toString();
+              } catch (Exception e) {
+                  Log.e(TAG, "fetchInitialNotes error", e);
+                  return null;
+              } finally {
+                  if (cursor != null) cursor.close();
+                  if (db != null) db.close();
+              }
           }
 
           @Override

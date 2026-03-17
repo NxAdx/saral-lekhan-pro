@@ -35,7 +35,6 @@ import { useNotesStore } from '../store/notesStore';
 import { useRuntimeUxFlagsStore } from '../store/runtimeUxFlagsStore';
 import { log } from '../utils/Logger';
 import { shallow } from 'zustand/shallow';
-import { SmoothLanding } from '../components/ui/SmoothLanding';
 
 try {
   Sentry.init({
@@ -46,11 +45,19 @@ try {
   // Guard startup in case Sentry native init fails on specific builds.
 }
 
-export function RootLayout() {
+export function RootLayout(props: any) {
   const { themeId, nightMode } = useSettingsStore(
     (s) => ({ themeId: s.themeId, nightMode: s.nightMode }),
     shallow
   );
+
+  // HYPER-INSTANT: Hydrate store from native pre-load props immediately
+  useMemo(() => {
+    if (props?.initialNotes) {
+      useNotesStore.getState().bootstrap(props.initialNotes);
+    }
+  }, []);
+
   const systemColor = useColorScheme();
   const [isStartupTimeout, setIsStartupTimeout] = React.useState(false);
   const rootNavigationState = useRootNavigationState();
@@ -75,9 +82,8 @@ export function RootLayout() {
   });
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
-  // DECISION: Unblock startup from fonts to prevent colored-blank-wait.
-  // We gate only on Data (isLoaded) or Timeout.
-  const coreReady = isLoaded || isStartupTimeout;
+  // User wants INSTANT. We unblock everything and let the UI handle empty states gracefully.
+  const coreReady = true; 
 
   useEffect(() => {
     const init = async () => {
@@ -140,7 +146,6 @@ export function RootLayout() {
         <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
         <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
       </Stack>
-      {!coreReady && <SmoothLanding isDark={isDark} />}
       <LockScreen />
     </ThemeProvider>
   );
