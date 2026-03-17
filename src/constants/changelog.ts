@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.16",
+    date: "2026-03-17",
+    title: {
+      en: "Absolute Native Entry",
+      hi: "पूर्ण नेटिव एंट्री",
+    },
+    changes: {
+      en: [
+        "Zero-Gap Launch: Redundant JS splash removed for instant startup.",
+        "Native Handoff: Utilized native SplashScreen API for maximum speed.",
+        "Premium Clean Look: Set splash backgrounds to pure White and Black.",
+        "Optimized Weight: Stripped legacy animation code for lighter bundle."
+      ],
+      hi: [
+        "जीरो-गैप लॉन्च: तत्काल स्टार्टअप के लिए अनावश्यक JS स्पैश को हटाया गया।",
+        "नेटिव हैंडऑफ़: अधिकतम गति के लिए नेटिव स्पैशस्क्रीन API का उपयोग।",
+        "प्रीमियम क्लीन लुक: स्पैश बैकग्राउंड को शुद्ध सफेद और काले रंग में सेट किया गया।",
+        "ऑप्टिमाइज्ड वेट: हल्के बंडल के लिए लीगेसी एनिमेशन कोड को हटाया गया।"
+      ]
+    }
+  },
+    {
         version: "2.17.15",
         date: "2026-03-17",
         title: {

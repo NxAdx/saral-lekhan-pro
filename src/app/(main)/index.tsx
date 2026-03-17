@@ -380,18 +380,14 @@ export default function HomeScreen() {
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
         renderItem={({ item, index }) => (
-          <Animated.View 
-            entering={FadeInDown.delay(index * 50).duration(300).springify().damping(18).stiffness(120)}
-            style={s.noteContainer}
-          >
+          <View style={s.noteContainer}>
             <BentoCard
               note={item}
               onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
               onLongPress={() => handleLongPress(item.id)}
               date={formatDate(item.updated_at, loc)}
-              selected={selectedIds.has(item.id)}
-            />
-          </Animated.View>
+              />
+          </View>
         )}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         ListEmptyComponent={
