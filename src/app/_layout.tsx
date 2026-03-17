@@ -166,7 +166,7 @@ export function RootLayout(props: any) {
       {showSplash && (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: finalBgColor, zIndex: 10, justifyContent: 'center', alignItems: 'center' }]}>
           <Animated.Image 
-            source={require('../../assets/icon-transparent.png')} 
+            source={require('../../assets/android-adaptive.png')} 
             style={[{ width: 120, height: 120 }, logoStyle]}
             resizeMode="contain"
           />

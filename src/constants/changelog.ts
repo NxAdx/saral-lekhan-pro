@@ -21,11 +21,11 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
-        version: "2.17.13",
+        version: "2.17.14",
         date: "2026-03-17",
         title: {
-            en: "Cinematic Entry (v2.17.13)",
-            hi: "सिनेमैटिक एंट्री (v2.17.13)",
+            en: "Cinematic Entry (v2.17.14)",
+            hi: "सिनेमैटिक एंट्री (v2.17.14)",
         },
         changes: {
             en: [
