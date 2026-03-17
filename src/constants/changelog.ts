@@ -21,6 +21,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.17",
+    date: "2026-03-17",
+    title: {
+      en: "Build Stability Fix",
+      hi: "बिल्ड स्टेबिलिटी फिक्स",
+    },
+    changes: {
+      en: [
+        "Dependency Fix: Restored missing expo-status-bar required for routing.",
+        "Improved Reliability: Corrected package mapping for faster dependency resolution."
+      ],
+      hi: [
+        "डिपेंडेंसी फिक्स: रूटिंग के लिए आवश्यक अनुपलब्ध expo-status-bar को बहाल किया गया।",
+        "बेहतर विश्वसनीयता: तेज़ डिपेंडेंसी रिज़ॉल्यूशन के लिए सही पैकेज मैपिंग।"
+      ]
+    }
+  },
+  {
     version: "2.17.16",
     date: "2026-03-17",
     title: {
