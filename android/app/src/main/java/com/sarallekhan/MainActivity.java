@@ -1,3 +1,14 @@
+package com.sarallekhan;
+
+import android.os.Bundle;
+
+import com.facebook.react.ReactActivity;
+import com.facebook.react.ReactActivityDelegate;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactActivityDelegate;
+
+import expo.modules.ReactActivityDelegateWrapper;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;

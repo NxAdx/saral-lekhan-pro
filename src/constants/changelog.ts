@@ -21,24 +21,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
-        version: "2.17.9",
+        version: "2.17.10",
         date: "2026-03-17",
         title: {
-            en: "Hyper-Instant Launch",
-            hi: "हाइपर-इंस्टेंट लॉन्च",
+            en: "Hyper-Instant Launch (Hotfix)",
+            hi: "हाइपर-इंस्टेंट लॉन्च (हॉटफिक्स)",
         },
         changes: {
             en: [
+                "Fixed missing native imports in MainActivity.java to restore build stability.",
                 "Implemented 'Direct-to-Native' data pre-loading to eliminate the startup 'elements falling' effect.",
-                "Injected initial notes directly from SQLite via Android native layer for Frame-One content.",
-                "Zero initialization lag for the primary notes list.",
-                "Optimized database connection handling for faster cold starts."
+                "Injected initial notes directly from SQLite via Android native layer for Frame-One content."
             ],
             hi: [
+                "बिल्ड स्टेबिलिटी को बहाल करने के लिए MainActivity.java में गायब नेटिव इंपोर्ट को ठीक किया गया।",
                 "स्टार्टअप 'एलिमेंट्स गिरने' के प्रभाव को खत्म करने के लिए 'डायरेक्ट-टू-नेटिव' डेटा प्री-लोडिंग लागू किया गया।",
-                "फ्रेम-वन कंटेंट के लिए एंड्रॉइड नेटिव लेयर के माध्यम से सीधे SQLite से प्रारंभिक नोट्स इंजेक्ट किए गए।",
-                "प्राथमिक नोट्स सूची के लिए शून्य इनिशियलाइज़ेशन लैग।",
-                "तेज़ कोल्ड स्टार्ट के लिए डेटाबेस कनेक्शन हैंडलिंग को अनुकूलित किया गया।"
+                "फ्रेम-वन कंटेंट के लिए एंड्रॉइड नेटिव लेयर के माध्यम से सीधे SQLite से प्रारंभिक नोट्स इंजेक्ट किए गए।"
             ]
         }
     },
