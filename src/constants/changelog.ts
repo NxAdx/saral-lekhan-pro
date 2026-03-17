@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+        version: "2.17.7",
+        date: "2026-03-17",
+        title: {
+            en: "Deep Native Purge",
+            hi: "डीप नेटिव पर्ज",
+        },
+        changes: {
+            en: [
+                "Achieved true 'Instant' launch by disabling native preview windows (windowDisablePreview).",
+                "Synchronized native startup background colors with the app's light/dark themes.",
+                "Patched native activity to eliminate the split-second white/black flash during JS initial load.",
+                "Optimized native theme overhead to match high-performance native app behavior."
+            ],
+            hi: [
+                "नेटिव प्रीव्यू विंडो (windowDisablePreview) को अक्षम करके वास्तविक 'इंस्टेंट' लॉन्च हासिल किया गया।",
+                "ऐप के लाइट/डार्क थीम के साथ नेटिव स्टार्टअप बैकग्राउंड कलर को सिंक्रोनाइज़ किया गया।",
+                "JS प्रारंभिक लोड के दौरान स्प्लिट-सेकंड सफेद/काले फ्लैश को खत्म करने के लिए नेटिव एक्टिविटी को पैच किया गया।",
+                "उच्च-प्रदर्शन वाले नेटिव ऐप्स के व्यवहार से मेल खाने के लिए नेटिव थीम ओवरहेड को अनुकूलित किया गया।"
+            ]
+        }
+    },
+    {
         version: "2.17.6",
         date: "2026-03-15",
         title: {

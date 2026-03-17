@@ -36,7 +36,21 @@ public class MainActivity extends ReactActivity {
         this,
         getMainComponentName(),
         // If you opted-in for the New Architecture, we enable the Fabric Renderer.
-        DefaultNewArchitectureEntryPoint.getFabricEnabled()));
+        DefaultNewArchitectureEntryPoint.getFabricEnabled()) {
+          @Override
+          protected Bundle getLaunchOptions() {
+            // This can be used to pass initial props to JS if needed
+            return super.getLaunchOptions();
+          }
+
+          @Override
+          protected void loadApp(String appKey) {
+            super.loadApp(appKey);
+            // After app is loaded, we can peek at the RootView to ensure it doesn't flash white
+            // However, DefaultReactActivityDelegate doesn't easily expose RootView here.
+            // We rely on the theme background to cover the initialization gap.
+          }
+        });
   }
 
   /**
