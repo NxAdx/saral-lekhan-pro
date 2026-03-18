@@ -21,6 +21,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.21",
+    date: "2026-03-18",
+    title: {
+      en: "Visual Refresh",
+      hi: "विजुअल रिफ्रेश",
+    },
+    changes: {
+      en: [
+        "Asset Refresh: Updated splash icons and adaptive icons for better theme consistency.",
+        "Dynamic Splash: Added support for light/dark mode splash screens that match system settings automatically."
+      ],
+      hi: [
+        "विजुअल रिफ्रेश: बेहतर थीम स्थिरता के लिए स्पैश आइकन और एडेप्टिव आइकन अपडेट किए गए।",
+        "डायनामिक स्पैश: लाइट/डार्क मोड स्पैश स्क्रीन सपोर्ट जोड़ा गया जो सिस्टम सेटिंग के अनुसार ऑटोमैटिक बदलता है।"
+      ]
+    }
+  },
+    {
     version: "2.17.20",
     date: "2026-03-18",
     title: {

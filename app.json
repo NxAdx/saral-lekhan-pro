@@ -3,7 +3,7 @@
     "name": "Saral Lekhan",
     "slug": "saral-lekhan",
     "scheme": "sarallekhan",
-    "version": "2.17.20",
+    "version": "2.17.21",
     "sdkVersion": "49.0.0",
     "platforms": [
       "ios",
@@ -11,9 +11,18 @@
     ],
     "icon": "./assets/ios-light.png",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon-dark.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#D9D7D2",
+      "dark": {
+        "image": "./assets/splash-icon-light.png",
+        "backgroundColor": "#1C1A17"
+      }
+    },
     "android": {
       "package": "com.sarallekhan",
-      "versionCode": 90,
+      "versionCode": 91,
       "newArchEnabled": true,
       "permissions": [
         "REQUEST_INSTALL_PACKAGES"
