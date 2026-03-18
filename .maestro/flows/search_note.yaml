@@ -1,0 +1,9 @@
+appId: com.sarallekhan
+---
+- launchApp
+- tapOn:
+    id: "search-input"
+- inputText: "Test"
+- assertVisible: "Test"
+- clearText
+- assertNotVisible: "No results"

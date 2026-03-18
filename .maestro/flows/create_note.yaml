@@ -1,0 +1,11 @@
+appId: com.sarallekhan
+---
+- launchApp
+- assertVisible: "Saral"
+- assertVisible: "Lekhan"
+- tapOn:
+    id: "fab-add-note"
+- assertVisible: "New Note"
+- inputText: "Test Note from Maestro"
+- tapOn: "Save"
+- assertVisible: "Test Note from Maestro"

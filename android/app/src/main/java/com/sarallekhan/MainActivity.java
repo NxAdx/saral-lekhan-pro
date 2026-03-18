@@ -10,6 +10,8 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
 import expo.modules.ReactActivityDelegateWrapper;
 
+import androidx.core.splashscreen.SplashScreen;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -24,6 +26,11 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    // 🎯 PERMANENT SPLASH FIX: Install the SplashScreen BEFORE super.onCreate().
+    // This activates the Theme.SplashScreen API (defined in styles.xml) and
+    // handles the transition to postSplashScreenTheme (AppTheme) automatically.
+    // Pattern taken from simple-notes-sync inspiration repo (MainActivity.kt:116).
+    SplashScreen.installSplashScreen(this);
     super.onCreate(null);
   }
 

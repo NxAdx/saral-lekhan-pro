@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.18",
+    date: "2026-03-18",
+    title: {
+      en: "Permanent Splash Fix",
+      hi: "स्थायी स्पैश फिक्स",
+    },
+    changes: {
+      en: [
+        "Root Cause Fixed: Implemented Android 12+ SplashScreen API correctly using Theme.SplashScreen parent.",
+        "Grey Flash Eliminated: Removed windowIsTranslucent causing the infamous grey gap.",
+        "Zero-Gap Native Entry: App transitions from native splash directly to dashboard with no intermediary screen.",
+        "Based on proven simple-notes-sync pattern that works flawlessly."
+      ],
+      hi: [
+        "मूल कारण ठीक: Theme.SplashScreen पैरेंट का उपयोग करके Android 12+ SplashScreen API सही तरीके से लागू किया गया।",
+        "ग्रे फ्लैश समाप्त: windowIsTranslucent जो ग्रे गैप का कारण था, हटा दिया गया।",
+        "जीरो-गैप नेटिव एंट्री: ऐप नेटिव स्पैश से सीधे डैशबोर्ड में जाता है।",
+        "सिद्ध simple-notes-sync पैटर्न पर आधारित।"
+      ]
+    }
+  },
+  {
     version: "2.17.17",
     date: "2026-03-17",
     title: {
