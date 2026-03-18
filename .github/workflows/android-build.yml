@@ -140,6 +140,10 @@ jobs:
           fi
           echo "Release keystore SHA-1 matches google-services Android OAuth config."
           
+      - name: 5.5 Get Version from package.json
+        id: get_version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
       - name: 6. Build Production Bundle (AAB) & APK
         working-directory: ./android
         run: |
