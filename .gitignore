@@ -64,3 +64,4 @@ brain/
 *.md
 !README.md
 !CHANGELOG.md
+!docs/**
