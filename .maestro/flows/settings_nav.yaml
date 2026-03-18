@@ -1,8 +1,0 @@
-appId: com.sarallekhan
----
-- launchApp
-- tapOn:
-    id: "settings-button"
-- assertVisible: "Settings"
-- pressKey: Back
-- assertVisible: "Saral"
