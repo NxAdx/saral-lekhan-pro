@@ -587,7 +587,7 @@ export default function EditNoteScreen() {
               <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
             </Svg>
           </Pressable>
-          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
+          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8} testID="editor-done-button">
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
         </View>
@@ -604,6 +604,7 @@ export default function EditNoteScreen() {
                 value={title}
                 onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
                 multiline blurOnSubmit returnKeyType="next"
+                testID="editor-title-input"
               />
 
               <View style={[s.editorContainer, { minHeight: editorHeight }]}>

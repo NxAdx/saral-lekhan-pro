@@ -1,9 +1,19 @@
 appId: com.sarallekhan
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - tapOn:
     id: "search-input"
-- inputText: "Test"
-- assertVisible: "Test"
-- clearText
-- assertNotVisible: "No results"
+- inputText: "Maestro Search Test"
+- assertVisible: "No matching notes found"
+- tapOn:
+    id: "fab-add-note"
+- tapOn:
+    id: "editor-title-input"
+- inputText: "Maestro Search Test"
+- tapOn:
+    id: "editor-done-button"
+- tapOn:
+    id: "search-input"
+- inputText: "Maestro Search Test"
+- assertVisible: "MAESTRO SEARCH TEST"

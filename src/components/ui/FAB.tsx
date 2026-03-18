@@ -7,11 +7,12 @@ import { useTheme } from '../../store/themeStore';
 interface FABProps {
   onPress: () => void;
   label?: string; // Kept for backwards compatibility
+  testID?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function FAB({ onPress }: FABProps) {
+export function FAB({ onPress, testID }: FABProps) {
   const { colors, shadow } = useTheme();
 
   // simple mount animation
@@ -32,6 +33,7 @@ export function FAB({ onPress }: FABProps) {
   return (
     <AnimatedPressable
       onPress={onPress}
+      testID={testID}
       onPressIn={() => { pressed.value = 1; }}
       onPressOut={() => { pressed.value = 0; }}
       style={[

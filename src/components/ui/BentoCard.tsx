@@ -119,6 +119,7 @@ export const BentoCard = React.memo(({
             onPressOut={() => { pressed.value = 0; }}
             style={[s.card, animStyle]}
             delayLongPress={300}
+            testID={`note-card-${note.id}`}
         >
             {selected && (
                 <View style={s.selectionIcon}>

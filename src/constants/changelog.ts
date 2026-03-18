@@ -21,6 +21,26 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.20",
+    date: "2026-03-18",
+    title: {
+      en: "Crash Fix & E2E Testing",
+      hi: "क्रैश फिक्स और E2E टेस्टिंग",
+    },
+    changes: {
+      en: [
+        "Selection Crash Fix: Resolved 'Invariant Violation' when selecting multiple notes by replacing web tags with native ones.",
+        "Maestro E2E Suite: Added automated testing flows for note creation, search, and navigation for better production stability.",
+        "UI Instrumentation: Added testIDs to key buttons and inputs for reliable automated validation."
+      ],
+      hi: [
+        "सिलेक्शन क्रैश फिक्स: वेब टैग को नेटिव टैग से बदलकर मल्टीपल नोट्स चुनते समय होने वाले क्रैश को ठीक किया गया।",
+        "Maestro E2E सुइट: बेहतर स्थिरता के लिए नोट क्रिएशन, सर्च और नेविगेशन के लिए ऑटोमेटेड टेस्टिंग फ्लो जोड़े गए।",
+        "UI इंस्ट्रूमेंटेशन: विश्वसनीय ऑटोमेटेड वैलिडेशन के लिए मुख्य बटनों और इनपुट में testID जोड़े गए।"
+      ]
+    }
+  },
+    {
     version: "2.17.19",
     date: "2026-03-18",
     title: {
