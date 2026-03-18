@@ -21,6 +21,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.22",
+    date: "2026-03-18",
+    title: {
+      en: "Clean Build & Cache Bust",
+      hi: "क्लीन बिल्ड और कैश बस्ट",
+    },
+    changes: {
+      en: [
+        "Force Clean Build: Busted GitHub Actions cache to ensure new assets are correctly processed.",
+        "Splash Update: Verified that new splash icons are correctly included in the standalone APK."
+      ],
+      hi: [
+        "फोर्स्ड क्लीन बिल्ड: GitHub Actions कैश को रीसेट किया गया ताकि नए एसेट्स सही से प्रोसेस हों।",
+        "स्पैश अपडेट: सुनिश्चित किया गया कि नए स्पैश आइकन APK में सही से शामिल हैं।"
+      ]
+    }
+  },
+    {
     version: "2.17.21",
     date: "2026-03-18",
     title: {
