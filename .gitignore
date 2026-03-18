@@ -60,7 +60,6 @@ ss/
 security/
 
 # Privacy & Research
-docs/
 brain/
 *.md
 !README.md
