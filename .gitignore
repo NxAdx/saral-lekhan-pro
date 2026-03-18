@@ -8,11 +8,13 @@ yarn-error.*
 
 # OS files
 .DS_Store
-*.pem
+# Secrets & Credentials
+google-services.json
 *.keystore
 *.jks
-google-services.json
 keystore_base64.txt
+.env*
+security/
 
 # React Native
 *.jsbundle
@@ -30,12 +32,16 @@ ios/build/
 ios/Pods/
 ios/.symlinks/
 
-# IDE & Config
+# IDE, Testing & AI
 .vscode/
 .idea/
 .agent/
 .agents/
+.maestro/
 .gradle-home/
+research_inspiration/
+runtime-flags.json
+skills-lock.json
 
 # Build & Release
 *.apk
