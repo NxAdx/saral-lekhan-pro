@@ -436,11 +436,11 @@ export default function SettingsScreen() {
                             <Pressable
                                 onPress={handleDownloadUpdate}
                                 disabled={isDownloadingUpdate}
-                                style={{ backgroundColor: colors.accent, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm }}
+                                style={{ backgroundColor: colors.accent, minWidth: 140, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm, alignItems: 'center' }}
                             >
                                 <Text style={{ color: colors.white, fontFamily: font.sansBold }}>
                                     {isDownloadingUpdate
-                                        ? `Downloading ${Math.round(downloadProgress * 100)}%`
+                                        ? `${Math.round(downloadProgress * 100)}% Downloading`
                                         : (updateInfo?.isReinstall ? 'Reinstall' : 'Update Now')}
                                 </Text>
                             </Pressable>
@@ -836,69 +836,45 @@ export default function SettingsScreen() {
                             </Text>
                         </View>
 
-                        <View style={{ alignItems: 'center', paddingBottom: 10 }}>
-                            <View style={{ width: '100%', height: 48, justifyContent: 'center' }}>
+                        {/* ─── Text Size Step Picker (Beautiful A-circle row) ─── */}
+                        <View style={{ paddingBottom: 8 }}>
+                            {/* Progress track */}
+                            <View style={{ height: 4, backgroundColor: colors.accentBg, borderRadius: 2, marginHorizontal: 20, marginBottom: 12 }}>
                                 <View style={{
-                                    height: 12,
-                                    backgroundColor: colors.accentBg,
-                                    borderRadius: 6,
-                                    width: '100%',
-                                    position: 'relative',
-                                    overflow: 'hidden'
-                                }}>
-                                    <View style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        top: 0,
-                                        bottom: 0,
-                                        width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`,
-                                        backgroundColor: colors.accent
-                                    }} />
-                                </View>
-
-                                <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                }}>
-                                    {FONT_SIZE_STEPS.map((step) => {
-                                        const isActive = settings.fontSize === step;
-                                        return (
-                                            <Pressable
-                                                key={step}
-                                                onPress={() => settings.setFontSize(step)}
-                                                style={{
-                                                    width: 40,
-                                                    height: 40,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <View style={{
-                                                    width: 4,
-                                                    height: 4,
-                                                    borderRadius: 2,
-                                                    backgroundColor: isActive ? colors.white : colors.accent,
-                                                    opacity: isActive ? 1 : 0.4
-                                                }} />
-
-                                                {isActive && (
-                                                    <View style={{
-                                                        position: 'absolute',
-                                                        width: 10,
-                                                        height: 28,
-                                                        borderRadius: 4,
-                                                        backgroundColor: colors.accent,
-                                                        zIndex: -1
-                                                    }} />
-                                                )}
-                                            </Pressable>
-                                        );
-                                    })}
-                                </View>
+                                    height: 4, borderRadius: 2, backgroundColor: colors.accent,
+                                    width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`
+                                }} />
+                            </View>
+                            {/* Step buttons */}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                {FONT_SIZE_STEPS.map((step) => {
+                                    const isActive = settings.fontSize === step;
+                                    const idx = FONT_SIZE_STEPS.indexOf(step);
+                                    const btnSize = 28 + idx * 3;
+                                    return (
+                                        <Pressable
+                                            key={step}
+                                            onPress={() => settings.setFontSize(step)}
+                                            style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}
+                                        >
+                                            <View style={{
+                                                width: btnSize, height: btnSize, borderRadius: btnSize / 2,
+                                                backgroundColor: isActive ? colors.accent : colors.accentBg,
+                                                justifyContent: 'center', alignItems: 'center',
+                                            }}>
+                                                <Text style={{
+                                                    fontFamily: font.sansBold,
+                                                    fontSize: 9 + idx * 1.5,
+                                                    color: isActive ? colors.white : colors.accent,
+                                                    includeFontPadding: false,
+                                                }}>A</Text>
+                                            </View>
+                                            <Text style={{ fontFamily: font.mono, fontSize: 9, color: isActive ? colors.accent : colors.inkDim, marginTop: 4, includeFontPadding: false }}>
+                                                {Math.round(step * 100)}%
+                                            </Text>
+                                        </Pressable>
+                                    );
+                                })}
                             </View>
                         </View>
                     </View>

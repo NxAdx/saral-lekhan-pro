@@ -67,7 +67,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   initDB: () => {
     db.transaction((tx) => {
-      // Notes Table
+      // Step 1: Ensure the notes table exists with all columns.
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS notes (
           id INTEGER PRIMARY KEY NOT NULL,
@@ -80,34 +80,42 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           is_deleted INTEGER DEFAULT 0
         );`, [],
         () => {
-          // Migration: Add is_deleted if missing
+          // Step 2: Safe migration — ONLY alter if column is actually missing.
+          // This prevents the "duplicate column name: is_deleted" crash on existing installs.
           tx.executeSql(
-            `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
+            `SELECT COUNT(*) as count FROM pragma_table_info('notes') WHERE name='is_deleted';`,
             [],
-            () => {
-              get().loadNotes();
-            },
-            (_, error) => {
-              // Existing installs already have this column; this should not fail init.
-              const msg = String(error?.message || '').toLowerCase();
-              if (msg.includes('duplicate') || msg.includes('already exists')) {
+            (_, { rows }) => {
+              const hasColumn = rows.item(0)?.count > 0;
+              if (!hasColumn) {
+                tx.executeSql(
+                  `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
+                  [],
+                  () => get().loadNotes(),
+                  (_, err) => {
+                    log.warn('Migration ALTER failed', err as any);
+                    get().loadNotes();
+                    return true;
+                  }
+                );
+              } else {
                 get().loadNotes();
-                return true;
               }
-              // Even on unexpected ALTER errors, load notes so the app doesn't hang.
-              log.warn('ALTER TABLE failed unexpectedly, loading notes anyway', error as any);
+            },
+            (_, err) => {
+              log.warn('pragma_table_info check failed, loading anyway', err as any);
               get().loadNotes();
               return true;
             }
           );
         }
       );
-        }, (err) => {
-            log.error("Failed to init DB (Transaction Error)", err);
-            Sentry.captureException(err);
-            // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
-            set({ isLoaded: true });
-        });
+    }, (err) => {
+        log.error("Failed to init DB (Transaction Error)", err);
+        Sentry.captureException(err);
+        // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
+        set({ isLoaded: true });
+    });
   },
 
   loadNotes: () => {

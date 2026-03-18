@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.19",
+    date: "2026-03-18",
+    title: {
+      en: "DB Fix & UI Polish",
+      hi: "DB फिक्स और UI पॉलिश",
+    },
+    changes: {
+      en: [
+        "DB Crash Fix: Resolved 'duplicate column name: is_deleted' conflict on existing installs with a safe idempotent migration check.",
+        "Download Button: Fixed width jitter during APK download — button stays a consistent 140px wide.",
+        "Text Size Picker: Replaced invisible-dot slider with a beautiful growing-A circle row for intuitive sizing.",
+        "Icon Color: Adaptive icon background now matches the Tippani (#D9D7D2) theme for a seamless launch."
+      ],
+      hi: [
+        "DB क्रैश फिक्स: मौजूदा इंस्टॉल पर 'duplicate column name: is_deleted' एरर को सुरक्षित idempotent माइग्रेशन चेक से ठीक किया।",
+        "डाउनलोड बटन: APK डाउनलोड दौरान साइज़ बदलने की समस्या ठीक — अब बटन 140px चौड़ा रहता है।",
+        "फ़ॉन्ट साइज़ पिकर: अदृश्य डॉट स्लाइडर को सुंदर बढ़ते 'A' सर्किल रो से बदला गया।",
+        "आइकन रंग: एडेप्टिव आइकन बैकग्राउंड अब Tippani (#D9D7D2) थीम से मेल खाता है।"
+      ]
+    }
+  },
+  {
     version: "2.17.18",
     date: "2026-03-18",
     title: {
