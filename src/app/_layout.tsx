@@ -1,15 +1,18 @@
 import React, { useEffect, useMemo } from 'react';
-import { AppState, useColorScheme, View, StyleSheet } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, useRootNavigationState } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
-import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { LockScreen } from '../components/ui/LockScreen';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { themes } from '../tokens';
 import { useFonts } from '@expo-google-fonts/hind';
+import { MonetizationService } from '../services/monetizationService';
+import { useAiStore } from '../store/aiStore';
 import {
   Poppins_400Regular,
   Poppins_500Medium,
@@ -29,14 +32,11 @@ import {
   Baloo2_700Bold,
 } from '@expo-google-fonts/baloo-2';
 
-import { useAiStore } from '../store/aiStore';
+
 import { useNotesStore } from '../store/notesStore';
 import { useRuntimeUxFlagsStore } from '../store/runtimeUxFlagsStore';
 import { log } from '../utils/Logger';
 import { shallow } from 'zustand/shallow';
-
-// Keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync();
 
 try {
   Sentry.init({
@@ -63,11 +63,14 @@ export function RootLayout(props: any) {
   const systemColor = useColorScheme();
   const rootNavigationState = useRootNavigationState();
 
-  const [fontsLoaded] = useFonts({
+  const [coreFontsLoaded] = useFonts({
     Hind: require('../../assets/fonts/Hind-Regular.ttf'),
     'Hind-Medium': require('../../assets/fonts/Hind-Medium.ttf'),
     'Hind-SemiBold': require('../../assets/fonts/Hind-SemiBold.ttf'),
     'Hind-Bold': require('../../assets/fonts/Hind-Bold.ttf'),
+  });
+
+  const [extraFontsLoaded] = useFonts({
     Poppins: Poppins_400Regular,
     'Poppins-Medium': Poppins_500Medium,
     'Poppins-SemiBold': Poppins_600SemiBold,
@@ -84,13 +87,14 @@ export function RootLayout(props: any) {
 
   const isDark = nightMode === 'dark' || (nightMode === 'system' && systemColor === 'dark');
   const finalBgColor = themes[themeId][isDark ? 'dark' : 'light'].bg;
-  const coreReady = !!rootNavigationState;
 
   useEffect(() => {
-    if (coreReady && fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [coreReady, fontsLoaded]);
+    const { InteractionManager } = require('react-native');
+    InteractionManager.runAfterInteractions(() => {
+      MonetizationService.initialize();
+      useAiStore.getState().initialize().catch(() => {});
+    });
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -101,10 +105,10 @@ export function RootLayout(props: any) {
       } catch (e) {
         log.error('DB Init Failed', e as any);
       }
-      setTimeout(() => {
+      const { InteractionManager } = require('react-native');
+      InteractionManager.runAfterInteractions(() => {
         useAuthStore.getState().initialize().catch(() => {});
-        useAiStore.getState().initialize().catch(() => {});
-      }, 0);
+      });
     };
     init();
 
@@ -123,24 +127,31 @@ export function RootLayout(props: any) {
     SystemUI.setBackgroundColorAsync(finalBgColor).catch(() => {});
   }, [finalBgColor]);
 
-  const navTheme = useMemo(() => ({
-    dark: isDark,
-    colors: {
-      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
-      background: finalBgColor,
-    },
-  }), [isDark, finalBgColor]);
+  const navTheme = useMemo(() => {
+    const base = isDark ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      dark: isDark,
+      colors: {
+        ...base.colors,
+        background: finalBgColor,
+      },
+    };
+  }, [isDark, finalBgColor]);
 
   return (
-    <ThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-        <Stack.Screen name="(main)" options={{ headerShown: false }} />
-        <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-        <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
-      </Stack>
-      <LockScreen />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={navTheme}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+          <Stack.Screen name="(main)" options={{ headerShown: false }} />
+          <Stack.Screen name="editor/[id]" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="trash" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+          <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
+        </Stack>
+        <LockScreen />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

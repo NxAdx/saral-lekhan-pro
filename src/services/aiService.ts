@@ -1,7 +1,15 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAiStore } from '../store/aiStore';
+import { useSettingsStore } from '../store/settingsStore';
 
 export class AiService {
+
+    private static checkProStatus() {
+        const { isPro } = useSettingsStore.getState();
+        if (!isPro) {
+            throw new Error('PRO_REQUIRED');
+        }
+    }
 
     static async getBestModel(apiKey: string): Promise<string> {
         try {
@@ -32,7 +40,27 @@ export class AiService {
         return "gemini-1.5-flash"; // Ultimate fallback
     }
 
+    static async generate(prompt: string, context: string = ''): Promise<string> {
+        this.checkProStatus();
+        const apiKey = useAiStore.getState().geminiApiKey;
+        if (!apiKey) throw new Error("Gemini API key is not configured.");
+
+        const modelName = await this.getBestModel(apiKey);
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+
+        try {
+            const result = await model.generateContent(context ? `${context}\n\n${prompt}` : prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (e: any) {
+            console.error("AI Content generation failed", e);
+            throw new Error(e.message || "Failed to generate content. Check your API Key.");
+        }
+    }
+
     static async getSummarization(text: string): Promise<string> {
+        this.checkProStatus();
         const apiKey = useAiStore.getState().geminiApiKey;
         if (!apiKey) throw new Error("Gemini API key is not configured.");
 
@@ -53,6 +81,7 @@ export class AiService {
     }
 
     static async getSmartTitle(text: string): Promise<string> {
+        this.checkProStatus();
         const apiKey = useAiStore.getState().geminiApiKey;
         if (!apiKey) throw new Error("Gemini API key is not configured.");
 
@@ -73,6 +102,7 @@ export class AiService {
     }
 
     static async getDynamicGeneration(promptParams: string): Promise<string> {
+        this.checkProStatus();
         const apiKey = useAiStore.getState().geminiApiKey;
         if (!apiKey) throw new Error("Gemini API key is not configured.");
 
@@ -91,6 +121,7 @@ export class AiService {
     }
 
     static async getFormatNote(text: string): Promise<string> {
+        this.checkProStatus();
         const apiKey = useAiStore.getState().geminiApiKey;
         if (!apiKey) throw new Error("Gemini API key is not configured.");
 

@@ -20,6 +20,56 @@ export interface ChangelogItem {
 }
 
 export const APP_CHANGELOG: ChangelogItem[] = [
+  {
+    version: "3.0.0",
+    date: "2026-03-22",
+    title: {
+      en: "The Plus Update - Official Release",
+      hi: "द प्लस अपडेट - आधिकारिक रिलीज",
+    },
+    changes: {
+      en: [
+        "Performance: Added database indexes for faster note retrieval.",
+        "Optimization: Deferred non-critical store initialization for faster launch.",
+        "Typography: Pruned legacy fonts and normalized wordmarks.",
+        "Configuration: Fixed RevenueCat plugin resolution.",
+        "Monetization: Activated Pro gates for Print and Export features."
+      ],
+      hi: [
+        "परफॉर्मेंस: तेज़ नोट रिट्रीवल के लिए डेटाबेस इंडेक्स जोड़े गए।",
+        "ऑप्टिमाइज़ेशन: तेज़ लॉन्च के लिए गैर-महत्वपूर्ण स्टोर इनिशियलाइज़ेशन को टाला गया।",
+        "टाइपोग्राफी: पुराने फोंट हटाए गए और वर्डमार्क को सामान्य किया गया।",
+        "कॉन्फ़िगरेशन: रेवेन्यूकैट प्लगइन समस्या को ठीक किया गया।",
+        "मुद्रीकरण: प्रिंट और एक्सपोर्ट सुविधाओं के लिए प्रो गेट्स सक्रिय किए गए।"
+      ]
+    }
+  },
+    {
+    version: "3.0.0-rc3",
+    date: "2026-03-20",
+    title: {
+      en: "The Launcher & Polish Update",
+      hi: "लॉन्चर और पॉलिश अपडेट",
+    },
+    changes: {
+      en: [
+        "Quick Note Widget: New Android home screen widget for instant note taking.",
+        "Premium Printing: Added native printing support with professional templates.",
+        "Export Options: Export notes directly to Markdown or Plain Text files.",
+        "Checklist Support: Improved checkbox handling for Spark AI and manual edits.",
+        "RevenueCat Integration: Foundation for Saral Lekhan Plus subscriptions.",
+        "System Version: Updated internal engine to v3.0.0-rc3."
+      ],
+      hi: [
+        "क्विक नोट विजेट: तत्काल नोट लेने के लिए नया एंड्रॉइड होम स्क्रीन विजेट।",
+        "प्रीमियम प्रिंटिंग: प्रोफेशनल टेम्प्लेट के साथ नेटिव प्रिंटिंग सपोर्ट जोड़ा गया।",
+        "एक्सपोर्ट विकल्प: नोट्स को सीधे मार्कडाउन या प्लेन टेक्स्ट फाइलों में एक्सपोर्ट करें।",
+        "चेकलिस्ट सपोर्ट: स्पार्क एआई और मैन्युअल संपादन के लिए बेहतर चेकबॉक्स हैंडलिंग।",
+        "रेवेन्यूकैट इंटीग्रेशन: सरल लेखन प्लस सब्सक्रिप्शन के लिए आधार।",
+        "सिस्टम वर्जन: आंतरिक इंजन को v3.0.0-rc3 पर अपडेट किया गया।"
+      ]
+    }
+  },
     {
     version: "2.17.22",
     date: "2026-03-18",

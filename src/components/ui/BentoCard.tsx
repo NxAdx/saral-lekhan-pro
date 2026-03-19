@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../store/themeStore';
 import { useTypography } from '../../store/typographyStore';
 import { stripMarkdown } from '../../utils/markdown';
+import { Icon } from './Icon';
 
 import { Note } from '../../store/notesStore';
 
@@ -92,13 +94,15 @@ export const BentoCard = React.memo(({
             position: 'absolute',
             top: 12,
             right: 12,
-            width: 20,
-            height: 20,
-            borderRadius: 10,
+            width: 24,
+            height: 24,
+            borderRadius: 12,
             backgroundColor: colors.accent,
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 10,
+            ...shadow.gentle,
+            shadowColor: colors.shadow,
         }
     }), [colors, radius, shadow, font, pinned, type, selected]);
 
@@ -111,19 +115,33 @@ export const BentoCard = React.memo(({
         };
     });
 
+    const handlePressIn = useCallback(() => {
+        pressed.value = 1;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
+    const handlePressOut = useCallback(() => {
+        pressed.value = 0;
+    }, []);
+
     return (
         <AnimatedPressable
             onPress={onPress}
             onLongPress={onLongPress}
-            onPressIn={() => { pressed.value = 1; }}
-            onPressOut={() => { pressed.value = 0; }}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
             style={[s.card, animStyle]}
             delayLongPress={300}
             testID={`note-card-${note.id}`}
+            accessible={true}
+            accessibilityLabel={`${pinned ? 'Pinned ' : ''}${selected ? 'Selected ' : ''}Note: ${title}. ${cleanPreview}`}
+            accessibilityHint="Double tap to open, long press to select"
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
         >
             {selected && (
                 <View style={s.selectionIcon}>
-                    <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+                    <Icon name="check" size={14} color={colors.white} strokeWidth={3} />
                 </View>
             )}
             <View style={s.content}>
@@ -139,10 +157,10 @@ export const BentoCard = React.memo(({
                 ) : null}
 
                 <View style={s.metaRow}>
-                    <Text style={s.date}>{date}</Text>
+                    <Text style={s.date} accessibilityLabel={`Last updated ${date}`}>{date}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         {tag ? (
-                            <View style={s.tagChip}>
+                            <View style={s.tagChip} accessibilityLabel={`Tagged as ${tag}`}>
                                 <Text style={s.tagText}>{tag}</Text>
                             </View>
                         ) : null}

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
@@ -7,8 +8,8 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { Svg, Path } from 'react-native-svg';
-import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
+import * as Haptics from 'expo-haptics';
+import { useNotesStore, ALL_TAG_ID, Note } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
@@ -17,11 +18,11 @@ import { TagPill } from '../../components/ui/TagPill';
 import { useTypography } from '../../store/typographyStore';
 import { FAB } from '../../components/ui/FAB';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import { Icon } from '../../components/ui/Icon';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
-const HOME_BRAND_EN = 'Saral';
-const HOME_BRAND_HI = 'Lekhan';
+const HOME_BRAND = 'Saral लेखन';
 
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
@@ -34,6 +35,13 @@ function formatDate(ts: number, loc: any): string {
   if (d.toDateString() === yesterday.toDateString()) return loc.home.yesterday || 'Yesterday';
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
 }
+
+/**
+ * FlashList optimization: Move renderItem and keyExtractor outside
+ */
+const keyExtractor = (item: Note) => String(item.id);
+
+const ItemSeparator = () => <View style={{ height: 8 }} />;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -90,7 +98,7 @@ export default function HomeScreen() {
       note,
       haystack: [
         note.title,
-        stripMarkdown(note.body),
+        note.plain_body || stripMarkdown(note.body),
         note.tag || '',
       ].join(' ').toLowerCase(),
     }));
@@ -105,6 +113,7 @@ export default function HomeScreen() {
   }, [notes, searchIndex, debouncedSearchQuery]);
 
   const toggleSelection = useCallback((id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -115,6 +124,7 @@ export default function HomeScreen() {
   }, []);
 
   const handleLongPress = useCallback((id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsSelectionMode(true);
     setSelectedIds(new Set([id]));
   }, []);
@@ -125,10 +135,12 @@ export default function HomeScreen() {
   }, []);
 
   const handleBulkDelete = useCallback(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     setShowBulkDeleteModal(true);
   }, []);
 
   const handleBulkExport = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
     if (selectedNotes.length === 0) return;
     try {
@@ -144,7 +156,10 @@ export default function HomeScreen() {
     }
   }, [selectedIds, filteredNotes, clearSelection]);
 
-  const onNewNote = useCallback(() => router.push('/editor/new'), [router]);
+  const onNewNote = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/editor/new');
+  }, [router]);
   const onNotePress = useCallback((id: number) => router.push(`/editor/${id}`), [router]);
 
   const handleImportFile = useCallback(async () => {
@@ -173,8 +188,8 @@ export default function HomeScreen() {
       setAppAlert({ visible: true, title: loc.home.importFailedTitle, subtitle: loc.home.importFailedSub });
     }
   }, [addNote, loc, router]);
-
   const handleImport = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowImportModal(true);
   }, []);
 
@@ -182,29 +197,20 @@ export default function HomeScreen() {
     root: {
       flex: 1,
       backgroundColor: colors.bg,
-      paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 44,
     },
     listContent: { paddingBottom: 100 },
     noteContainer: { paddingHorizontal: 20 },
     headerLeft: {
-      flexShrink: 1, // Allow title to take only needed space
+      flexShrink: 1, 
     },
     appNameRow: {
       flexDirection: 'row',
-      alignItems: 'baseline', // Fixed: use baseline for nested text strategy
+      alignItems: 'baseline', 
     },
     appNameWordmark: {
       color: colors.ink,
       fontFamily: 'Poppins-Bold',
-      fontSize: 28, // Reduced from 32 to fit
-      lineHeight: 34,
-      letterSpacing: -0.4,
-      includeFontPadding: false,
-    },
-    appNameHindi: {
-      color: colors.ink,
-      fontFamily: 'Poppins-Bold',
-      fontSize: 28, // Reduced from 32 to fit
+      fontSize: 28, 
       lineHeight: 34,
       letterSpacing: -0.4,
       includeFontPadding: false,
@@ -273,74 +279,87 @@ export default function HomeScreen() {
       <View style={s.header}>
         {isSelectionMode ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 16 }}>
-            <Pressable onPress={clearSelection} style={s.circleBtn} hitSlop={12}>
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                <Path d="M10 10l4 4m0 -4l-4 4" />
-              </Svg>
+            <Pressable 
+              onPress={clearSelection} 
+              style={s.circleBtn} 
+              hitSlop={12}
+              accessible={true}
+              accessibilityLabel={loc.editor.cancel || "Cancel Selection"}
+              accessibilityRole="button"
+            >
+              <Icon name="x" color={colors.ink} size={20} />
             </Pressable>
-            <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
+            <Text style={s.selectionTitle} accessibilityLiveRegion="polite">
+              {selectedIds.size} {loc.home.selected || 'Selected'}
+            </Text>
             <View style={{ flex: 1 }} />
-            <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                <Path d="M7 11l5 5l5 -5" />
-                <Path d="M12 4l0 12" />
-              </Svg>
+            <Pressable 
+              onPress={handleBulkExport} 
+              style={s.circleBtn} 
+              hitSlop={12}
+              accessible={true}
+              accessibilityLabel="Export Data"
+              accessibilityRole="button"
+            >
+              <Icon name="share" color={colors.ink} size={18} />
             </Pressable>
-            <Pressable onPress={handleBulkDelete} style={[s.circleBtn, { borderColor: colors.accent }]} hitSlop={12}>
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 7l16 0" />
-                <Path d="M10 11l0 6" />
-                <Path d="M14 11l0 6" />
-                <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-              </Svg>
+            <Pressable 
+              onPress={handleBulkDelete} 
+              style={[s.circleBtn, { borderColor: colors.accent }]} 
+              hitSlop={12}
+              accessible={true}
+              accessibilityLabel="Delete Selected"
+              accessibilityRole="button"
+            >
+              <Icon name="trash" color={colors.accent} size={18} />
             </Pressable>
           </View>
         ) : (
           <>
-            <View style={s.headerLeft}>
+            <View style={s.headerLeft} accessible={true} accessibilityLabel="Saral Lekhan Header">
               <Text style={s.appNameRow} numberOfLines={1}>
-                <Text style={s.appNameWordmark}>{HOME_BRAND_EN}</Text>
-                <Text style={s.appNameHindi}> {HOME_BRAND_HI}</Text>
+                <Text style={s.appNameWordmark}>{HOME_BRAND}</Text>
               </Text>
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>
-              <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={12}>
-                <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                  <Path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
-                  <Path d="M7 16.5l3 3l3 -3" />
-                  <Path d="M10 20.2V12" />
-                  <Path d="M20 18v1a2 2 0 0 1 -2 2h-1" />
-                </Svg>
+              <Pressable 
+                onPress={handleImport} 
+                style={s.circleBtn} 
+                hitSlop={12}
+                accessible={true}
+                accessibilityLabel="Import Markdown"
+                accessibilityRole="button"
+              >
+                <Icon name="import" color={colors.ink} size={18} />
               </Pressable>
-              <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={12}>
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M4 7l16 0" />
-                  <Path d="M10 11l0 6" />
-                  <Path d="M14 11l0 6" />
-                  <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                  <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                </Svg>
+              <Pressable 
+                onPress={() => router.push('/trash')} 
+                style={s.circleBtn} 
+                hitSlop={12}
+                accessible={true}
+                accessibilityLabel="Open Trash"
+                accessibilityRole="button"
+              >
+                <Icon name="trash-2" color={colors.ink} size={20} />
               </Pressable>
-              <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={12} testID="settings-button">
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37a1.724 1.724 0 0 0 2.572 -1.065z" />
-                  <Path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-                </Svg>
+              <Pressable 
+                onPress={() => router.push('/settings')} 
+                style={s.circleBtn} 
+                hitSlop={12} 
+                testID="settings-button"
+                accessible={true}
+                accessibilityLabel="Open Settings"
+                accessibilityRole="button"
+              >
+                <Icon name="settings" color={colors.ink} size={20} />
               </Pressable>
             </View>
           </>
         )}
       </View>
       <View style={s.searchWrap}>
-        <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <Path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-          <Path d="M21 21l-6 -6" />
-        </Svg>
+        <Icon name="search" color={colors.inkDim} size={18} />
         <TextInput
           style={s.searchInput}
           placeholder={loc.searchPlaceholder}
@@ -351,9 +370,17 @@ export default function HomeScreen() {
           onBlur={() => setSearchFocused(false)}
           returnKeyType="search"
           testID="search-input"
+          accessible={true}
+          accessibilityLabel="Search Notes"
         />
         {searchQuery.length > 0 && (
-          <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
+          <Pressable 
+            onPress={() => setSearchQuery('')} 
+            hitSlop={10}
+            accessible={true}
+            accessibilityLabel="Clear Search"
+            accessibilityRole="button"
+          >
             <Text style={s.clearBtn}>{'\u2715'}</Text>
           </Pressable>
         )}
@@ -365,33 +392,38 @@ export default function HomeScreen() {
         ))}
       </ScrollView>
     </View >
-  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
+  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc, isSelectionMode, selectedIds]);
+
+  const renderItem = useCallback(({ item, index }: { item: Note, index: number }) => (
+    <Animated.View 
+      entering={FadeInDown.delay(index * 50).duration(400)}
+      style={s.noteContainer}
+    >
+      <BentoCard
+        note={item}
+        onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
+        onLongPress={() => handleLongPress(item.id)}
+        date={formatDate(item.updated_at, loc)}
+        selected={selectedIds.has(item.id)}
+      />
+    </Animated.View>
+  ), [s, loc, isSelectionMode, selectedIds, toggleSelection, onNotePress, handleLongPress]);
 
   if (!isLoaded) return null;
 
   return (
-    <View style={s.root}>
-      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
+    <SafeAreaView style={s.root} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent={true} />
       <FlashList
         data={filteredNotes}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={keyExtractor}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
-        renderItem={({ item, index }) => (
-          <View style={s.noteContainer}>
-            <BentoCard
-              note={item}
-              onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
-              onLongPress={() => handleLongPress(item.id)}
-              date={formatDate(item.updated_at, loc)}
-              selected={selectedIds.has(item.id)}
-              />
-          </View>
-        )}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        renderItem={renderItem}
+        ItemSeparatorComponent={ItemSeparator}
         ListEmptyComponent={
           <View style={s.empty}>
             <Text style={s.emptyTitle}>
@@ -460,6 +492,6 @@ export default function HomeScreen() {
           }
         ]}
       />
-    </View>
+    </SafeAreaView>
   );
 }

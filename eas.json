@@ -7,9 +7,20 @@
         "preview": {
             "distribution": "internal"
         },
-        "production": {
+        "direct": {
             "android": {
                 "buildType": "apk"
+            },
+            "env": {
+                "APP_ENV": "direct"
+            }
+        },
+        "play": {
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "env": {
+                "APP_ENV": "play"
             }
         }
     },

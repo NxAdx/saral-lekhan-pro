@@ -1,15 +1,17 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable,
-  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler,
+  KeyboardAvoidingView, Platform, ScrollView, BackHandler,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
-import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
+import { wordCount, markdownToHtml, stripMarkdown, htmlToMarkdown } from '../../utils/markdown';
 import { Svg, Path, Circle, Rect } from 'react-native-svg';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -24,6 +26,7 @@ import { SparkGenerationPhase } from '../../types/spark';
 import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
 import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
+import { printNote } from '../../utils/printUtils';
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -115,24 +118,55 @@ export default function EditNoteScreen() {
       setBodyText(stripped || '');
     }
 
-    // Inject List & Quote Breakout Script
+    // Inject List, Quote Breakout & Checkbox Interaction Script
     const script = `
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          const selection = window.getSelection();
-          if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            let node = range.startContainer;
-            while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') { 
-              node = node.parentNode; 
-            }
-            if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
-              e.preventDefault();
-              document.execCommand('outdent', false, null);
+      (function() {
+        // 1. Enter key list breakout
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              let node = range.startContainer;
+              while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') { 
+                node = node.parentNode; 
+              }
+              if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
+                e.preventDefault();
+                document.execCommand('outdent', false, null);
+              }
             }
           }
+        });
+
+        // 2. Checkbox interaction listener
+        document.addEventListener('change', function(e) {
+          if (e.target && e.target.type === 'checkbox') {
+            const checked = e.target.checked;
+            if (checked) {
+              e.target.setAttribute('checked', 'checked');
+            } else {
+              e.target.removeAttribute('checked');
+            }
+            // Trigger input event to notify React Native via onChange
+            const event = new Event('input', { bubbles: true });
+            document.body.dispatchEvent(event);
+          }
+        });
+
+        // 3. Ensure checkboxes are interactive (some GFM renderers might set disabled)
+        function enableCheckboxes() {
+          const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+          checkboxes.forEach(cb => {
+            if (cb.disabled) cb.disabled = false;
+          });
         }
-      });
+        
+        // Initial run and also on any content change
+        enableCheckboxes();
+        const observer = new MutationObserver(enableCheckboxes);
+        observer.observe(document.body, { childList: true, subtree: true });
+      })();
       true;
     `;
 
@@ -197,14 +231,14 @@ export default function EditNoteScreen() {
       return false;
     };
 
-    BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
   }, [isDirty, settings.autoSave]);
 
   const handleSave = useCallback(async () => {
     const html = await richText.current?.getContentHtml();
     if (note) {
-      updateNote(note.id, { title: title.trim(), body: html?.trim() || '', tag: tag.trim() });
+      await updateNote(note.id, { title: title.trim(), body: html?.trim() || '', tag: tag.trim() });
       setIsDirty(false);
       showSaved();
     }
@@ -344,50 +378,42 @@ export default function EditNoteScreen() {
   };
 
   const handlePrint = useCallback(async () => {
+    if (!settings.isPro) {
+      setAppAlert({ visible: true, title: "Saral Lekhan Plus", subtitle: "Printing is a Plus feature. Upgrade to unlock!" });
+      return;
+    }
     try {
       if (!note) return;
       setShowExportModal(false);
-      const htmlContent = `
-        <html>
-          <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
-            <title>${note.title || 'Note'}</title>
-            <style>
-              body { font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; padding: 40px; color: #1a1a1a; line-height: 1.8; font-size: 16px; }
-              h1 { font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: 32px; margin-bottom: 24px; color: #000; font-weight: 800; }
-              h2 { font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: 24px; margin-top: 24px; margin-bottom: 12px; font-weight: 700; color: #222; }
-              blockquote { border-left: 4px solid #C14E28; padding-left: 16px; font-style: italic; color: #555; background: #f9f9f9; padding: 12px 16px; margin: 16px 0; border-radius: 4px; }
-              ul, ol { margin-top: 10px; margin-bottom: 10px; padding-left: 24px; }
-              li { margin-bottom: 6px; }
-            </style>
-          </head>
-          <body>
-            <h1>${note.title}</h1>
-            <div>${note.body}</div>
-          </body>
-        </html>
-      `;
-      await Print.printAsync({ html: htmlContent });
+      await printNote({
+        title: note.title,
+        body: note.body,
+        theme
+      });
     } catch (e) {
       console.warn(e);
     }
-  }, [note]);
+  }, [note, theme, settings.isPro]);
 
   const handleExportTextFile = useCallback(async (ext: 'txt' | 'md') => {
+    if (!settings.isPro) {
+      setAppAlert({ visible: true, title: "Saral Lekhan Plus", subtitle: "File export is a Plus feature. Upgrade to unlock!" });
+      return;
+    }
     try {
       if (!note) return;
       setShowExportModal(false);
       const safeTitle = (note.title || 'Untitled_Note').replace(/[^a-zA-Z0-9 -]/g, '').trim().replace(/ /g, '_');
       const filename = `${safeTitle}.${ext}`;
       const newUri = `${FileSystem.cacheDirectory}${filename}`;
-      // Basic export: TXT gets unformatted plain text, MD gets the rich HTML (unless we add a Turndown parser)
-      const content = ext === 'txt' ? bodyText : note.body;
+      // Basic export: TXT gets unformatted plain text, MD gets the converted Markdown
+      const content = ext === 'txt' ? bodyText : htmlToMarkdown(note.body);
       await FileSystem.writeAsStringAsync(newUri, content);
       await Sharing.shareAsync(newUri, { dialogTitle: safeTitle });
     } catch (e) {
       console.warn(e);
     }
-  }, [note, bodyText]);
+  }, [note, bodyText, settings.isPro]);
 
   const handleAiTitle = async () => {
     if (isGenerating) return;
@@ -476,7 +502,7 @@ export default function EditNoteScreen() {
   };
 
   const s = useMemo(() => StyleSheet.create({
-    root: { flex: 1, backgroundColor: colors.bg, paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 44 },
+    root: { flex: 1, backgroundColor: colors.bg },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.strokeDim + '44' },
     circleBtn: {
       width: 38, height: 38, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
@@ -549,8 +575,8 @@ export default function EditNoteScreen() {
   const wc = wordCount(bodyText);
 
   return (
-    <View style={s.root}>
-      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
+    <SafeAreaView style={s.root} edges={['top', 'left', 'right']}>
+      <StatusBar style={theme.isDark ? 'light' : 'dark'} backgroundColor="transparent" translucent={true} />
 
       <View style={s.header}>
         <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
@@ -630,6 +656,8 @@ export default function EditNoteScreen() {
                     hr { border: 0; border-top: 1px solid ${colors.stroke}; margin: 20px 0; }
                     ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
                     li { font-size: 1em !important; margin: 6px 0; }
+                    .task-list-item { list-style: none; display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
+                    .task-list-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 4px; accent-color: ${colors.accent}; }
                     .x-todo { padding-left: 0 !important; margin: 12px 0; }
                     .x-todo li { list-style: none; display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
                     .x-todo-box { position: static !important; left: 0 !important; display: inline-flex; width: 20px; min-width: 20px; height: 20px; align-items: center; justify-content: center; margin-top: 3px; }
@@ -757,6 +785,10 @@ export default function EditNoteScreen() {
             {Boolean(ai.geminiApiKey) ? (
               <Pressable
                 onPress={() => {
+                  if (!settings.isPro) {
+                    setAppAlert({ visible: true, title: "Saral Lekhan Plus", subtitle: "Spark AI is a Plus feature. Upgrade to unlock!" });
+                    return;
+                  }
                   if (!isGenerating) setShowAiModal(true);
                 }}
                 disabled={isGenerating}
@@ -1089,7 +1121,7 @@ export default function EditNoteScreen() {
           }
         ]}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

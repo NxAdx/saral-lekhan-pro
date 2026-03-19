@@ -17,6 +17,8 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 import { useTypography } from '../../store/typographyStore';
 import { APP_CHANGELOG } from '../../constants/changelog';
 import { log } from '../../utils/Logger';
+import { PaywallModal } from '../../components/modals/PaywallModal';
+import { MonetizationService } from '../../services/monetizationService';
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
@@ -76,6 +78,7 @@ export default function SettingsScreen() {
     const [showFeatures, setShowFeatures] = React.useState(false);
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
+    const [showPaywall, setShowPaywall] = React.useState(false);
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
     const [updateModal, setUpdateModal] = React.useState<{ visible: boolean, title: string, sub: string, info: UpdateInfo | null }>({ visible: false, title: '', sub: '', info: null });
 
@@ -196,6 +199,10 @@ export default function SettingsScreen() {
     };
 
     const handleBackup = async () => {
+        if (!settings.isPro) {
+            setShowPaywall(true);
+            return;
+        }
         sync.setIsSyncing(true);
         try {
             const { accessToken, email } = await getAuthenticatedToken();
@@ -343,6 +350,20 @@ export default function SettingsScreen() {
         themeLineShort: { height: 4, borderRadius: 2, width: '50%', marginBottom: 12 },
         themeLabel: { fontFamily: font.sans, fontSize: 11 * theme.fontSize, textAlign: 'center' },
         listDivider: { height: 1, backgroundColor: colors.strokeDim, marginLeft: 16 },
+        outlineBtn: {
+            borderWidth: 1.5,
+            borderColor: colors.accent,
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            borderRadius: 99,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        outlineBtnText: {
+            fontFamily: font.sansBold,
+            fontSize: 13,
+            color: colors.accent,
+        },
     }), [colors, font, theme.radius, theme.isDark, settings.nightMode, settings.themeId]);
 
     return (
@@ -402,10 +423,54 @@ export default function SettingsScreen() {
                             <Path d="M12 16v.01" />
                         </Svg>
                     </Pressable>
+
+                    {settings.isPro ? (
+                        <View style={{ height: 38, paddingHorizontal: 16, borderRadius: 99, backgroundColor: colors.accent, justifyContent: 'center', alignItems: 'center', ...theme.shadow.gentle }}>
+                            <Text style={{ color: colors.white, fontFamily: font.sansBold, fontSize: 12 }}>PRO</Text>
+                        </View>
+                    ) : (
+                        <Pressable
+                            onPress={() => setShowPaywall(true)}
+                            style={({ pressed }) => ({
+                                height: 38, paddingHorizontal: 16, borderRadius: 99,
+                                borderWidth: 1.5, borderColor: colors.accent,
+                                backgroundColor: colors.bgRaised,
+                                justifyContent: 'center', alignItems: 'center',
+                                opacity: pressed ? 0.7 : 1,
+                                ...theme.shadow.gentle
+                            })}
+                        >
+                            <Text style={{ color: colors.accent, fontFamily: font.sansBold, fontSize: 12 }}>GO PRO</Text>
+                        </Pressable>
+                    )}
                 </View>
             </View>
 
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+
+                {/* PRO MEMBERSHIP */}
+                <View
+                    style={{
+                        marginBottom: 24,
+                        padding: 16,
+                        backgroundColor: colors.bgRaised,
+                        borderRadius: theme.radius.lg,
+                        borderWidth: 1,
+                        borderColor: colors.strokeDim
+                    }}
+                >
+                    <Text style={[s.sectionTitle, { marginBottom: 8 }]}>{loc.settingsScreen.proStatus}</Text>
+                    <Text style={{ fontSize: 13, color: colors.inkMid, marginBottom: 16 }}>
+                        {settings.isPro ? loc.settingsScreen.proActive : loc.settingsScreen.proInactive}
+                    </Text>
+                    
+                    <Pressable
+                        onPress={() => MonetizationService.restorePurchases()}
+                        style={({ pressed }) => [s.outlineBtn, { opacity: pressed ? 0.7 : 1 }]}
+                    >
+                        <Text style={s.outlineBtnText}>{loc.settingsScreen.restorePurchases}</Text>
+                    </Pressable>
+                </View>
 
                 {/* APP UPDATER */}
                 <View
@@ -588,7 +653,13 @@ export default function SettingsScreen() {
                         return (
                             <Pressable
                                 key={opt.id}
-                                onPress={() => settings.setThemeId(opt.id)}
+                                onPress={() => {
+                                    if (!settings.isPro) {
+                                        setShowPaywall(true);
+                                        return;
+                                    }
+                                    settings.setThemeId(opt.id);
+                                }}
                                 style={[
                                     s.themeCard,
                                     isSelected ? s.themeCardActive : s.themeCardInactive
@@ -764,13 +835,13 @@ export default function SettingsScreen() {
                         Aadarsh Lokhande
                     </Text>
                     <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12 }}>
-                        {`SARAL LEKHAN PLUS ENGINE v${APP_VERSION}`}
+                        {`SARAL LEKHAN PLUS ENGINE v3.0.0`}
                     </Text>
                 </View>
 
                 <View style={{ height: 80 }} />
 
-            </ScrollView >
+            </ScrollView>
 
             <ThemedModal
                 visible={showFeatures}
@@ -938,6 +1009,7 @@ export default function SettingsScreen() {
                     }
                 ]}
             />
+            <PaywallModal visible={showPaywall} onClose={() => setShowPaywall(false)} />
         </View>
     );
 }

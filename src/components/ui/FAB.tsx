@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, Pressable } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../store/themeStore';
+import { Icon } from './Icon';
 
 interface FABProps {
   onPress: () => void;
@@ -30,12 +31,25 @@ export function FAB({ onPress, testID }: FABProps) {
     ]
   }));
 
+  const handlePressIn = useCallback(() => {
+    pressed.value = 1;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, []);
+
+  const handlePressOut = useCallback(() => {
+    pressed.value = 0;
+  }, []);
+
   return (
     <AnimatedPressable
       onPress={onPress}
       testID={testID}
-      onPressIn={() => { pressed.value = 1; }}
-      onPressOut={() => { pressed.value = 0; }}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessible={true}
+      accessibilityLabel="Create New Note"
+      accessibilityRole="button"
+      accessibilityHint="Tapping this will open the editor for a new note"
       style={[
         styles.fabBase,
         {
@@ -48,10 +62,7 @@ export function FAB({ onPress, testID }: FABProps) {
         animStyle
       ]}
     >
-      <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-        <Path d="M12 5l0 14" />
-        <Path d="M5 12l14 0" />
-      </Svg>
+      <Icon name="plus" size={28} color={colors.white} strokeWidth={3} />
     </AnimatedPressable>
   );
 }

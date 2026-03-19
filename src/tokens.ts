@@ -1,6 +1,6 @@
 // ─── Design tokens & Dynamic Themes ───────────────
 
-const sp = [0, 4, 8, 12, 16, 20, 24, 0, 32, 0, 40, 0, 48, 0, 0, 0, 64] as const;
+const sp = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 56, 64] as const;
 
 export const sharedTokens = {
   font: {
@@ -8,10 +8,10 @@ export const sharedTokens = {
     sansMed: 'Hind-Medium',
     sansSemi: 'Hind-SemiBold',
     sansBold: 'Hind-Bold',
-    display: 'VesperLibre-Black',
-    mono: 'DMMono-Regular',
+    display: 'Poppins-Bold',
+    mono: 'Hind',
   },
-  radius: { pill: 9999, xl: 28, lg: 24, md: 16, sm: 12 }, // Updated for Bento
+  radius: { pill: 9999, xl: 28, lg: 24, md: 16, sm: 12, xs: 8 },
   spacing: sp,
   shadow: {
     soft: {
@@ -42,7 +42,10 @@ export const sharedTokens = {
     headlineLarge: { size: 28, weight: '400' as const },
     titleLarge: { size: 20, weight: '500' as const },
     bodyLarge: { size: 16, weight: '400' as const },
+    bodyMedium: { size: 14, weight: '400' as const },
     labelMedium: { size: 12, weight: '500' as const },
+    caption: { size: 11, weight: '400' as const },
+    overline: { size: 10, weight: '700' as const },
   }
 } as const;
 

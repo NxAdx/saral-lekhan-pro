@@ -91,7 +91,11 @@
         "emailReport": "Email Report",
         "logsCopied": "Logs copied to clipboard!",
         "aboutDeveloper": "Designed by",
-        "developerNames": "Aadarsh Lokhande"
+        "developerNames": "Aadarsh Lokhande",
+        "proStatus": "Pro Membership",
+        "proActive": "You are a Pro member. All features unlocked.",
+        "proInactive": "Upgrade to unlock premium themes and AI features.",
+        "restorePurchases": "Restore Purchases"
     },
     "support": {
         "title": "Help & Support",
