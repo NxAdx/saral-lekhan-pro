@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { themes } from '../../tokens';
+import { themes, ThemeName } from '../../tokens';
 import { useSettingsStore } from '../../store/settingsStore';
 
 const { width } = Dimensions.get('window');
 
-export function SmoothLanding({ isDark }: { isDark: boolean }) {
-  const theme = themes.classic[isDark ? 'dark' : 'light'];
+export function SmoothLanding({ themeId, isDark }: { themeId: ThemeName, isDark: boolean }) {
+  const theme = themes[themeId][isDark ? 'dark' : 'light'];
   
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>

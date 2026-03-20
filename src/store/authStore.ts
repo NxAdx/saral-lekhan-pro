@@ -8,6 +8,7 @@ interface AuthState {
     isBiometricEnabled: boolean;
     isUnlocked: boolean;
     isSupported: boolean;
+    isInitialized: boolean;
 
     // Actions
     setSupported: (supported: boolean) => void;
@@ -22,6 +23,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     isBiometricEnabled: false,
     isUnlocked: false, // Starts locked if biometric is enabled
     isSupported: false,
+    isInitialized: false,
 
     setSupported: (supported) => set({ isSupported: supported }),
 
@@ -67,12 +69,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const enabled = isEnabled === 'true';
             set({
                 isBiometricEnabled: enabled,
-                isUnlocked: !enabled
+                isUnlocked: !enabled,
+                isInitialized: true
             });
             log.info(`AuthStore: Ready (Enabled: ${enabled})`);
         } catch (e) {
             log.error('AuthStore: Failed to load biometric preference', e as any);
-            set({ isUnlocked: true }); // Fallback to unlocked on error
+            set({ isUnlocked: true, isInitialized: true }); // Fallback to unlocked on error
         } finally {
             clearTimeout(authTimeout);
         }

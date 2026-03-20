@@ -21,6 +21,26 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.23",
+    date: "2026-03-20",
+    title: {
+      en: "Pro-Level Splash Handoff",
+      hi: "प्रो-लेवल स्पैश हैंडऑफ",
+    },
+    changes: {
+      en: [
+        "Pro-Level Splash: Implemented a zero-flicker transition from native splash to app UI with Five-Point Sync.",
+        "Theme-Aware Splash: The splash background and icon now perfectly match the user's selected app palette.",
+        "SmoothLanding Integration: Added a skeleton reveal during note loading for a more premium launch feel."
+      ],
+      hi: [
+        "प्रो-लेवल स्पैश: 'फाइव-पॉइंट सिंक' के साथ नेटिव स्पैश से ऐप UI तक एक जीरो-फ्लिकर ट्रांजिशन लागू किया गया।",
+        "थीम-अवेयर स्पैश: स्पैश बैकग्राउंड और आइकन अब यूजर द्वारा चुने गए ऐप पैलेट से पूरी तरह मेल खाते हैं।",
+        "स्मूथ लैंडिंग इंटीग्रेशन: प्रीमियम लॉन्च अनुभव के लिए नोट लोडिंग के दौरान स्केलेटन रिवील जोड़ा गया।"
+      ]
+    }
+  },
+    {
     version: "2.17.22",
     date: "2026-03-18",
     title: {

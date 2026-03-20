@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import {
   ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
 } from 'react-native';
@@ -9,6 +9,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { Svg, Path } from 'react-native-svg';
 import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
+import { shallow } from 'zustand/shallow';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
@@ -17,6 +18,7 @@ import { TagPill } from '../../components/ui/TagPill';
 import { useTypography } from '../../store/typographyStore';
 import { FAB } from '../../components/ui/FAB';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import { SmoothLanding } from '../../components/ui/SmoothLanding';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
 
@@ -38,9 +40,13 @@ function formatDate(ts: number, loc: any): string {
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const lang = useSettingsStore(s => s.language);
+  const { themeId, nightMode, language: lang } = useSettingsStore(s => ({
+    themeId: s.themeId,
+    nightMode: s.nightMode,
+    language: s.language
+  }), shallow);
   const loc = strings[lang] || strings['En'];
-  const { colors, font, radius, shadow, spacing } = theme;
+  const { colors, font, radius, shadow, spacing, isDark } = theme;
   const type = useTypography();
 
   const [selectedTag, setSelectedTag] = useState<string>(ALL_TAG_ID);
@@ -367,10 +373,10 @@ export default function HomeScreen() {
     </View >
   ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
 
-  if (!isLoaded) return null;
+  if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
   return (
-    <View style={s.root}>
+    <Animated.View style={s.root} entering={FadeIn.duration(400)}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
         data={filteredNotes}
@@ -460,6 +466,6 @@ export default function HomeScreen() {
           }
         ]}
       />
-    </View>
+    </Animated.View>
   );
 }
