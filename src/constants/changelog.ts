@@ -21,6 +21,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.26",
+    date: "2026-03-21",
+    title: {
+      en: "Seamless Splash Logo Polish",
+      hi: "निर्बाध स्पैश लोगो पॉलिश",
+    },
+    changes: {
+      en: [
+        "Uninterrupted Logo: Updated native window layouts to keep the splash logo perfectly visible throughout the entire boot sequence."
+      ],
+      hi: [
+        "निर्बाध लोगो: पूरी बूट प्रक्रिया के दौरान स्पैश लोगो को पूरी तरह से दिखाई देने के लिए नेटिव विंडो लेआउट को अपडेट किया गया।"
+      ]
+    }
+  },
+    {
     version: "2.17.25",
     date: "2026-03-21",
     title: {
