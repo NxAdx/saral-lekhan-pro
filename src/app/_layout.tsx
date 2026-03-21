@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AppState, useColorScheme, View, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { Stack, useRootNavigationState } from 'expo-router';

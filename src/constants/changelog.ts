@@ -21,6 +21,24 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.24",
+    date: "2026-03-21",
+    title: {
+      en: "Critical Hotfix: Startup Crash",
+      hi: "महत्वपूर्ण हॉटफिक्स: स्टार्टअप क्रैश",
+    },
+    changes: {
+      en: [
+        "Fixed a critical ReferenceError during startup by restoring missing 'useState' hooks.",
+        "Ensured smooth transition for the Pro-Level splash handoff."
+      ],
+      hi: [
+        "लापता 'useState' हुक को बहाल करके स्टार्टअप के दौरान एक महत्वपूर्ण ReferenceError को ठीक किया गया।",
+        "प्रो-लेवल स्पैश हैंडऑफ के लिए सुचारू ट्रांजिशन सुनिश्चित किया गया।"
+      ]
+    }
+  },
+    {
     version: "2.17.23",
     date: "2026-03-20",
     title: {
