@@ -21,6 +21,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.27",
+    date: "2026-03-21",
+    title: {
+      en: "Direct Update Installation Restore",
+      hi: "डायरेक्ट अपडेट इंस्टालेशन रिस्टोर",
+    },
+    changes: {
+      en: [
+        "In-App Updater: Restored the native Android module responsible for direct APK installations that was inadvertently removed during a previous prebuild sequence."
+      ],
+      hi: [
+        "इन-ऐप अपडेटर: डायरेक्ट APK इंस्टालेशन के लिए जिम्मेदार नेटिव Android मॉड्यूल को रिस्टोर किया गया जो पिछले प्रीबिल्ड के दौरान गलती से हटा दिया गया था।"
+      ]
+    }
+  },
+    {
     version: "2.17.26",
     date: "2026-03-21",
     title: {
