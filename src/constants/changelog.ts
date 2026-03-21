@@ -21,6 +21,26 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.25",
+    date: "2026-03-21",
+    title: {
+      en: "Launch Polish & Auth Sync",
+      hi: "लॉन्च पॉलिश और ऑथ सिंक",
+    },
+    changes: {
+      en: [
+        "White Flash Eliminated: Optimized native Android themes to use synchronized DayNight backgrounds.",
+        "Auth Recovery: Added support for automatic fallback to native Google config if the web client drifts.",
+        "Internal: Verified production SHA-1 for Firebase consistency."
+      ],
+      hi: [
+        "वाइट फ्लैश समाप्त: सिंक्रोनाइज़्ड DayNight बैकग्राउंड का उपयोग करने के लिए नेटिव एंड्रॉइड थीम को ऑप्टिमाइज़ किया गया।",
+        "ऑथ रिकवरी: वेब क्लाइंट में समस्या होने पर नेटिव गूगल कॉन्फ़िगरेशन पर ऑटोमैटिक फॉलबैक सपोर्ट जोड़ा गया।",
+        "इंटरनल: फायरबेस स्थिरता के लिए प्रोडक्शन SHA-1 का सत्यापन किया गया।"
+      ]
+    }
+  },
+    {
     version: "2.17.24",
     date: "2026-03-21",
     title: {
