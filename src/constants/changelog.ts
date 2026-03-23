@@ -21,6 +21,22 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.28",
+    date: "2026-03-23",
+    title: {
+      en: "Critical Google Auth Structural Fix",
+      hi: "महत्वपूर्ण Google Auth संरचनात्मक फिक्स",
+    },
+    changes: {
+      en: [
+        "Google Sign-In: Fixed a massive Android build regression where the production APK was silently being signed with a debug certificate, causing Google auth to block access."
+      ],
+      hi: [
+        "Google साइन-इन: Android बिल्ड में एक बड़ी समस्या को ठीक किया गया जहाँ प्रोडक्शन APK पर गलती से डिबग सर्टिफिकेट लगाया जा रहा था, जिससे Google Auth लॉगिन रोक रहा था।"
+      ]
+    }
+  },
+    {
     version: "2.17.27",
     date: "2026-03-21",
     title: {
