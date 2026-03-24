@@ -75,6 +75,10 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
+def requestedTasks = gradle.startParameter.taskNames.collect { it.toLowerCase() }
+def isReleaseBuildRequested = requestedTasks.any { taskName ->
+    taskName.contains("release") || taskName.contains("bundle")
+}
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -99,16 +103,29 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-            } else if (System.getenv('ANDROID_KEY_ALIAS') != null) {
+            def uploadStoreFile = (project.findProperty('MYAPP_UPLOAD_STORE_FILE') ?: System.getenv('MYAPP_UPLOAD_STORE_FILE'))?.toString()?.trim()
+            def uploadStorePassword = (project.findProperty('MYAPP_UPLOAD_STORE_PASSWORD') ?: System.getenv('MYAPP_UPLOAD_STORE_PASSWORD'))?.toString()?.trim()
+            def uploadKeyAlias = (project.findProperty('MYAPP_UPLOAD_KEY_ALIAS') ?: System.getenv('MYAPP_UPLOAD_KEY_ALIAS'))?.toString()?.trim()
+            def uploadKeyPassword = (project.findProperty('MYAPP_UPLOAD_KEY_PASSWORD') ?: System.getenv('MYAPP_UPLOAD_KEY_PASSWORD'))?.toString()?.trim()
+
+            def legacyStorePassword = System.getenv('ANDROID_STORE_PASSWORD')?.toString()?.trim()
+            def legacyKeyAlias = System.getenv('ANDROID_KEY_ALIAS')?.toString()?.trim()
+            def legacyKeyPassword = (System.getenv('ANDROID_KEY_PASSWORD') ?: legacyStorePassword)?.toString()?.trim()
+
+            if (uploadStoreFile && uploadStorePassword && uploadKeyAlias && uploadKeyPassword) {
+                storeFile file(uploadStoreFile)
+                storePassword uploadStorePassword
+                keyAlias uploadKeyAlias
+                keyPassword uploadKeyPassword
+            } else if (legacyStorePassword && legacyKeyAlias && legacyKeyPassword) {
                 storeFile file('release.keystore')
-                storePassword System.getenv('ANDROID_STORE_PASSWORD')
-                keyAlias System.getenv('ANDROID_KEY_ALIAS')
-                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+                storePassword legacyStorePassword
+                keyAlias legacyKeyAlias
+                keyPassword legacyKeyPassword
+            } else if (isReleaseBuildRequested) {
+                throw new GradleException(
+                    "Missing release signing config. Set MYAPP_UPLOAD_* (Gradle properties or env vars) or ANDROID_* env vars before running release builds."
+                )
             }
         }
     }
