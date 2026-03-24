@@ -21,6 +21,7 @@
       }
     },
     "android": {
+      "jsEngine": "hermes",
       "package": "com.sarallekhan",
       "versionCode": 98,
       "newArchEnabled": true,
@@ -51,7 +52,7 @@
     "extra": {
       "runtimeFlagsUrl": "https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json",
       "distributionChannel": "direct",
-      "updaterMode": "github",
+      "updaterMode": "fdroid",
       "eas": {
         "projectId": "d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
       }
@@ -60,8 +61,7 @@
       "url": "https://u.expo.dev/d9a30678-cf8c-4f8b-8c28-0b49f63f3208"
     },
     "plugins": [
-      "expo-router",
-      "@react-native-google-signin/google-signin"
+      "expo-router"
     ]
   }
 }

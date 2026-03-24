@@ -8,7 +8,6 @@ import { useAuthStore } from '../../store/authStore';
 import { useAiStore } from '../../store/aiStore';
 import { useSyncStore } from '../../store/syncStore';
 import { useNotesStore } from '../../store/notesStore';
-import { GoogleDriveService } from '../../services/googleDriveService';
 import { themes, ThemeName } from '../../tokens';
 import { strings } from '../../i18n/strings';
 import { TagPill } from '../../components/ui/TagPill';
@@ -20,7 +19,8 @@ import { log } from '../../utils/Logger';
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { APP_VERSION, checkForUpdate, downloadAndInstallApk, UpdateInfo } from '../../utils/githubUpdater';
+import * as DocumentPicker from 'expo-document-picker';
+import { APP_VERSION, checkForUpdate, downloadAndInstallApk, UpdateInfo, UPDATER_MODE } from '../../utils/githubUpdater';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -72,7 +72,6 @@ export default function SettingsScreen() {
     const loc = strings[settings.language] || strings['En'];
     const type = useTypography();
 
-    const [showFontModal, setShowFontModal] = React.useState(false);
     const [showFeatures, setShowFeatures] = React.useState(false);
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
@@ -174,64 +173,73 @@ export default function SettingsScreen() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            const { accessToken, email } = await GoogleDriveService.signIn();
-            await sync.setGoogleTokens(accessToken, email);
-        } catch (e: any) {
-            setSyncAlert({ visible: true, title: "Login Failed", sub: e.message || "Could not authenticate with Google." });
-        }
-    };
-
-    const getAuthenticatedToken = async () => {
-        try {
-            const accessToken = await GoogleDriveService.getFreshToken();
-            return { accessToken, email: sync.googleEmail || '' };
-        } catch (e: any) {
-            const msg = String(e?.message || '').toLowerCase();
-            const shouldReauth =
-                msg.includes('session expired') ||
-                msg.includes('sign in') ||
-                msg.includes('sign-in');
-
-            if (!shouldReauth) throw e;
-
-            // Fallback: do one explicit native sign-in and continue.
-            const freshSession = await GoogleDriveService.signIn();
-            await sync.setGoogleTokens(freshSession.accessToken, freshSession.email);
-            return freshSession;
-        }
-    };
-
     const handleBackup = async () => {
-        sync.setIsSyncing(true);
         try {
-            const { accessToken, email } = await getAuthenticatedToken();
-            await sync.setGoogleTokens(accessToken, email || sync.googleEmail || '');
-            await GoogleDriveService.backupDatabase(accessToken);
-            await sync.setLastSync(Date.now());
-            setSyncAlert({ visible: true, title: "Backup Complete", sub: "Your notes were safely uploaded to Google Drive." });
+            const dbName = 'saral_lekhan.db';
+            const dbDir = `${FileSystem.documentDirectory}SQLite`;
+            const dbPath = `${dbDir}/${dbName}`;
+
+            const fileInfo = await FileSystem.getInfoAsync(dbPath);
+            if (!fileInfo.exists) {
+                setSyncAlert({ visible: true, title: "Backup Failed", sub: "No database found to backup." });
+                return;
+            }
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            const exportFileName = `SaralLekhan_Backup_${dateStr}.db`;
+            const exportPath = `${FileSystem.cacheDirectory}${exportFileName}`;
+
+            await FileSystem.copyAsync({ from: dbPath, to: exportPath });
+
+            if (!(await Sharing.isAvailableAsync())) {
+                setSyncAlert({ visible: true, title: "Export Failed", sub: "Sharing is not available on this device" });
+                return;
+            }
+
+            await Sharing.shareAsync(exportPath, {
+                dialogTitle: 'Export Saral Lekhan Backup',
+                mimeType: 'application/x-sqlite3',
+            });
         } catch (e: any) {
-            setSyncAlert({ visible: true, title: "Backup Failed", sub: e.message || "An error occurred during upload." });
-        } finally {
-            sync.setIsSyncing(false);
+            log.error("handleBackup", e);
+            setSyncAlert({ visible: true, title: "Export Failed", sub: e.message || "An error occurred during export." });
         }
     };
 
     const handleRestore = async () => {
-        sync.setIsSyncing(true);
         try {
-            const { accessToken, email } = await getAuthenticatedToken();
-            await sync.setGoogleTokens(accessToken, email || sync.googleEmail || '');
-            await GoogleDriveService.restoreDatabase(accessToken);
-            // Sequence: Reset DB -> Refresh Settings (if any changed) -> Notify
+            const result = await DocumentPicker.getDocumentAsync({
+                copyToCacheDirectory: true,
+                type: ['*/*'],
+            });
+
+            if (result.canceled) {
+                return;
+            }
+
+            const asset = result.assets[0];
+            if (!asset.name.toLowerCase().endsWith('.db')) {
+                setSyncAlert({ visible: true, title: "Invalid File", sub: "Please select a valid Saral Lekhan backup (.db) file." });
+                return;
+            }
+
+            const dbName = 'saral_lekhan.db';
+            const dbDir = `${FileSystem.documentDirectory}SQLite`;
+            const destPath = `${dbDir}/${dbName}`;
+
+            const dirInfo = await FileSystem.getInfoAsync(dbDir);
+            if (!dirInfo.exists) {
+                await FileSystem.makeDirectoryAsync(dbDir, { intermediates: true });
+            }
+
+            await FileSystem.copyAsync({ from: asset.uri, to: destPath });
+
             notes.resetDB();
-            await sync.setLastSync(Date.now());
-            setSyncAlert({ visible: true, title: loc.plusFeatures.syncRestore, sub: loc.plusFeatures.syncRestore });
+
+            setSyncAlert({ visible: true, title: "Restore Complete", sub: "Your notes have been successfully restored!" });
         } catch (e: any) {
-            setSyncAlert({ visible: true, title: "Restore Failed", sub: e.message || "An error occurred during download." });
-        } finally {
-            sync.setIsSyncing(false);
+            log.error("handleRestore", e);
+            setSyncAlert({ visible: true, title: "Restore Failed", sub: e.message || "An error occurred during restore." });
         }
     };
 
@@ -416,6 +424,7 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
                 {/* APP UPDATER */}
+                {UPDATER_MODE !== 'fdroid' && (
                 <View
                     style={{
                         marginBottom: 24,
@@ -471,6 +480,7 @@ export default function SettingsScreen() {
                         )}
                     </View>
                 </View>
+                )}
 
 
                 {/* APPEARANCE SECTION */}
@@ -515,19 +525,6 @@ export default function SettingsScreen() {
                         />
                     </View>
 
-                    {/* Text Size Entry */}
-                    <Pressable
-                        style={[s.listItem, s.listItemNoBorder]}
-                        onPress={() => setShowFontModal(true)}
-                    >
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.textSize}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.textSizeSub}</Text>
-                        </View>
-                        <Text style={{ fontFamily: font.mono, color: colors.accent, fontSize: 16 }}>
-                            {Math.round(settings.fontSize * 100)}%
-                        </Text>
-                    </Pressable>
                 </View>
 
                 {/* Font Customization */}
@@ -703,61 +700,50 @@ export default function SettingsScreen() {
                         </View>
                     </View>
 
-                    {/* Google Drive Sync */}
+                    {/* Local Backup Vault & Donations */}
                     <View style={[s.listItem, s.listItemNoBorder]}>
                         <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.plusFeatures.syncTitle}</Text>
-                            <Text style={s.listSub}>{loc.plusFeatures.syncDesc}</Text>
+                            <Text style={s.listLabel}>Data Vault (Local Backup)</Text>
+                            <Text style={s.listSub}>Safely export or import your markdown notes.</Text>
 
-                            {!sync.googleToken ? (
+                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
                                 <Pressable
-                                    style={{ marginTop: 12, paddingVertical: 10, backgroundColor: colors.bgDeep, borderRadius: theme.radius.md, alignItems: 'center' }}
-                                    onPress={handleGoogleLogin}
+                                    style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' }}
+                                    onPress={handleBackup}
                                 >
-                                    <Text style={{ fontFamily: font.sansSemi, color: colors.ink, fontSize: 13 }}>{loc.plusFeatures.syncSignIn}</Text>
-                                </Pressable>
-                            ) : (
-                                <View style={{ marginTop: 12 }}>
-                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent, marginBottom: 8 }}>
-                                        ✓ Connected: {sync.googleEmail}
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
+                                        Export Backup
                                     </Text>
+                                </Pressable>
 
-                                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                                        <Pressable
-                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
-                                            onPress={handleBackup}
-                                            disabled={sync.isSyncing}
-                                        >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                                {sync.isSyncing ? loc.plusFeatures.isSyncing : loc.plusFeatures.syncBackup}
-                                            </Text>
-                                        </Pressable>
+                                <Pressable
+                                    style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center' }}
+                                    onPress={handleRestore}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
+                                        Import Backup
+                                    </Text>
+                                </Pressable>
+                            </View>
 
-                                        <Pressable
-                                            style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.md, alignItems: 'center', justifyContent: 'center', opacity: sync.isSyncing ? 0.6 : 1 }}
-                                            onPress={handleRestore}
-                                            disabled={sync.isSyncing}
-                                        >
-                                            <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                                {sync.isSyncing ? 'Wait...' : loc.plusFeatures.syncRestore}
-                                            </Text>
-                                        </Pressable>
-                                    </View>
+                            <Text style={{ fontFamily: font.sansSemi, fontSize: 14, color: colors.ink, marginTop: 24, marginBottom: 8 }}>Support The Developer</Text>
+                            <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginBottom: 16 }}>Saral Lekhan is 100% free on F-Droid. If you love the app, consider supporting its development!</Text>
 
-                                    {sync.lastSync && (
-                                        <Text style={{ fontFamily: font.mono, fontSize: 10, color: colors.inkDim, marginTop: 12, textAlign: 'center' }}>
-                                            {loc.plusFeatures.lastSync}: {new Date(sync.lastSync).toLocaleString()}
-                                        </Text>
-                                    )}
+                            <View style={{ gap: 12 }}>
+                                <Pressable
+                                    style={{ paddingVertical: 12, backgroundColor: '#1DB760', borderRadius: theme.radius.md, alignItems: 'center' }}
+                                    onPress={() => Linking.openURL('upi://pay?pa=9479933411@nyes&pn=Aadarsh%20Lokhande&cu=INR')}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: '#FFF', fontSize: 13 }}>Support via UPI (0% Fees)</Text>
+                                </Pressable>
 
-                                    <Pressable style={{ marginTop: 16 }} onPress={async () => {
-                                        await GoogleDriveService.signOut();
-                                        sync.clearGoogleTokens();
-                                    }}>
-                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, textAlign: 'center' }}>{loc.plusFeatures.syncDisconnect}</Text>
-                                    </Pressable>
-                                </View>
-                            )}
+                                <Pressable
+                                    style={{ paddingVertical: 12, backgroundColor: '#FF5E5B', borderRadius: theme.radius.md, alignItems: 'center' }}
+                                    onPress={() => Linking.openURL('https://ko-fi.com/aadarshlokhande')}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: '#FFF', fontSize: 13 }}>Support via Ko-fi (Global)</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -808,86 +794,6 @@ export default function SettingsScreen() {
                 }
             />
 
-            <ThemedModal
-                visible={showFontModal}
-                title={loc.settingsScreen.textSize}
-                subtitle={loc.settingsScreen.textSizeSub}
-                onClose={() => setShowFontModal(false)}
-                actions={[
-                    { label: loc.settingsScreen.reset, style: "default", onPress: () => { settings.setFontSize(1.0); setShowFontModal(false); } },
-                    { label: loc.settingsScreen.ok, style: "default", onPress: () => setShowFontModal(false) }
-                ]}
-                customContent={
-                    <View>
-                        <View style={{
-                            backgroundColor: colors.bgRaised,
-                            borderRadius: 16,
-                            padding: 20,
-                            marginBottom: 24,
-                            alignItems: 'center',
-                            borderWidth: 1,
-                            borderColor: colors.strokeDim,
-                            minHeight: 100,
-                            justifyContent: 'center'
-                        }}>
-                            <Text style={{
-                                fontFamily: font.sans,
-                                fontSize: type.bodyLarge.fontSize,
-                                color: colors.ink,
-                                textAlign: 'center',
-                                includeFontPadding: false
-                            }}>
-                                {settings.language === 'Hi' ? "नमस्ते, सरल लेखन।" : settings.language === 'Mr' ? "नमस्कार, सरल लेखन।" : "The quick brown fox jumps over the lazy dog."}
-                            </Text>
-                            <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.accent, marginTop: 8 }}>
-                                {Math.round(settings.fontSize * 100)}% ({settings.appFont})
-                            </Text>
-                        </View>
-
-                        {/* ─── Text Size Step Picker (Beautiful A-circle row) ─── */}
-                        <View style={{ paddingBottom: 8 }}>
-                            {/* Progress track */}
-                            <View style={{ height: 4, backgroundColor: colors.accentBg, borderRadius: 2, marginHorizontal: 20, marginBottom: 12 }}>
-                                <View style={{
-                                    height: 4, borderRadius: 2, backgroundColor: colors.accent,
-                                    width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`
-                                }} />
-                            </View>
-                            {/* Step buttons */}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                {FONT_SIZE_STEPS.map((step) => {
-                                    const isActive = settings.fontSize === step;
-                                    const idx = FONT_SIZE_STEPS.indexOf(step);
-                                    const btnSize = 28 + idx * 3;
-                                    return (
-                                        <Pressable
-                                            key={step}
-                                            onPress={() => settings.setFontSize(step)}
-                                            style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}
-                                        >
-                                            <View style={{
-                                                width: btnSize, height: btnSize, borderRadius: btnSize / 2,
-                                                backgroundColor: isActive ? colors.accent : colors.accentBg,
-                                                justifyContent: 'center', alignItems: 'center',
-                                            }}>
-                                                <Text style={{
-                                                    fontFamily: font.sansBold,
-                                                    fontSize: 9 + idx * 1.5,
-                                                    color: isActive ? colors.white : colors.accent,
-                                                    includeFontPadding: false,
-                                                }}>A</Text>
-                                            </View>
-                                            <Text style={{ fontFamily: font.mono, fontSize: 9, color: isActive ? colors.accent : colors.inkDim, marginTop: 4, includeFontPadding: false }}>
-                                                {Math.round(step * 100)}%
-                                            </Text>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
-                        </View>
-                    </View>
-                }
-            />
 
             <ThemedModal
                 visible={syncAlert.visible}
@@ -909,8 +815,8 @@ export default function SettingsScreen() {
                 customContent={
                     <View style={{ height: 400 }}>
                         <ScrollView showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
-                            {APP_CHANGELOG.map((item, idx) => (
-                                <View key={item.version} style={{ marginBottom: 24, borderBottomWidth: idx === APP_CHANGELOG.length - 1 ? 0 : 1, borderBottomColor: colors.strokeDim, paddingBottom: 16 }}>
+                            {APP_CHANGELOG.slice(0, 1).map((item, idx) => (
+                                <View key={item.version} style={{ marginBottom: 24, borderBottomWidth: 0, paddingBottom: 16 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                                         <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.accent, includeFontPadding: false }}>v{item.version}</Text>
                                         <Text style={{ fontFamily: font.mono, fontSize: 11, color: colors.inkDim }}>{item.date}</Text>
@@ -920,6 +826,16 @@ export default function SettingsScreen() {
                                             • {change}
                                         </Text>
                                     ))}
+                                    
+                                    <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.strokeDim }}>
+                                        <Text style={{ fontFamily: font.sans, color: colors.inkMid, fontSize: 13, marginBottom: 12 }}>Older changes are available on GitHub.</Text>
+                                        <Pressable 
+                                            onPress={() => Linking.openURL('https://github.com/NxAdx/saral-lekhan-pro/releases')}
+                                            style={{ padding: 12, backgroundColor: colors.bgRaised, borderRadius: 8, borderWidth: 1, borderColor: colors.strokeDim, alignItems: 'center' }}
+                                        >
+                                            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>View Full Changelog</Text>
+                                        </Pressable>
+                                    </View>
                                 </View>
                             ))}
                         </ScrollView>
