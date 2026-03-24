@@ -525,6 +525,54 @@ export default function SettingsScreen() {
                         />
                     </View>
 
+                    {/* Text Size Inline Resizer */}
+                    <View style={[s.listItem, s.listItemNoBorder, { paddingBottom: 8 }]}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.textSize}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.textSizeSub}</Text>
+                        </View>
+                        <Text style={{ fontFamily: font.mono, color: colors.accent, fontSize: 16 }}>
+                            {Math.round(settings.fontSize * 100)}%
+                        </Text>
+                    </View>
+                    <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 4 }}>
+                        {/* Progress track */}
+                        <View style={{ height: 4, backgroundColor: colors.accentBg, borderRadius: 2, marginBottom: 12 }}>
+                            <View style={{
+                                height: 4, borderRadius: 2, backgroundColor: colors.accent,
+                                width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`
+                            }} />
+                        </View>
+                        {/* Step buttons */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: -10 }}>
+                            {[0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4].map((step) => {
+                                const isActive = Math.abs(settings.fontSize - step) < 0.05;
+                                const idx = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4].indexOf(step);
+                                const btnSize = 28 + idx * 3;
+                                return (
+                                    <Pressable
+                                        key={step}
+                                        onPress={() => settings.setFontSize(step)}
+                                        style={{ flex: 1, alignItems: 'center' }}
+                                    >
+                                        <View style={{
+                                            width: btnSize, height: btnSize, borderRadius: btnSize / 2,
+                                            backgroundColor: isActive ? colors.accent : colors.accentBg,
+                                            justifyContent: 'center', alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                fontFamily: font.sansBold,
+                                                fontSize: 9 + idx * 1.5,
+                                                color: isActive ? colors.white : colors.accent,
+                                                includeFontPadding: false,
+                                            }}>A</Text>
+                                        </View>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </View>
+
                 </View>
 
                 {/* Font Customization */}
@@ -676,26 +724,41 @@ export default function SettingsScreen() {
                                 placeholderTextColor={colors.inkDim}
                                 value={tempKey}
                                 onChangeText={setTempKey}
-                                onBlur={() => {
-                                    const key = tempKey.trim();
-                                    if (key.length > 0) {
-                                        if (key.length < 30 || !key.startsWith('AIza')) {
-                                            setSyncAlert({ visible: true, title: "Invalid Key Format", sub: "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key." });
-                                            return;
-                                        }
-                                        ai.setGeminiApiKey(key);
-                                        setTempKey('');
-                                    }
-                                }}
                                 secureTextEntry
                             />
-                            {ai.geminiApiKey && (
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                                    <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent }}>{loc.plusFeatures.sparkAiActive}</Text>
-                                    <Pressable onPress={() => ai.removeKey()}>
-                                        <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim }}>{loc.plusFeatures.sparkAiRemove}</Text>
+
+                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                                <Pressable
+                                    style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.accent, borderRadius: theme.radius.sm, alignItems: 'center' }}
+                                    onPress={() => {
+                                        const key = tempKey.trim();
+                                        if (key.length > 0) {
+                                            if (key.length < 30 || !key.startsWith('AIza')) {
+                                                setSyncAlert({ visible: true, title: "Invalid Key Format", sub: "Gemini API keys typically start with 'AIza' and are around 39 characters long. Please check your key." });
+                                                return;
+                                            }
+                                            ai.setGeminiApiKey(key);
+                                            setTempKey('');
+                                            setSyncAlert({ visible: true, title: "Key Saved", sub: "Your API key has been securely saved." });
+                                        }
+                                    }}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, includeFontPadding: false }}>Save</Text>
+                                </Pressable>
+                                {ai.geminiApiKey ? (
+                                    <Pressable
+                                        style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.sm, alignItems: 'center' }}
+                                        onPress={() => {
+                                            ai.removeKey();
+                                            setSyncAlert({ visible: true, title: "Key Removed", sub: "Your API key has been removed." });
+                                        }}
+                                    >
+                                        <Text style={{ fontFamily: font.sansSemi, color: '#FF5E5B', fontSize: 13, includeFontPadding: false }}>Remove</Text>
                                     </Pressable>
-                                </View>
+                                ) : null}
+                            </View>
+                            {ai.geminiApiKey && (
+                                <Text style={{ fontFamily: font.sansMed, fontSize: 12, color: colors.accent, marginTop: 12 }}>{loc.plusFeatures.sparkAiActive}</Text>
                             )}
                         </View>
                     </View>
@@ -748,6 +811,20 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
+
+                {/* Report Issue Section */}
+                <View style={{ marginTop: 32, marginHorizontal: 20, padding: 16, backgroundColor: colors.bgRaised, borderRadius: theme.radius.lg, borderWidth: 1, borderColor: colors.strokeDim, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.ink }}>Found a bug?</Text>
+                        <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid, marginTop: 2 }}>Help us improve Saral Lekhan.</Text>
+                    </View>
+                    <Pressable 
+                        onPress={() => Linking.openURL('https://github.com/NxAdx/saral-lekhan-pro/issues/new')}
+                        style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: colors.accentBg, borderRadius: theme.radius.sm }}
+                    >
+                        <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>Report Issue</Text>
+                    </Pressable>
+                </View>
 
                 {/* About Developer Section */}
                 <View style={{ marginTop: 40, alignItems: 'center', opacity: 0.6 }}>

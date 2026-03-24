@@ -50,7 +50,6 @@ export default function EditNoteScreen() {
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [showFontModal, setShowFontModal] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -573,9 +572,6 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
-          <Pressable onPress={() => setShowFontModal(true)} style={s.circleBtn} hitSlop={12}>
-            <Text style={{ fontFamily: font.sansBold, fontSize: 16, color: colors.ink, includeFontPadding: false }}>Aa</Text>
-          </Pressable>
           <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
             <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
@@ -711,9 +707,12 @@ export default function EditNoteScreen() {
             ]}
             iconMap={{
               'sparkAi': ({ tintColor }: any) => (
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
-                </Svg>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}>
+                  <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
+                  </Svg>
+                  <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
+                </View>
               ),
               [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
               [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
@@ -801,56 +800,6 @@ export default function EditNoteScreen() {
             onPress: () => setShowDeleteModal(false)
           }
         ]}
-      />
-
-      <ThemedModal
-        visible={showFontModal}
-        title={loc.settingsScreen.textSize}
-        subtitle={loc.settingsScreen.textSizeSub}
-        onClose={() => setShowFontModal(false)}
-        actions={[
-          { label: loc.settingsScreen.reset, style: "default", onPress: () => { settings.setFontSize(1.0); setShowFontModal(false); } },
-          { label: loc.settingsScreen.ok, style: "default", onPress: () => setShowFontModal(false) }
-        ]}
-        customContent={
-          <View>
-            <View style={{ paddingBottom: 8, marginTop: 16 }}>
-              <View style={{ height: 4, backgroundColor: colors.accentBg, borderRadius: 2, marginHorizontal: 20, marginBottom: 12 }}>
-                <View style={{
-                  height: 4, borderRadius: 2, backgroundColor: colors.accent,
-                  width: `${((settings.fontSize - 0.8) / (1.4 - 0.8)) * 100}%`
-                }} />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                {[0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4].map((step) => {
-                  const isActive = Math.abs(settings.fontSize - step) < 0.05;
-                  const idx = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4].indexOf(step);
-                  const btnSize = 28 + idx * 3;
-                  return (
-                    <Pressable
-                      key={step}
-                      onPress={() => settings.setFontSize(step)}
-                      style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}
-                    >
-                      <View style={{
-                        width: btnSize, height: btnSize, borderRadius: btnSize / 2,
-                        backgroundColor: isActive ? colors.accent : colors.accentBg,
-                        justifyContent: 'center', alignItems: 'center',
-                      }}>
-                        <Text style={{
-                          fontFamily: font.sansBold,
-                          fontSize: 9 + idx * 1.5,
-                          color: isActive ? colors.white : colors.accent,
-                          includeFontPadding: false,
-                        }}>A</Text>
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-          </View>
-        }
       />
 
       <ThemedModal
