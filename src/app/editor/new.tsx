@@ -45,6 +45,9 @@ export default function NewNoteScreen() {
   const [editorHeight, setEditorHeight] = useState<number>(400);
   const [isDirty, setIsDirty] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showFindReplaceModal, setShowFindReplaceModal] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -433,10 +436,48 @@ export default function NewNoteScreen() {
           </View>
         </ScrollView>
 
-        {/* Dynamic Rich Toolbar */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim }}>
+            <Pressable
+              onPress={() => {
+                if (!ai.geminiApiKey) {
+                    setAppAlert({ visible: true, title: "Spark AI", subtitle: "Please add your Gemini API Key in Settings to use Spark AI features." });
+                    return;
+                }
+                if (!isGenerating) setShowAiModal(true);
+              }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}
+            >
+              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
+              </Svg>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
+            </Pressable>
+
+            <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M9 14l-4 -4l4 -4" />
+                      <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+                  </Svg>
+              </Pressable>
+              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M15 14l4 -4l-4 -4" />
+                      <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
+                  </Svg>
+              </Pressable>
+              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Circle cx="10" cy="10" r="7" />
+                      <Path d="M21 21l-6-6" />
+                  </Svg>
+              </Pressable>
+            </View>
+          </View>
+
         <RichToolbar
           editor={richText}
-          style={s.toolbarRoot}
+          style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
           iconTint={colors.ink}
           selectedIconTint={colors.accent}
           disabledIconTint={colors.inkDim}
@@ -458,8 +499,6 @@ export default function NewNoteScreen() {
             actions.heading1,
             actions.heading2,
             actions.blockquote,
-            actions.undo,
-            actions.redo,
             actions.insertLink,
             actions.insertImage,
             'insertPurnaViram',
@@ -508,22 +547,6 @@ export default function NewNoteScreen() {
 
         <View style={s.bottomBar}>
           <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
-          {Boolean(ai.geminiApiKey) ? (
-            <Pressable
-              onPress={() => {
-                if (!isGenerating) setShowAiModal(true);
-              }}
-              disabled={isGenerating}
-              style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.accent + '22', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.sm, opacity: isGenerating ? 0.5 : 1 }}
-            >
-              <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
-                <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
-              </Svg>
-              <Text style={{ fontFamily: font.sansSemi, fontSize: 11, color: colors.accent }}>
-                {isGenerating && !sparkLoadingModalEnabled ? '...' : (loc.featureDiscovery.sparkAi || 'Spark AI')}
-              </Text>
-            </Pressable>
-          ) : null}
         </View>
       </KeyboardAvoidingView>
 
@@ -676,10 +699,10 @@ export default function NewNoteScreen() {
           { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowLinkModal(false) }
         ]}
         customContent={
-          <View style={{ gap: 12 }}>
-            <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>{loc.editor.linkUrl}</Text>
+          <View style={{ gap: 8 }}>
+            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>URL</Text>
             <TextInput
-              style={{ backgroundColor: colors.bg, padding: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
               placeholder="https://..."
               placeholderTextColor={colors.inkDim}
               value={linkUrl}
@@ -705,12 +728,13 @@ export default function NewNoteScreen() {
               </Svg>
             )
           },
-          { label: loc.editor.enterUrl, style: 'cancel', onPress: () => { /* Simplified */ } },
+          { label: loc.editor.enterUrl, style: 'cancel', onPress: () => { } },
         ]}
         customContent={
-          <View style={{ gap: 12, marginTop: 8 }}>
+          <View style={{ gap: 8 }}>
+            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>Image URL</Text>
             <TextInput
-              style={{ backgroundColor: colors.bg, padding: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
               placeholder={loc.editor.imageUrl}
               placeholderTextColor={colors.inkDim}
               value={imageUrl}
@@ -719,6 +743,59 @@ export default function NewNoteScreen() {
               autoCorrect={false}
               onSubmitEditing={handleInsertImage}
             />
+          </View>
+        }
+      />
+
+      <ThemedModal
+        visible={showFindReplaceModal}
+        title={loc.editor.findAndReplace || 'Find & Replace'}
+        onClose={() => setShowFindReplaceModal(false)}
+        actions={[
+          {
+            label: loc.editor.replaceAll || 'Replace All',
+            style: 'default',
+            onPress: async () => {
+              if (findText.trim()) {
+                const html = await richText.current?.getContentHtml();
+                if (html) {
+                  const updatedHtml = html.split(findText).join(replaceText);
+                  richText.current?.setContentHTML(updatedHtml);
+                  setFindText('');
+                  setReplaceText('');
+                }
+              }
+            }
+          },
+          {
+            label: loc.editor.cancel,
+            style: 'cancel',
+            onPress: () => setShowFindReplaceModal(false)
+          }
+        ]}
+        customContent={
+          <View style={{ gap: 14 }}>
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.findPlaceholder}</Text>
+              <TextInput
+                style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                placeholder={loc.editor.findPlaceholder}
+                placeholderTextColor={colors.inkDim}
+                value={findText}
+                onChangeText={setFindText}
+                autoFocus
+              />
+            </View>
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.replacePlaceholder}</Text>
+              <TextInput
+                style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                placeholder={loc.editor.replacePlaceholder}
+                placeholderTextColor={colors.inkDim}
+                value={replaceText}
+                onChangeText={setReplaceText}
+              />
+            </View>
           </View>
         }
       />
