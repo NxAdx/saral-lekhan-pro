@@ -21,6 +21,28 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.33",
+    date: "2026-03-24",
+    title: {
+      en: "F-Droid Compliance & UX Polish",
+      hi: "F-Droid अनुपालन और यूएक्स पॉलिश",
+    },
+    changes: {
+      en: [
+        "F-Droid: Removed Sentry tracking for a privacy-focused open-source release.",
+        "Settings: Standardized Spark AI button layout with improved centering.",
+        "Editor: Fixed undo/redo crashes and polished modal interfaces for Find & Replace.",
+        "Trash: Added 'Empty All' feature with a permanent deletion confirmation."
+      ],
+      hi: [
+        "F-Droid: गोपनीयता-केंद्रित और ओपन-सोर्स रिलीज़ के लिए सेंट्री (Sentry) ट्रैकिंग को हटा दिया गया।",
+        "सेटिंग्स: बेहतर सेंटरिंग के साथ स्पार्क एआई बटन लेआउट को मानकीकृत किया गया।",
+        "एडिटर: अनडू/रीडू क्रैश को ठीक किया गया और फाइंड एंड रिप्लेस के लिए इंटरफेस को व्यवस्थित किया गया।",
+        "ट्रैश: स्थायी विलोपन पुष्टिकरण (confirmation) के साथ 'एम्प्टी ऑल' (Empty All) सुविधा जोड़ी गई।"
+      ]
+    }
+  },
+    {
     version: "2.17.32",
     date: "2026-03-24",
     title: {

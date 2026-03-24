@@ -683,7 +683,7 @@ export default function SettingsScreen() {
 
                             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
                                 <Pressable
-                                    style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.accent, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
+                                    style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
                                     onPress={() => {
                                         const key = tempKey.trim();
                                         if (key.length > 0) {
@@ -701,7 +701,7 @@ export default function SettingsScreen() {
                                 </Pressable>
                                 {ai.geminiApiKey ? (
                                     <Pressable
-                                        style={{ flex: 1, paddingVertical: 10, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
+                                        style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.stroke, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
                                         onPress={() => {
                                             ai.removeKey();
                                             setSyncAlert({ visible: true, title: "Key Removed", sub: "Your API key has been removed." });

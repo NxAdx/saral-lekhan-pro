@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AppState, useColorScheme, View, StyleSheet } from 'react-native';
-import * as Sentry from '@sentry/react-native';
+
 import { Stack, useRootNavigationState } from 'expo-router';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
@@ -39,14 +39,7 @@ import { shallow } from 'zustand/shallow';
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-try {
-  Sentry.init({
-    dsn: 'https://3a2804f7a6c66cc9f1c0ab029bdfef94@o4510973886464000.ingest.de.sentry.io/4510973892100176',
-    debug: __DEV__,
-  });
-} catch {
-  // Guard startup in case Sentry native init fails on specific builds.
-}
+
 
 export function RootLayout(props: any) {
   const { themeId, nightMode } = useSettingsStore(
@@ -180,4 +173,4 @@ export function RootLayout(props: any) {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;

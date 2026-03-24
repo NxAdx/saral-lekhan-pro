@@ -12,18 +12,20 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 export default function TrashScreen() {
     const router = useRouter();
     const theme = useTheme();
-    const { colors, font } = theme;
+    const { colors, font, shadow, radius } = theme;
     const lang = useSettingsStore(s => s.language);
     const loc = strings[lang] || strings['En'];
 
     const getDeletedNotes = useNotesStore((s) => s.getDeletedNotes);
     const restoreNote = useNotesStore((s) => s.restoreNote);
     const permanentlyDeleteNote = useNotesStore((s) => s.permanentlyDeleteNote);
+    const emptyTrash = useNotesStore((s) => s.emptyTrash);
 
     const deletedNotes = getDeletedNotes();
 
     const [showActionModal, setShowActionModal] = useState(false);
     const [selectedActionId, setSelectedActionId] = useState<number | null>(null);
+    const [showEmptyTrashModal, setShowEmptyTrashModal] = useState(false);
 
     const handleNotePress = (id: number) => {
         setSelectedActionId(id);
@@ -53,7 +55,24 @@ export default function TrashScreen() {
             borderBottomColor: colors.strokeDim,
         },
         backBtn: { marginRight: 16, padding: 4 },
-        title: { fontFamily: font.sansBold, fontSize: 22 * theme.fontSize, color: colors.ink },
+        title: { fontFamily: font.sansBold, fontSize: 22 * theme.fontSize, color: colors.ink, flex: 1 },
+        emptyAllBtn: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderRadius: radius.sm,
+            backgroundColor: colors.accentBg,
+            borderWidth: 1,
+            borderColor: colors.accent,
+        },
+        emptyAllText: {
+            fontFamily: font.sansSemi,
+            fontSize: 12,
+            color: colors.accent,
+            includeFontPadding: false,
+        },
 
         listContent: { paddingBottom: 100, paddingTop: 16 },
         noteContainer: { paddingHorizontal: 20 },
@@ -61,7 +80,7 @@ export default function TrashScreen() {
         empty: { paddingTop: 60, alignItems: 'center' },
         emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
         emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
-    }), [colors, font, theme.fontSize]);
+    }), [colors, font, theme.fontSize, radius, shadow]);
 
     return (
         <View style={s.root}>
@@ -76,6 +95,18 @@ export default function TrashScreen() {
                     </Svg>
                 </Pressable>
                 <Text style={s.title}>{loc.trash}</Text>
+                {deletedNotes.length > 0 && (
+                    <Pressable onPress={() => setShowEmptyTrashModal(true)} style={s.emptyAllBtn} hitSlop={8}>
+                        <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M4 7l16 0" />
+                            <Path d="M10 11l0 6" />
+                            <Path d="M14 11l0 6" />
+                            <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                        </Svg>
+                        <Text style={s.emptyAllText}>Empty All</Text>
+                    </Pressable>
+                )}
             </View>
 
             <FlatList
@@ -120,6 +151,28 @@ export default function TrashScreen() {
                         label: loc.editor.cancel,
                         style: 'cancel',
                         onPress: () => setShowActionModal(false)
+                    }
+                ]}
+            />
+
+            <ThemedModal
+                visible={showEmptyTrashModal}
+                title="Empty Trash"
+                subtitle={`Permanently delete all ${deletedNotes.length} notes in trash? This cannot be undone.`}
+                onClose={() => setShowEmptyTrashModal(false)}
+                actions={[
+                    {
+                        label: `Delete All (${deletedNotes.length})`,
+                        style: 'destructive',
+                        onPress: () => {
+                            emptyTrash();
+                            setShowEmptyTrashModal(false);
+                        }
+                    },
+                    {
+                        label: loc.editor.cancel,
+                        style: 'cancel',
+                        onPress: () => setShowEmptyTrashModal(false)
                     }
                 ]}
             />

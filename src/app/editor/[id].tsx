@@ -686,17 +686,17 @@ export default function EditNoteScreen() {
               <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
               </Svg>
-              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>✨ Spark AI</Text>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              <Pressable onPress={() => richText.current?.undo()} hitSlop={12}>
+              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12}>
                   <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M9 14l-4 -4l4 -4" />
                       <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => richText.current?.redo()} hitSlop={12}>
+              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12}>
                   <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M15 14l4 -4l-4 -4" />
                       <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
@@ -993,10 +993,10 @@ export default function EditNoteScreen() {
           { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowLinkModal(false) }
         ]}
         customContent={
-          <View style={{ gap: 12 }}>
-            <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>{loc.editor.linkUrl}</Text>
+          <View style={{ gap: 8 }}>
+            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>URL</Text>
             <TextInput
-              style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
               placeholder="https://..."
               placeholderTextColor={colors.inkDim}
               value={linkUrl}
@@ -1026,9 +1026,10 @@ export default function EditNoteScreen() {
           { label: loc.editor.enterUrl, style: 'cancel', onPress: () => { /* Handle toggle to URL input if needed, but keeping it simple with direct actions */ } },
         ]}
         customContent={
-          <View style={{ gap: 12, marginTop: 8 }}>
+          <View style={{ gap: 8 }}>
+            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>Image URL</Text>
             <TextInput
-              style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+              style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
               placeholder={loc.editor.imageUrl}
               placeholderTextColor={colors.inkDim}
               value={imageUrl}
@@ -1063,11 +1064,11 @@ export default function EditNoteScreen() {
           }
         ]}
         customContent={
-          <View style={{ gap: 16 }}>
-            <View style={{ gap: 8 }}>
+          <View style={{ gap: 14 }}>
+            <View style={{ gap: 6 }}>
               <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.findPlaceholder}</Text>
               <TextInput
-                style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
                 placeholder={loc.editor.findPlaceholder}
                 placeholderTextColor={colors.inkDim}
                 value={findText}
@@ -1075,10 +1076,10 @@ export default function EditNoteScreen() {
                 autoFocus
               />
             </View>
-            <View style={{ gap: 8 }}>
+            <View style={{ gap: 6 }}>
               <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.inkMid }}>{loc.editor.replacePlaceholder}</Text>
               <TextInput
-                style={{ backgroundColor: colors.bg, height: 52, paddingHorizontal: 16, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, borderWidth: 1.5, borderColor: colors.strokeDim }}
+                style={{ backgroundColor: colors.bg, height: 48, paddingHorizontal: 14, borderRadius: radius.md, color: colors.ink, fontFamily: font.sans, fontSize: 14, borderWidth: 1.5, borderColor: colors.strokeDim }}
                 placeholder={loc.editor.replacePlaceholder}
                 placeholderTextColor={colors.inkDim}
                 value={replaceText}

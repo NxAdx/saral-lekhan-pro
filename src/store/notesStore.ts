@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
-import * as Sentry from '@sentry/react-native';
 import { log } from '../utils/Logger';
 
 // Open (or create) the SQLite database
@@ -41,6 +40,7 @@ interface NotesState {
   deleteNote: (id: number) => void;
   restoreNote: (id: number) => void;
   permanentlyDeleteNote: (id: number) => void;
+  emptyTrash: () => void;
   getNotesFilteredByTag: (tag: string) => Note[];
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
@@ -112,7 +112,6 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       );
     }, (err) => {
         log.error("Failed to init DB (Transaction Error)", err);
-        Sentry.captureException(err);
         // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
         set({ isLoaded: true });
     });
@@ -135,18 +134,16 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       );
     }, (err) => {
       log.error("Failed to load notes", err);
-      Sentry.captureException(err);
       // Ensure app never stays stuck on the loading skeleton
       set({ isLoaded: true });
     });
   },
 
-
   addNote: (note) => {
     const now = Date.now();
     const newNote: Note = {
       ...note,
-      id: now + Math.floor(Math.random() * 100000), // Expert collision resistance
+      id: now + Math.floor(Math.random() * 100000),
       created_at: now,
       updated_at: now,
       pinned: note.pinned ?? false,
@@ -163,7 +160,6 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       );
     }, (err) => {
       log.error("Failed to insert note", err);
-      Sentry.captureException(err);
     });
 
     return newNote.id;
@@ -187,11 +183,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         );
       }, (err) => {
         log.error("Failed to update note", err);
-        Sentry.captureException(err);
       });
     }
   },
-
 
   getNotesFilteredByTag: (tag) => {
     const { notes } = get();
@@ -199,7 +193,6 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     if (tag === ALL_TAG_ID) return [...activeNotes].sort((a, b) => b.updated_at - a.updated_at);
     return activeNotes.filter((n) => n.tag === tag).sort((a, b) => b.updated_at - a.updated_at);
   },
-
 
   deleteNote: (id) => {
     set((state) => ({
@@ -223,6 +216,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     set((state) => ({ notes: state.notes.filter((n) => n.id !== id) }));
     db.transaction((tx) => {
       tx.executeSql(`DELETE FROM notes WHERE id = ?;`, [id]);
+    });
+  },
+
+  emptyTrash: () => {
+    const trashIds = get().notes.filter(n => n.is_deleted).map(n => n.id);
+    if (trashIds.length === 0) return;
+    set((state) => ({ notes: state.notes.filter((n) => !n.is_deleted) }));
+    db.transaction((tx) => {
+      tx.executeSql(`DELETE FROM notes WHERE is_deleted = 1;`);
+    }, (err) => {
+      log.error("Failed to empty trash", err);
     });
   },
 
