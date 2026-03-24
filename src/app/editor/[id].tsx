@@ -672,9 +672,48 @@ export default function EditNoteScreen() {
             </View>
           </ScrollView>
 
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim }}>
+            <Pressable 
+              onPress={() => {
+                if (!ai.geminiApiKey) {
+                    setAppAlert({ visible: true, title: "Spark AI", subtitle: "Please add your Gemini API Key in Settings to use Spark AI features." });
+                    return;
+                }
+                if (!isGenerating) setShowAiModal(true);
+              }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}
+            >
+              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
+              </Svg>
+              <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>✨ Spark AI</Text>
+            </Pressable>
+
+            <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+              <Pressable onPress={() => richText.current?.undo()} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M9 14l-4 -4l4 -4" />
+                      <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+                  </Svg>
+              </Pressable>
+              <Pressable onPress={() => richText.current?.redo()} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M15 14l4 -4l-4 -4" />
+                      <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
+                  </Svg>
+              </Pressable>
+              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
+                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <Circle cx="10" cy="10" r="7" />
+                      <Path d="M21 21l-6-6" />
+                  </Svg>
+              </Pressable>
+            </View>
+          </View>
+
           <RichToolbar
             editor={richText}
-            style={s.toolbarRoot}
+            style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
             iconTint={colors.ink}
             selectedIconTint={colors.accent}
             disabledIconTint={colors.inkDim}
@@ -685,7 +724,6 @@ export default function EditNoteScreen() {
             selectedButtonStyle={{ backgroundColor: 'transparent', borderBottomWidth: 2.5, borderBottomColor: colors.accent }}
             unselectedButtonStyle={{ backgroundColor: 'transparent' }}
             actions={[
-              'sparkAi',
               actions.setBold,
               actions.setItalic,
               actions.setUnderline,
@@ -697,23 +735,12 @@ export default function EditNoteScreen() {
               actions.heading1,
               actions.heading2,
               actions.blockquote,
-              actions.undo,
-              actions.redo,
               actions.insertLink,
               actions.insertImage,
-              'findReplace',
               'insertPurnaViram',
               'insertDoublePurnaViram'
             ]}
             iconMap={{
-              'sparkAi': ({ tintColor }: any) => (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}>
-                  <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
-                  </Svg>
-                  <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
-                </View>
-              ),
               [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
               [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
               [actions.insertLink]: ({ tintColor }: any) => (
@@ -745,25 +772,11 @@ export default function EditNoteScreen() {
                   {'</>'}
                 </Text>
               ),
-              'findReplace': ({ tintColor }: any) => (
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Circle cx="10" cy="10" r="7" />
-                  <Path d="M21 21l-6-6" />
-                </Svg>
-              ),
               'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
               'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
             }}
-            sparkAi={() => {
-                if (!ai.geminiApiKey) {
-                    setAppAlert({ visible: true, title: "Spark AI", subtitle: "Please add your Gemini API Key in Settings to use Spark AI features." });
-                    return;
-                }
-                if (!isGenerating) setShowAiModal(true);
-            }}
             onInsertLink={() => setShowLinkModal(true)}
             onPressAddImage={() => setShowImageModal(true)}
-            findReplace={() => setShowFindReplaceModal(true)}
             insertPurnaViram={() => insertHindiPunctuation('\u0964')}
             insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
           />

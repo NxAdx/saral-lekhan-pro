@@ -21,6 +21,26 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.32",
+    date: "2026-03-24",
+    title: {
+      en: "Targeted UX Polish",
+      hi: "लक्षित यूएक्स पॉलिश (UX Polish)",
+    },
+    changes: {
+      en: [
+        "Editor: Elevated Spark AI, Undo, Redo, and Search to a primary fixed toolbar for constant access.",
+        "Settings: Standardized card layouts and centered all button labels for better visual balance.",
+        "Clean UX: Removed the redundant font resizer from Settings as part of the interface declutter."
+      ],
+      hi: [
+        "एडिटर: स्पार्क एआई (Spark AI), अनडू, रीडू और सर्च को हमेशा सुलभ बनाने के लिए एक फिक्स्ड टूलबार में ले जाया गया।",
+        "सेटिंग्स: बेहतर विजुअल बैलेंस के लिए कार्ड लेआउट को मानकीकृत किया गया और सभी बटन लेबल को सेंटर किया गया।",
+        "क्लीन यूएक्स: इंटरफेस को व्यवस्थित करने के लिए सेटिंग्स से अनावश्यक फॉन्ट रिसाइज़र को हटा दिया गया।"
+      ]
+    }
+  },
+    {
     version: "2.17.28",
     date: "2026-03-23",
     title: {
