@@ -128,6 +128,21 @@ export async function downloadAndInstallApk(
     if (Platform.OS !== 'android') return false;
     if (UPDATER_MODE !== 'github') return false;
 
+    const normalizedTargetVersion = String(version || '').replace(/^v/, '');
+    const normalizedCurrentVersion = String(APP_VERSION || '').replace(/^v/, '');
+    const isSameVersionReinstall = normalizedTargetVersion === normalizedCurrentVersion;
+
+    // Same-version reinstalls can silently no-op with PackageInstaller sessions on some devices.
+    // For this case, use the direct release URL so Android's default package installer flow handles it.
+    if (isSameVersionReinstall) {
+        try {
+            await Linking.openURL(downloadUrl);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     // Check permission first
     const hasPermission = await checkInstallPermission();
     if (!hasPermission) {
