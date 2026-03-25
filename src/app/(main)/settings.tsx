@@ -749,7 +749,7 @@ export default function SettingsScreen() {
                             <View style={{ gap: 12 }}>
                                 <Pressable
                                     style={{ paddingVertical: 12, backgroundColor: '#1DB760', borderRadius: theme.radius.md, alignItems: 'center' }}
-                                    onPress={() => Linking.openURL('upi://pay?pa=9479933411@ybl&pn=Aadarsh%20Lokhande&cu=INR')}
+                                    onPress={() => Linking.openURL('upi://pay?pa=9479933411@nyes&pn=Aadarsh%20Lokhande&cu=INR')}
                                 >
                                     <Text style={{ fontFamily: font.sansSemi, color: '#FFF', fontSize: 13 }}>Support via UPI (For Indian Users)</Text>
                                 </Pressable>
