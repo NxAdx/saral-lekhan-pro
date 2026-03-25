@@ -11,6 +11,7 @@ yarn-error.*
 # Secrets & Credentials
 google-services.json
 *.keystore
+debug.keystore
 *.jks
 keystore_base64.txt
 .env*
