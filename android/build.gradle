@@ -38,3 +38,30 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+subprojects {
+    if (project.name == 'expo') {
+        project.plugins.whenPluginAdded { plugin ->
+            if (plugin.class.name.contains('MavenPublishPlugin')) {
+                project.afterEvaluate {
+                    if (project.plugins.hasPlugin('maven-publish')) {
+                        project.publishing {
+                            publications.clear()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+                defaultConfig {
+                    targetSdkVersion rootProject.ext.targetSdkVersion
+                }
+            }
+        }
+    }
+}
