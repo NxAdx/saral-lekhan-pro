@@ -33,24 +33,27 @@ type AppStrings = {
     notFound: string;
   };
   settingsScreen: {
-    lookAndFeel: string;
+    colorPalette: string;
     livePreview: string;
     previewTitle: string;
     previewSub: string;
     justNow: string;
     aesthetics: string;
     appearanceTheme: string;
-    nightMode: string;
-    nightModeSub: string;
+    colorScheme: string;
+    colorSchemeSub: string;
     amoledMode: string;
     amoledModeSub: string;
     colorSeed: string;
     colorSeedSub: string;
-    iconShape: string;
-    iconShapeSub: string;
+    textSize: string;
+    textSizeSub: string;
     dynamicColors: string;
     dynamicColorsSub: string;
-    typographyLanguage: string;
+    displayLanguage: string;
+    displayLanguageSub: string;
+    reset: string;
+    ok: string;
     dataStorage: string;
     trashDesc: string;
   };
@@ -73,7 +76,7 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trashEmptySub: 'Deleted notes will appear here',
     restore: 'Restore',
     deleteForever: 'Delete Forever',
-    exportOptions: 'Export Note',
+    exportOptions: 'Share / Export',
     exportPdf: 'Export to PDF',
     exportImg: 'Save as Image',
     editor: {
@@ -90,24 +93,27 @@ export const strings: Record<AppLanguage, AppStrings> = {
       notFound: 'Note not found',
     },
     settingsScreen: {
-      lookAndFeel: 'Look & Feel',
+      colorPalette: 'Color Palette',
       livePreview: 'Live Preview',
       previewTitle: 'Design system changes',
       previewSub: 'The app instantly repaints with the new theme colors and smooth bento curves.',
       justNow: 'JUST NOW',
       aesthetics: 'Aesthetics',
       appearanceTheme: 'Appearance Theme',
-      nightMode: 'Night Mode',
-      nightModeSub: 'System, Light or Dark',
+      colorScheme: 'Color Scheme',
+      colorSchemeSub: 'System, Light or Dark',
       amoledMode: 'AMOLED Mode',
       amoledModeSub: 'Pitch black backgrounds in dark mode',
-      colorSeed: 'Color Palette',
+      colorSeed: 'Theme Palette',
       colorSeedSub: 'Choose a primary seed color',
-      iconShape: 'Icon Shape',
-      iconShapeSub: 'Change shapes of buttons and containers',
+      textSize: 'Text Size',
+      textSizeSub: 'Scale application text to your comfort',
       dynamicColors: 'Dynamic Colors',
       dynamicColorsSub: 'Sync with system wallpaper (Android 12+)',
-      typographyLanguage: 'Typography & Language',
+      displayLanguage: 'Display Language',
+      displayLanguageSub: 'Choose your preferred language',
+      reset: 'Reset',
+      ok: 'OK',
       dataStorage: 'Data & Storage',
       trashDesc: 'View or restore deleted notes',
     }
@@ -128,7 +134,7 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trashEmptySub: 'हटाए गए नोट यहाँ दिखाई देंगे',
     restore: 'पुनर्स्थापित करें',
     deleteForever: 'हमेशा के लिए हटाएं',
-    exportOptions: 'नोट निर्यात (Export) करें',
+    exportOptions: 'Share / Export',
     exportPdf: 'PDF के रूप में सहेजें',
     exportImg: 'चित्र (Image) के रूप में सहेजें',
     editor: {
@@ -145,26 +151,29 @@ export const strings: Record<AppLanguage, AppStrings> = {
       notFound: 'नोट नहीं मिला',
     },
     settingsScreen: {
-      lookAndFeel: 'रूप और अनुभव',
+      colorPalette: 'रंग पैलेट (Color Palette)',
       livePreview: 'लाइव प्रीव्यू',
       previewTitle: 'डिजाइन बदलाव',
       previewSub: 'ऐप तुरंत नए थीम रंगों और स्मूथ बेंटो कर्व्स के साथ खुद को बदल लेता है।',
       justNow: 'अभी-अभी',
       aesthetics: 'सौंदर्यशास्त्र',
       appearanceTheme: 'ऐप की थीम',
-      nightMode: 'नाइट मोड',
-      nightModeSub: 'सिस्टम, लाइट या डार्क',
+      colorScheme: 'रंग योजना',
+      colorSchemeSub: 'सिस्टम, लाइट या डार्क',
       amoledMode: 'AMOLED मोड',
       amoledModeSub: 'डार्क मोड में पिच ब्लैक बैकग्राउंड',
       colorSeed: 'रंग पैलेट',
       colorSeedSub: 'एक मुख्य रंग चुनें',
-      iconShape: 'आइकन का आकार',
-      iconShapeSub: 'बटन और कंटेनर का आकार बदलें',
+      textSize: 'टेक्स्ट का आकार',
+      textSizeSub: 'अपनी सुविधा के अनुसार टेक्स्ट बदलें',
       dynamicColors: 'डायनामिक रंग',
       dynamicColorsSub: 'वॉलपेपर के साथ सिंक करें (Android 12+)',
-      typographyLanguage: 'फ़ॉन्ट और भाषा',
+      displayLanguage: 'डिस्प्ले भाषा',
+      displayLanguageSub: 'अपनी पसंद की भाषा चुनें',
+      reset: 'रीसेट (Reset)',
+      ok: 'ठीक (OK)',
       dataStorage: 'डेटा और स्टोरेज',
-      trashDesc: 'हटवलेल्या नोट्स पहा किंवा परत आणा',
+      trashDesc: 'हटाए गए नोट्स देखें या पुनर्स्थापित करें',
     }
   },
   Bn: {
@@ -183,14 +192,14 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trashEmptySub: 'মুছে ফেলা নোট এখানে উপস্থিত হবে',
     restore: 'পুনরুদ্ধার করুন',
     deleteForever: 'চিরতরে মুছে ফেলুন',
-    exportOptions: 'নোট রপ্তানি করুন',
+    exportOptions: 'Share / Export',
     exportPdf: 'PDF হিসেবে সংরক্ষণ করুন',
     exportImg: 'ছবি হিসেবে সংরক্ষণ করুন',
     editor: {
       titlePlaceholder: 'শিরোনাম...',
       bodyPlaceholder: 'এখানে লেখা শুরু করুন...',
       done: 'সম্পন্ন ✓',
-      saved: 'সংরক্ষিত ✓',
+      saved: 'সংরक्षित ✓',
       deleteNote: 'নোট মুছুন',
       deleteNoteSub: 'আপনি কি এই নোটটি মুছতে চান?',
       cancel: 'বাতিল',
@@ -200,25 +209,28 @@ export const strings: Record<AppLanguage, AppStrings> = {
       notFound: 'নোট পাওয়া যায়নি',
     },
     settingsScreen: {
-      lookAndFeel: 'রূপ এবং অনুভব',
+      colorPalette: 'রঙের প্যালেট (Color Palette)',
       livePreview: 'সরাসরি প্রাকদর্শন',
       previewTitle: 'ডিজাইন পরিবর্তন',
       previewSub: 'অ্যপটি তৎক্ষণাৎ নতুন থিম রঙ এবং বেন্তো কার্ভস এর সাথে নিজেকে গুছিয়ে নেয়।',
       justNow: 'এইমাত্র',
       aesthetics: 'নান্দনিকতা',
-      appearanceTheme: 'অ্যাপ থিম',
-      nightMode: 'নাইট মোড',
-      nightModeSub: 'সিস্টেম, লাইট বা ডার্ক',
+      appearanceTheme: 'অ্যপ থিম',
+      colorScheme: 'রঙের স্কিম',
+      colorSchemeSub: 'সিস্টেম, হালকা বা গাঢ়',
       amoledMode: 'AMOLED মোড',
       amoledModeSub: 'ডার্ক মোডে পিচ ব্ল্যাক ব্যাকগ্রাউন্ড',
       colorSeed: 'রঙের প্যালেট',
       colorSeedSub: 'একটি প্রধান রঙ চয়ন করুন',
-      iconShape: 'আইকন আকৃতি',
-      iconShapeSub: 'বোতাম এবং কন্টেইনারের আকৃতি পরিবর্তন করুন',
+      textSize: 'টেক্সট সাইজ',
+      textSizeSub: 'অ্যাপ্লিকেশন টেক্সট আপনার পছন্দমতো পরিবর্তন করুন',
       dynamicColors: 'ডায়নামিক রঙ',
       dynamicColorsSub: 'ওয়ালপেপারের সাথে সিঙ্ক করুন (Android 12+)',
-      typographyLanguage: 'ফন্ট এবং ভাষা',
-      dataStorage: 'ডেটা এবং স্টোরেज',
+      displayLanguage: 'ডিসপ্লে ভাষা',
+      displayLanguageSub: 'আপনার পছন্দসই ভাষা চয়ন করুন',
+      reset: 'রিসেট',
+      ok: 'ওকে',
+      dataStorage: 'ডেটা এবং স্টোরেজ',
       trashDesc: 'মুছে ফেলা নোটগুলি দেখুন বা ফিরিয়ে আনুন',
     }
   },
@@ -238,7 +250,7 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trashEmptySub: 'తొలగించబడిన నోట్స్ ఇక్కడ కనిపిస్తాయి',
     restore: 'పునరుద్ధరించు',
     deleteForever: 'శాశ్వతంగా తొలగించు',
-    exportOptions: 'నోట్ ఎగుమతి చేయి',
+    exportOptions: 'Share / Export',
     exportPdf: 'PDF గా ఎగుమతి చేయి',
     exportImg: 'చిత్రంగా సేవ్ చేయి',
     editor: {
@@ -251,28 +263,31 @@ export const strings: Record<AppLanguage, AppStrings> = {
       cancel: 'రద్దు చేయి',
       delete: 'తొలగించు',
       chars: 'అక్షరాలు',
-      words: 'పదాలు',
+      words: 'పদాలు',
       notFound: 'నోట్ కనుగొనబడలేదు',
     },
     settingsScreen: {
-      lookAndFeel: 'అకారం మరియు అనుభవం',
+      colorPalette: 'రంగు పాలెట్ (Color Palette)',
       livePreview: 'లైవ్ ప్రివ్యూ',
       previewTitle: 'డిజైన్ మార్పులు',
       previewSub: 'యాప్ వెంటనే కొత్త థీమ్ రంగులు మరియు బెంటి కార్వ్స్ తో మారుతుంది.',
       justNow: 'ఇప్పుడే',
       aesthetics: 'సౌందర్యం',
       appearanceTheme: 'యాప్ థీమ్',
-      nightMode: 'నైట్ మోడ్',
-      nightModeSub: 'సిస్టమ్, లైట్ లేదా డార్క్',
+      colorScheme: 'రంగు పథకం',
+      colorSchemeSub: 'సిస్టమ్, లైట్ లేదా డార్క్',
       amoledMode: 'AMOLED మోడ్',
       amoledModeSub: 'డార్క్ మోడ్‌లో పిచ్ బ్లాక్ బ్యాక్‌గ్రౌండ్',
-      colorSeed: 'కలర్ ప్యాలెట్',
+      colorSeed: 'రంగుల ప్యాలెట్',
       colorSeedSub: 'ప్రధాన రంగును ఎంచుకోండి',
-      iconShape: 'ఐకాన్ ఆకారం',
-      iconShapeSub: 'బటన్లు మరియు కంటైనర్ల ఆకారం మార్చండి',
+      textSize: 'టెక్స్ట్ పరిమాణం',
+      textSizeSub: 'అప్లికేషన్ టెక్స్ట్‌ని మీ సౌలభ్యానికి అనుగుణంగా మార్చుకోండి',
       dynamicColors: 'డైనమిక్ రంగులు',
       dynamicColorsSub: 'వాల్‌పేపర్‌తో సమకాలీకరించండి (Android 12+)',
-      typographyLanguage: 'ఫాంట్ మరియు భాష',
+      displayLanguage: 'భాషను ఎంచుకోండి',
+      displayLanguageSub: 'మీకు నచ్చిన భాషను ఎంచుకోండి',
+      reset: 'రీసెట్',
+      ok: 'సరే',
       dataStorage: 'డేటా మరియు స్టోరేజ్',
       trashDesc: 'తొలగించిన నోట్స్ చూడండి లేదా తిరిగి పొందండి',
     }
@@ -291,13 +306,13 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trash: 'कचरा',
     trashEmpty: 'कचरा रिकामा आहे',
     trashEmptySub: 'हटवलेल्या नोट्स येथे दिसतील',
-    restore: 'पुنर्संचयित करा',
+    restore: 'पुनर्रचित करा',
     deleteForever: 'कायमचे हटवा',
-    exportOptions: 'नोट निर्यात करा',
+    exportOptions: 'Share / Export',
     exportPdf: 'PDF म्हणून निर्यात करा',
     exportImg: 'चित्र म्हणून सेव्ह करा',
     editor: {
-      titlePlaceholder: 'शीर्षक...',
+      titlePlaceholder: 'शीर्षক...',
       bodyPlaceholder: 'येथे लिहिण्यास सुरुवात करा...',
       done: 'झाले ✓',
       saved: 'जतन केले ✓',
@@ -310,24 +325,27 @@ export const strings: Record<AppLanguage, AppStrings> = {
       notFound: 'नोट सापडली नाही',
     },
     settingsScreen: {
-      lookAndFeel: 'रूप आणि अनुभव',
+      colorPalette: 'रंग पॅलेट (Color Palette)',
       livePreview: 'लाईव्ह प्रिव्ह्यू',
       previewTitle: 'डिझाईन बदल',
       previewSub: 'अॅप त्वरित नवीन थीम रंगांसह स्वतःला बदलतो.',
       justNow: 'नुकतेच',
       aesthetics: 'एस्थेटिक्स',
       appearanceTheme: 'अॅप थीम',
-      nightMode: 'नाईट मोड',
-      nightModeSub: 'सिस्टम, लाईट किंवा डार्क',
+      colorScheme: 'रंग योजना',
+      colorSchemeSub: 'सिस्टम, लाईट किंवा डार्क',
       amoledMode: 'AMOLED मोड',
       amoledModeSub: 'डार्क मोडमध्ये पिच ब्लॅक बॅकग्राउंड',
       colorSeed: 'रंग पॅलेट',
       colorSeedSub: 'एक मुख्य रंग निवडा',
-      iconShape: 'आयकनचा आकार',
-      iconShapeSub: 'बटणे आणि कंटेनरचा आकार बदला',
+      textSize: 'मजकूर आकार',
+      textSizeSub: 'तुमच्या सोयीनुसार मजकूर आकार बदला',
       dynamicColors: 'डायनॅमिक रंग',
       dynamicColorsSub: 'वॉलपेपरसह सिंक करा (Android 12+)',
-      typographyLanguage: 'फॉन्ट आणि भाषा',
+      displayLanguage: 'डिस्प्ले भाषा',
+      displayLanguageSub: 'तुमची पসংतीची भाषा निवडा',
+      reset: 'रीसेट (Reset)',
+      ok: 'ठीक (OK)',
       dataStorage: 'डेटा आणि स्टोरेज',
       trashDesc: 'हटवलेल्या नोट्स पहा किंवा परत आणा',
     }
@@ -348,7 +366,7 @@ export const strings: Record<AppLanguage, AppStrings> = {
     trashEmptySub: 'நீக்கப்பட்ட குறிப்புகள் இங்கே தோன்றும்',
     restore: 'மீட்டமை',
     deleteForever: 'முற்றிலும் நீக்கு',
-    exportOptions: 'குறிப்பை ஏற்றுமதி செய்',
+    exportOptions: 'Share / Export',
     exportPdf: 'PDF-ஆக ஏற்றுமதி செய்',
     exportImg: 'படமாகச் சேமி',
     editor: {
@@ -361,28 +379,31 @@ export const strings: Record<AppLanguage, AppStrings> = {
       cancel: 'ரத்துசெய்',
       delete: 'நீக்கு',
       chars: 'எழுத்துக்கள்',
-      words: 'சொற்கள்',
+      words: 'சொற்க சொற்கள்',
       notFound: 'குறிப்பு கிடைக்கவில்லை',
     },
     settingsScreen: {
-      lookAndFeel: 'தோற்றம்',
+      colorPalette: 'வண்ணத் தட்டு (Color Palette)',
       livePreview: 'நேரடி முன்னோட்டம்',
       previewTitle: 'வடிவமைப்பு மாற்றங்கள்',
       previewSub: 'பயன்பாடு உடனடியாக புதிய தீம் வண்ணங்களுடன் மாறும்.',
       justNow: 'இப்போது',
       aesthetics: 'அழகியல்',
       appearanceTheme: 'தீம் அமைப்புகள்',
-      nightMode: 'இரவு முறை',
-      nightModeSub: 'சிస్టம், ஒளி அல்லது இருள்',
+      colorScheme: 'தோற்ற முறை',
+      colorSchemeSub: 'சிஸ்டம், ஒளி அல்லது இருள்',
       amoledMode: 'AMOLED முறை',
       amoledModeSub: 'இருள் முறையில் முழுமையான கருப்பு பின்னணி',
       colorSeed: 'வண்ணத் தட்டு',
       colorSeedSub: 'ஒரு முதன்மை நிறத்தைத் தேர்ந்தெடுக்கவும்',
-      iconShape: 'ஐகான் வடிவம்',
-      iconShapeSub: 'பொத்தான்கள் மற்றும் கொள்கலன்களின் வடிவத்தை மாற்றவும்',
+      textSize: 'எழுத்து அளவு',
+      textSizeSub: 'பயன்பாட்டின் எழுத்து அளவை மாற்றவும்',
       dynamicColors: 'மாறும் வண்ணங்கள்',
       dynamicColorsSub: 'வால்பேப்பருடன் ஒத்திசைக்கவும் (Android 12+)',
-      typographyLanguage: 'அச்சு மற்றும் மொழி',
+      displayLanguage: 'மொழி அமைப்புகள்',
+      displayLanguageSub: 'விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',
+      reset: 'மீட்டமை',
+      ok: 'சரி',
       dataStorage: 'தரவு மற்றும் சேமிப்பு',
       trashDesc: 'நீக்கப்பட்ட குறிப்புகளைப் பார் அல்லது மீட்டமை',
     }

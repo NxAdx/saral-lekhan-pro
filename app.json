@@ -9,6 +9,7 @@
       "ios",
       "android"
     ],
+    "userInterfaceStyle": "automatic",
     "fonts": [
       "./assets/fonts/Hind-Regular.ttf",
       "./assets/fonts/Hind-Medium.ttf",

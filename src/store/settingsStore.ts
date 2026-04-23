@@ -1,48 +1,43 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeName } from '../tokens';
 
-export type FontFamily = 'Hind' | 'Vesper Libre' | 'DM Mono';
 export type AppLanguage = 'En' | 'Hi' | 'Bn' | 'Te' | 'Mr' | 'Ta';
 export type NightMode = 'system' | 'light' | 'dark';
-export type IconShape = 'circle' | 'squircle' | 'rounded';
 
 interface SettingsState {
-    fontFamily: FontFamily;
     language: AppLanguage;
     nightMode: NightMode;
     amoledMode: boolean;
-    seedColor: string;
-    iconShape: IconShape;
+    themeId: ThemeName;
     dynamicColors: boolean;
+    fontSize: number;
 
-    setFontFamily: (f: FontFamily) => void;
     setLanguage: (l: AppLanguage) => void;
     setNightMode: (m: NightMode) => void;
     setAmoledMode: (b: boolean) => void;
-    setSeedColor: (c: string) => void;
-    setIconShape: (s: IconShape) => void;
+    setThemeId: (i: ThemeName) => void;
     setDynamicColors: (d: boolean) => void;
+    setFontSize: (s: number) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
     persist(
         (set) => ({
-            fontFamily: 'Hind',
             language: 'Hi',
             nightMode: 'system',
             amoledMode: false,
-            seedColor: '#FF5722', // Default Tippani orange equivalent
-            iconShape: 'rounded',
+            themeId: 'classic',
             dynamicColors: false,
+            fontSize: 1.0,
 
-            setFontFamily: (f) => set({ fontFamily: f }),
             setLanguage: (l) => set({ language: l }),
             setNightMode: (m) => set({ nightMode: m }),
             setAmoledMode: (b) => set({ amoledMode: b }),
-            setSeedColor: (c) => set({ seedColor: c }),
-            setIconShape: (s) => set({ iconShape: s }),
+            setThemeId: (i) => set({ themeId: i }),
             setDynamicColors: (d) => set({ dynamicColors: d }),
+            setFontSize: (s) => set({ fontSize: s }),
         }),
         {
             name: 'saral-lekhan-settings-storage',

@@ -25,22 +25,23 @@ function parseInline(line: string): Span[] {
 }
 
 export function MarkdownText({ text, style }: Props) {
-    const { colors, font } = useTheme();
+    const theme = useTheme();
+    const { colors, font, fontSize } = theme;
 
     const st = useMemo(() => StyleSheet.create({
         root: {},
-        h1: { fontFamily: font.display, fontSize: 24, fontWeight: '700', color: colors.ink, lineHeight: 32, marginTop: 8, marginBottom: 6 },
-        h2: { fontFamily: font.sansBold, fontSize: 18, color: colors.ink, lineHeight: 26, marginTop: 6, marginBottom: 4 },
-        para: { fontFamily: font.sans, fontSize: 16, color: colors.inkMid, lineHeight: 28, marginBottom: 2 },
-        inline: { fontFamily: font.sans, fontSize: 16, color: colors.inkMid },
+        h1: { fontFamily: font.display, fontSize: 24 * fontSize, fontWeight: '700', color: colors.ink, lineHeight: 32 * fontSize, marginTop: 8, marginBottom: 6 },
+        h2: { fontFamily: font.sansBold, fontSize: 18 * fontSize, color: colors.ink, lineHeight: 26 * fontSize, marginTop: 6, marginBottom: 4 },
+        para: { fontFamily: font.sans, fontSize: 16 * fontSize, color: colors.inkMid, lineHeight: 28 * fontSize, marginBottom: 2 },
+        inline: { fontFamily: font.sans, fontSize: 16 * fontSize, color: colors.inkMid },
         bold: { fontFamily: font.sansBold, color: colors.ink },
         italic: { fontStyle: 'italic' },
         ul: { textDecorationLine: 'underline' },
         listRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 4 },
-        bullet: { fontFamily: font.sans, fontSize: 16, color: colors.accent, lineHeight: 28, width: 20 },
-        numLabel: { fontFamily: font.mono, fontSize: 14, color: colors.inkDim, lineHeight: 28, minWidth: 24 },
-        gap: { height: 10 },
-    }), [colors, font]);
+        bullet: { fontFamily: font.sans, fontSize: 16 * fontSize, color: colors.accent, lineHeight: 28 * fontSize, width: 20 * fontSize },
+        numLabel: { fontFamily: font.mono, fontSize: 14 * fontSize, color: colors.inkDim, lineHeight: 28 * fontSize, minWidth: 24 * fontSize },
+        gap: { height: 10 * fontSize },
+    }), [colors, font, fontSize]);
 
     const renderLine = (line: string, idx: number): React.ReactElement => {
         const trimmed = line.trimStart();

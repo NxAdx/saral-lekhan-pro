@@ -119,7 +119,7 @@ export default function EditNoteScreen() {
     root: { flex: 1, backgroundColor: colors.bg, paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 44 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.strokeDim + '44' },
     circleBtn: {
-      width: 36, height: 36, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.stroke,
+      width: 38, height: 38, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
       backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
       ...shadow.gentle, shadowColor: colors.shadow
     },
@@ -134,7 +134,7 @@ export default function EditNoteScreen() {
 
     scroll: { flex: 1 },
     content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 60 },
-    titleInput: { fontFamily: font.display, fontSize: 26, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 },
+    titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
     editorContainer: { minHeight: 400, flex: 1 },
@@ -232,10 +232,11 @@ export default function EditNoteScreen() {
                     placeholderColor: colors.inkDim,
                     // Apply dynamic settings fonts globally to editor via CSS
                     cssText: `
-                  body { font-family: '${settings.fontFamily}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; padding: 0; margin: 0; }
-                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: 2em !important; color: ${colors.ink}; }
-                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: 1.6em !important; color: ${colors.ink}; }
-                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; }
+                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.6; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
+                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 10px; margin-bottom: 10px; }
+                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * settings.fontSize}px !important; color: ${colors.ink}; margin-top: 8px; margin-bottom: 8px; }
+                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
+                  ul, ol { padding-left: 20px; }
                 `
                   }}
                   onChange={(html) => {

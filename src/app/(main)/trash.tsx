@@ -53,15 +53,15 @@ export default function TrashScreen() {
             borderBottomColor: colors.strokeDim,
         },
         backBtn: { marginRight: 16, padding: 4 },
-        title: { fontFamily: font.sansBold, fontSize: 22, color: colors.ink },
+        title: { fontFamily: font.sansBold, fontSize: 22 * theme.fontSize, color: colors.ink },
 
         listContent: { paddingBottom: 100, paddingTop: 16 },
         noteContainer: { paddingHorizontal: 20 },
 
         empty: { paddingTop: 60, alignItems: 'center' },
-        emptyTitle: { fontFamily: font.sansSemi, fontSize: 16, color: colors.inkMid, marginBottom: 6 },
-        emptySub: { fontFamily: font.mono, fontSize: 12, color: colors.inkDim },
-    }), [colors, font]);
+        emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
+        emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
+    }), [colors, font, theme.fontSize]);
 
     return (
         <View style={s.root}>

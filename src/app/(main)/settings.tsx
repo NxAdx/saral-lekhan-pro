@@ -1,23 +1,21 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, Pressable, Platform, StatusBar, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Svg, Path, Circle, Polyline, Line } from 'react-native-svg';
 import { useThemeStore, useTheme } from '../../store/themeStore';
-import { useSettingsStore, FontFamily, AppLanguage } from '../../store/settingsStore';
+import { useSettingsStore, AppLanguage } from '../../store/settingsStore';
 import { themes, ThemeName, sharedTokens } from '../../tokens';
 import { strings } from '../../i18n/strings';
 import { BentoCard } from '../../components/ui/BentoCard';
 import { TagPill } from '../../components/ui/TagPill';
 
 const THEME_OPTIONS: { id: ThemeName; label: string }[] = [
-    { id: 'classic', label: 'Tippani Classic' },
-    { id: 'nord', label: 'Nord Ice' },
-    { id: 'amoled', label: 'OLED Black' },
-    { id: 'lavender', label: 'Soft Lavender' },
-    { id: 'mocha', label: 'Catppuccin Mocha' },
+    { id: 'classic', label: 'Tippani' },
+    { id: 'nord', label: 'Nordic' },
+    { id: 'pitch', label: 'Light & Dark' },
+    { id: 'lavender', label: 'Lavender' },
 ];
 
-const FONT_OPTIONS: FontFamily[] = ['Hind', 'Vesper Libre', 'DM Mono'];
 const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
     { id: 'En', label: 'English' },
     { id: 'Hi', label: 'हिंदी' },
@@ -35,14 +33,9 @@ const SEED_COLORS = [
     '#E91E63', // Material Pink
     '#FFEB3B', // Material Yellow
     '#00BCD4', // Material Cyan
-    '#607D8B', // Material Blue Grey
 ];
 
-const ICON_SHAPES: { id: 'circle' | 'squircle' | 'rounded'; label: string }[] = [
-    { id: 'circle', label: 'Circle' },
-    { id: 'squircle', label: 'Squircle' },
-    { id: 'rounded', label: 'Rounded' },
-];
+const FONT_SIZE_STEPS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -52,6 +45,8 @@ export default function SettingsScreen() {
 
     const settings = useSettingsStore();
     const loc = strings[settings.language] || strings['En'];
+
+    const [showFontModal, setShowFontModal] = React.useState(false);
 
     const s = useMemo(() => StyleSheet.create({
         root: {
@@ -67,7 +62,7 @@ export default function SettingsScreen() {
             borderBottomWidth: 1,
             borderBottomColor: colors.strokeDim,
         },
-        backBtn: { marginRight: 16, padding: 4 },
+        backBtn: { width: 38, height: 38, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke, backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center', marginRight: 16, ...theme.shadow.gentle },
         title: { fontFamily: font.sansBold, fontSize: 22, color: colors.ink },
         content: { padding: 20, paddingBottom: 100 },
 
@@ -98,18 +93,6 @@ export default function SettingsScreen() {
         listSub: { fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginTop: 2 },
         listContent: { flex: 1, marginRight: 12 },
 
-        // Grid Selectors (Material You style)
-        gridRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12 },
-        colorCircle: { width: 44, height: 44, borderRadius: 22, borderWidth: 3, padding: 2 },
-        colorInner: { flex: 1, borderRadius: 20 },
-
-        shapeBtn: {
-            paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1,
-            alignItems: 'center', justifyContent: 'center'
-        },
-        activeShape: { backgroundColor: colors.accentDim, borderColor: colors.accent },
-        inactiveShape: { backgroundColor: colors.bg, borderColor: colors.strokeDim },
-
         // Control buttons
         modeBtn: {
             flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center',
@@ -120,7 +103,26 @@ export default function SettingsScreen() {
         modeText: { fontFamily: font.sansSemi, fontSize: 13 },
 
         pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
-    }), [colors, font, theme.radius, settings.nightMode]);
+
+        // Theme Cards
+        themeGrid: { flexDirection: 'row', paddingHorizontal: 4, paddingBottom: 16 },
+        themeCard: {
+            width: 100,
+            height: 140,
+            borderRadius: 20,
+            backgroundColor: colors.bgRaised,
+            borderWidth: 2,
+            marginRight: 12,
+            padding: 12,
+            justifyContent: 'space-between',
+        },
+        themeCardActive: { borderColor: colors.accent },
+        themeCardInactive: { borderColor: colors.strokeDim },
+        themeCircle: { width: 24, height: 24, borderRadius: 12 },
+        themeLineLong: { height: 4, borderRadius: 2, width: '80%', marginBottom: 6 },
+        themeLineShort: { height: 4, borderRadius: 2, width: '50%', marginBottom: 12 },
+        themeLabel: { fontFamily: font.sans, fontSize: 11, textAlign: 'center' },
+    }), [colors, font, theme.radius, theme.isDark, settings.nightMode, settings.themeId]);
 
     return (
         <View style={s.root}>
@@ -151,14 +153,14 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* Appearance Customizer */}
-                <Text style={s.sectionTitle}>{loc.settingsScreen.lookAndFeel}</Text>
+                <Text style={s.sectionTitle}>{loc.settingsScreen.colorPalette}</Text>
 
                 <View style={s.listBlock}>
-                    {/* Night Mode Toggle */}
+                    {/* Appearance Mode Toggle */}
                     <View style={s.listItem}>
                         <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.nightMode}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.nightModeSub}</Text>
+                            <Text style={s.listLabel}>{loc.settingsScreen.appearanceTheme}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.colorSchemeSub}</Text>
                         </View>
                     </View>
                     <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.strokeDim }}>
@@ -172,7 +174,7 @@ export default function SettingsScreen() {
                                     settings.nightMode === m && s.activeMode
                                 ]}
                             >
-                                <Text style={[s.modeText, { color: settings.nightMode === m ? colors.white : colors.inkMid }]}>
+                                <Text style={[s.modeText, { color: settings.nightMode === m ? (theme.isDark ? colors.bg : colors.white) : colors.inkMid }]}>
                                     {m === 'system' ? 'System' : m === 'light' ? 'Light' : 'Dark'}
                                 </Text>
                             </Pressable>
@@ -193,80 +195,120 @@ export default function SettingsScreen() {
                         />
                     </View>
 
-                    {/* Dynamic Colors (Android only mockup for now) */}
-                    <View style={[s.listItem, s.listItemNoBorder]}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>{loc.settingsScreen.dynamicColors}</Text>
-                            <Text style={s.listSub}>{loc.settingsScreen.dynamicColorsSub}</Text>
-                        </View>
-                        <Switch
-                            value={settings.dynamicColors}
-                            onValueChange={settings.setDynamicColors}
-                            trackColor={{ false: colors.strokeDim, true: colors.accent }}
-                            thumbColor={colors.white}
-                        />
-                    </View>
                 </View>
 
-                {/* Color Palette */}
+                {/* Appearance Theme Selector */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.colorSeed}</Text>
-                <View style={s.listBlock}>
-                    <View style={s.gridRow}>
-                        {SEED_COLORS.map(c => (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={s.themeGrid}
+                >
+                    {THEME_OPTIONS.map(opt => {
+                        const isSelected = settings.themeId === opt.id;
+                        const themeEntry = themes[opt.id];
+                        const previewColors = theme.isDark ? themeEntry.dark : themeEntry.light;
+                        return (
                             <Pressable
-                                key={c}
-                                onPress={() => settings.setSeedColor(c)}
-                                style={[s.colorCircle, { borderColor: settings.seedColor === c ? colors.accent : 'transparent' }]}
+                                key={opt.id}
+                                onPress={() => settings.setThemeId(opt.id)}
+                                style={[
+                                    s.themeCard,
+                                    isSelected ? s.themeCardActive : s.themeCardInactive
+                                ]}
                             >
-                                <View style={[s.colorInner, { backgroundColor: c }]} />
-                            </Pressable>
-                        ))}
-                    </View>
-                    <View style={{ padding: 16, paddingTop: 0 }}>
-                        <Text style={s.listSub}>{loc.settingsScreen.colorSeedSub}</Text>
-                    </View>
-                </View>
-
-                {/* Icon Shapes */}
-                <Text style={s.sectionTitle}>{loc.settingsScreen.iconShape}</Text>
-                <View style={s.listBlock}>
-                    <View style={s.gridRow}>
-                        {ICON_SHAPES.map(sh => (
-                            <Pressable
-                                key={sh.id}
-                                onPress={() => settings.setIconShape(sh.id)}
-                                style={[s.shapeBtn, settings.iconShape === sh.id ? s.activeShape : s.inactiveShape]}
-                            >
-                                <Text style={[s.modeText, { color: settings.iconShape === sh.id ? colors.accent : colors.inkMid }]}>
-                                    {sh.label}
+                                <View>
+                                    <View style={{ flexDirection: 'row', gap: 4, marginBottom: 12 }}>
+                                        <View style={[s.themeCircle, { backgroundColor: themeEntry.light.accent, marginRight: 0 }]} />
+                                        <View style={[s.themeCircle, { backgroundColor: themeEntry.dark.accent, marginRight: 0 }]} />
+                                    </View>
+                                    <View style={[s.themeLineLong, { backgroundColor: previewColors.strokeDim }]} />
+                                    <View style={[s.themeLineShort, { backgroundColor: previewColors.strokeDim }]} />
+                                </View>
+                                <Text style={[s.themeLabel, { color: isSelected ? colors.accent : colors.inkMid }]} numberOfLines={2}>
+                                    {opt.label}
                                 </Text>
                             </Pressable>
-                        ))}
-                    </View>
-                    <View style={{ padding: 16, paddingTop: 0 }}>
-                        <Text style={s.listSub}>{loc.settingsScreen.iconShapeSub}</Text>
-                    </View>
-                </View>
+                        );
+                    })}
+                </ScrollView>
 
-                {/* Fonts & Language */}
-                <Text style={s.sectionTitle}>{loc.settingsScreen.typographyLanguage}</Text>
+                {/* Text Size & Language */}
+                <Text style={s.sectionTitle}>{loc.settingsScreen.displayLanguage}</Text>
                 <View style={s.listBlock}>
-                    <View style={s.pillRow}>
-                        {FONT_OPTIONS.map(f => (
-                            <TagPill key={f} label={f} active={settings.fontFamily === f} onPress={() => settings.setFontFamily(f)} />
-                        ))}
-                    </View>
-                    <View style={[s.pillRow, { paddingTop: 0, borderTopWidth: 1, borderTopColor: colors.strokeDim }]}>
+                    <Pressable
+                        style={s.listItem}
+                        onPress={() => setShowFontModal(true)}
+                    >
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>{loc.settingsScreen.textSize}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.textSizeSub}</Text>
+                        </View>
+                        <Text style={{ fontFamily: font.mono, color: colors.accent, fontSize: 16 }}>
+                            {Math.round(settings.fontSize * 100)}%
+                        </Text>
+                    </Pressable>
+
+                    <View style={[s.pillRow, { paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.strokeDim }]}>
                         {LANG_OPTIONS.map(l => (
                             <TagPill key={l.id} label={l.label} active={settings.language === l.id} onPress={() => settings.setLanguage(l.id)} />
                         ))}
                     </View>
                 </View>
 
+                {/* Font Size Modal (Metrolist style) */}
+                <Modal visible={showFontModal} transparent animationType="fade">
+                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                        <View style={{ backgroundColor: colors.bg, borderRadius: 28, width: '100%', padding: 24, ...theme.shadow.soft }}>
+                            <Text style={{ fontFamily: font.sansBold, fontSize: 18, color: colors.ink, marginBottom: 8 }}>{loc.settingsScreen.textSize}</Text>
+                            <Text style={{ fontFamily: font.sans, fontSize: 14, color: colors.inkMid, marginBottom: 32 }}>{loc.settingsScreen.textSizeSub}</Text>
+
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ fontFamily: font.mono, fontSize: 24, color: colors.accent, marginBottom: 32 }}>
+                                    {(settings.fontSize * 16).toFixed(1)} pt
+                                </Text>
+
+                                <View style={{ width: '100%', paddingHorizontal: 12 }}>
+                                    {/* The Horizontal Line */}
+                                    <View style={{ height: 4, backgroundColor: colors.strokeDim, borderRadius: 2, position: 'absolute', top: 10, left: 12, right: 12 }} />
+
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 24 }}>
+                                        {FONT_SIZE_STEPS.map((step) => {
+                                            const isActive = settings.fontSize === step;
+                                            return (
+                                                <Pressable
+                                                    key={step}
+                                                    onPress={() => settings.setFontSize(step)}
+                                                    style={{ width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}
+                                                >
+                                                    {isActive ? (
+                                                        <View style={{ width: 4, height: 24, backgroundColor: colors.accent, borderRadius: 2 }} />
+                                                    ) : (
+                                                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.inkDim }} />
+                                                    )}
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </View>
+                                </View>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 40, gap: 12 }}>
+                                <Pressable onPress={() => { settings.setFontSize(1.0); setShowFontModal(false); }} style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+                                    <Text style={{ color: colors.accent, fontFamily: font.sansSemi }}>{loc.settingsScreen.reset}</Text>
+                                </Pressable>
+                                <Pressable onPress={() => setShowFontModal(false)} style={{ backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 20 }}>
+                                    <Text style={{ color: colors.white, fontFamily: font.sansSemi }}>{loc.settingsScreen.ok}</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
                 {/* Back to Home Hint */}
                 <View style={{ height: 40 }} />
 
-            </ScrollView>
-        </View>
+            </ScrollView >
+        </View >
     );
 }

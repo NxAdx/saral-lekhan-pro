@@ -39,7 +39,7 @@ export function FAB({ onPress }: FABProps) {
         {
           backgroundColor: colors.accent,
           borderColor: colors.accentDark,
-          borderRadius: radius.xl,
+          borderRadius: 99,
           ...shadow.soft,
           shadowColor: colors.shadow,
         },

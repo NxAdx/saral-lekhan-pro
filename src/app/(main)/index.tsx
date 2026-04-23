@@ -73,22 +73,28 @@ export default function HomeScreen() {
     listContent: { paddingBottom: 100 },
     noteContainer: { paddingHorizontal: 20 },
     header: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16, flexDirection: 'row', alignItems: 'center' },
-    appName: { fontFamily: font.display, fontSize: 32, fontWeight: '900', color: colors.ink, letterSpacing: -0.03 * 32 },
-    appSub: { fontFamily: font.mono, fontSize: 10, color: colors.accent, letterSpacing: 0.1 * 10, marginTop: 2 },
+    appName: { fontFamily: font.display, fontSize: 32 * theme.fontSize, fontWeight: '900', color: colors.ink, letterSpacing: -0.03 * 32 * theme.fontSize },
+    appSub: { fontFamily: font.mono, fontSize: 10 * theme.fontSize, color: colors.accent, letterSpacing: 0.1 * 10 * theme.fontSize, marginTop: 2 },
     searchWrap: {
       marginHorizontal: 20, marginBottom: 12, backgroundColor: colors.bgRaised,
       borderRadius: radius.pill, borderWidth: 1.5, borderColor: searchFocused ? colors.accent : colors.stroke,
       paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center',
       ...shadow.gentle, shadowColor: colors.shadow, gap: 10
     },
-    searchInput: { flex: 1, fontFamily: font.sans, fontSize: 15, color: colors.ink, padding: 0 },
-    clearBtn: { fontSize: 13, color: colors.inkDim, paddingHorizontal: 4 },
+    searchInput: { flex: 1, fontFamily: font.sans, fontSize: 15 * theme.fontSize, color: colors.ink, padding: 0 },
+    clearBtn: { fontSize: 13 * theme.fontSize, color: colors.inkDim, paddingHorizontal: 4 },
     tagRailOuter: { marginBottom: 12 },
     tagRail: { paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
     empty: { paddingTop: 60, alignItems: 'center' },
-    emptyTitle: { fontFamily: font.sansSemi, fontSize: 16, color: colors.inkMid, marginBottom: 6 },
-    emptySub: { fontFamily: font.mono, fontSize: 12, color: colors.inkDim },
-    fabWrap: { position: 'absolute', bottom: 24, right: 24 },
+    emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
+    emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
+    headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    fabWrap: { position: 'absolute', bottom: 32, right: 28 },
+    circleBtn: {
+      width: 42, height: 42, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
+      backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
+      ...shadow.gentle, shadowColor: colors.shadow
+    },
   }), [colors, font, radius, shadow, searchFocused]);
 
   const ListHeader = useMemo(() => (
@@ -98,15 +104,15 @@ export default function HomeScreen() {
           <Text style={s.appName}>{loc.appName}</Text>
           <Text style={s.appSub}>{loc.appSub}</Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          <Pressable onPress={() => router.push('/trash')} hitSlop={15}>
-            <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <View style={s.headerRight}>
+          <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={12}>
+            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
               <Path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
             </Svg>
           </Pressable>
-          <Pressable onPress={() => router.push('/settings')} hitSlop={15}>
-            <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <Circle cx="12" cy="12" r="3" />
+          <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={12}>
+            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
+              <Path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
               <Path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </Svg>
           </Pressable>

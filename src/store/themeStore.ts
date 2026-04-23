@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
 import { argbFromHex, themeFromSourceColor, hexFromArgb } from '@material/material-color-utilities';
-import { ThemeColors, sharedTokens } from '../tokens';
+import { ThemeColors, sharedTokens, themes } from '../tokens';
 import { useSettingsStore } from './settingsStore';
 
 interface ThemeState {
@@ -50,50 +50,35 @@ export const useTheme = () => {
 
     // Determine actual dark mode state
     const isDark = settings.nightMode === 'system'
-        ? systemColorScheme === 'dark'
+        ? (systemColorScheme === 'dark')
         : settings.nightMode === 'dark';
 
-    // Generate colors dynamically
-    // In a real app, you might memoize this or compute it in an effect
-    const colors = generateAppColors(settings.seedColor, isDark, settings.amoledMode);
+    // Derive colors from preset themes
+    const themeEntry = themes[settings.themeId] || themes.classic;
+    let colors = { ...(isDark ? themeEntry.dark : themeEntry.light) };
 
-    // Font override logic
-    const base = settings.fontFamily;
-    const isVesper = base === 'Vesper Libre';
-    const isMono = base === 'DM Mono';
+    // Apply AMOLED override if theme is dark
+    if (settings.amoledMode && isDark && (settings.themeId === 'pitch' || settings.themeId === 'nord' || settings.themeId === 'classic')) {
+        colors.bg = '#000000';
+        colors.bgRaised = '#050505';
+        colors.bgDeep = '#0A0A0A';
+    }
 
+    // Simplified default font stack
     const customFont = {
-        sans: isVesper ? 'VesperLibre-Black' : isMono ? 'DMMono-Regular' : 'Hind',
-        sansMed: isVesper ? 'VesperLibre-Black' : isMono ? 'DMMono-Regular' : 'Hind-Medium',
-        sansSemi: isVesper ? 'VesperLibre-Black' : isMono ? 'DMMono-Regular' : 'Hind-SemiBold',
-        sansBold: isVesper ? 'VesperLibre-Black' : isMono ? 'DMMono-Regular' : 'Hind-Bold',
+        sans: 'Hind',
+        sansMed: 'Hind-Medium',
+        sansSemi: 'Hind-SemiBold',
+        sansBold: 'Hind-Bold',
         display: 'VesperLibre-Black',
         mono: 'DMMono-Regular',
-    };
-
-    // Icon Shape Radius calculation
-    const getRadiusForShape = (baseRadius: number) => {
-        switch (settings.iconShape) {
-            case 'circle': return 9999;
-            case 'squircle': return baseRadius * 1.5; // Custom squircle logic usually more complex, but we'll approximate
-            case 'rounded': return baseRadius;
-            default: return baseRadius;
-        }
-    };
-
-    const dynamicRadius = {
-        ...sharedTokens.radius,
-        xl: getRadiusForShape(sharedTokens.radius.xl),
-        lg: getRadiusForShape(sharedTokens.radius.lg),
-        md: getRadiusForShape(sharedTokens.radius.md),
-        sm: getRadiusForShape(sharedTokens.radius.sm),
     };
 
     return {
         colors,
         ...sharedTokens,
-        radius: dynamicRadius,
         font: customFont,
         isDark,
+        fontSize: settings.fontSize,
     };
 };

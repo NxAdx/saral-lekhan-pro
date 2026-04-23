@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { T } from '../../tokens';
+import { useTheme } from '../../store/themeStore';
 import { stripMarkdown } from '../../utils/markdown';
 import { HardShadow } from './HardShadow';
 
@@ -21,36 +21,37 @@ export function NotePill({
   pinned = false,
   onPress,
 }: NotePillProps) {
+  const { colors, font, radius, fontSize } = useTheme();
   const cleanPreview = stripMarkdown(preview);
 
   return (
     <HardShadow
       onPress={onPress}
-      radius={T.radius.pill}
-      shadowColor={pinned ? T.color.accentDark : T.color.shadow}
+      radius={radius.pill}
+      shadowColor={pinned ? colors.accentDark : colors.shadow}
       shadowOffset={{ width: 3, height: 4 }}
-      frontStyle={[s.pill, pinned && s.pillPinned]}
+      frontStyle={[s.pill, { backgroundColor: colors.bg, borderColor: pinned ? colors.accent : colors.stroke }, pinned && s.pillPinned]}
       style={s.cardWrapper}
     >
       {/* Title row */}
-      <Text style={[s.title, pinned && s.titlePinned]} numberOfLines={1}>
+      <Text style={[s.title, { color: colors.ink, fontFamily: font.sansSemi, fontSize: 16 * fontSize }, pinned && { color: colors.accent }]} numberOfLines={1}>
         {pinned ? '★ ' : ''}
         {title || 'Untitled'}
       </Text>
 
       {/* Preview */}
       {cleanPreview ? (
-        <Text style={s.preview} numberOfLines={1}>
+        <Text style={[s.preview, { color: colors.inkDim, fontFamily: font.sans, fontSize: 13 * fontSize, lineHeight: 20 * fontSize }]} numberOfLines={1}>
           {cleanPreview}
         </Text>
       ) : null}
 
       {/* Meta row: date left, tag chip right — matches .note-pill-meta in sample HTML */}
       <View style={s.metaRow}>
-        <Text style={s.date}>{date}</Text>
+        <Text style={[s.date, { color: colors.inkDim, fontFamily: font.mono, fontSize: 10 * fontSize }]}>{date}</Text>
         {tag ? (
-          <View style={s.tagChip}>
-            <Text style={s.tagText}>{tag}</Text>
+          <View style={[s.tagChip, { backgroundColor: colors.accentBg, borderColor: colors.accentDim, borderRadius: radius.pill }]}>
+            <Text style={[s.tagText, { color: colors.accent, fontFamily: font.sansSemi, fontSize: 10 * fontSize }]}>{tag}</Text>
           </View>
         ) : null}
       </View>
@@ -63,28 +64,17 @@ const s = StyleSheet.create({
     alignSelf: 'stretch',
   },
   pill: {
-    backgroundColor: T.color.bg,
     borderWidth: 2.5,
-    borderColor: T.color.stroke,
     paddingVertical: 16,
     paddingHorizontal: 20,
   },
   pillPinned: {
-    borderColor: T.color.accent,
   },
   title: {
-    fontFamily: T.font.sansSemi,
-    fontSize: 16,
     fontWeight: '600',
-    color: T.color.ink,
     marginBottom: 4,
   },
-  titlePinned: { color: T.color.accent },
   preview: {
-    fontFamily: T.font.sans,
-    fontSize: 13,
-    color: T.color.inkDim,
-    lineHeight: 20,
   },
   // Bottom meta row — date left, tag chip right (matches sample HTML)
   metaRow: {
@@ -95,22 +85,13 @@ const s = StyleSheet.create({
     gap: 8,
   },
   date: {
-    fontFamily: T.font.mono,
-    fontSize: 10,
-    color: T.color.inkDim,
   },
   tagChip: {
-    backgroundColor: T.color.accentBg,
     borderWidth: 1,
-    borderColor: T.color.accentDim,
-    borderRadius: T.radius.pill,
     paddingVertical: 2,
     paddingHorizontal: 8,
   },
   tagText: {
-    fontFamily: T.font.sansSemi,
-    fontSize: 10,
     fontWeight: '600',
-    color: T.color.accent,
   },
 });

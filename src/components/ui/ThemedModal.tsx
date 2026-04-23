@@ -18,7 +18,7 @@ interface ThemedModalProps {
 }
 
 export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtitle, actions, onClose }) => {
-    const { colors, font, radius, shadow } = useTheme();
+    const { colors, font, radius, shadow, fontSize } = useTheme();
 
     const s = useMemo(() => StyleSheet.create({
         overlay: {
@@ -46,14 +46,14 @@ export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtit
         },
         title: {
             fontFamily: font.sansBold,
-            fontSize: 20,
+            fontSize: 20 * fontSize,
             color: colors.ink,
             textAlign: 'center',
             marginBottom: subtitle ? 8 : 0,
         },
         subtitle: {
             fontFamily: font.sans,
-            fontSize: 14,
+            fontSize: 14 * fontSize,
             color: colors.inkDim,
             textAlign: 'center',
         },
@@ -84,7 +84,7 @@ export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtit
         },
         btnLabel: {
             fontFamily: font.sansSemi,
-            fontSize: 15,
+            fontSize: 15 * fontSize,
             color: colors.ink,
         },
         btnLabelCancel: {
@@ -93,7 +93,7 @@ export const ThemedModal: React.FC<ThemedModalProps> = ({ visible, title, subtit
         btnLabelDestructive: {
             color: colors.accentDark,
         }
-    }), [colors, font, radius, shadow, subtitle]);
+    }), [colors, font, radius, shadow, subtitle, fontSize]);
 
     if (!visible) return null;
 

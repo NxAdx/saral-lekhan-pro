@@ -53,7 +53,7 @@ export default function NewNoteScreen() {
 
     scroll: { flex: 1 },
     content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 60 },
-    titleInput: { fontFamily: font.display, fontSize: 26, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 },
+    titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
     editorContainer: { minHeight: 400, flex: 1 },
@@ -78,7 +78,7 @@ export default function NewNoteScreen() {
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle={theme.themeName === 'classic' || theme.themeName === 'lavender' ? 'dark-content' : 'light-content'} backgroundColor={colors.bg} />
+      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
         <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12}>
@@ -120,7 +120,7 @@ export default function NewNoteScreen() {
                 placeholderColor: colors.inkDim,
                 // Apply dynamic settings fonts globally to editor via CSS
                 cssText: `
-                  body { font-family: '${settings.fontFamily}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; padding: 0; margin: 0; }
+                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * settings.fontSize}px; line-height: 1.8; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
                   h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: 2em !important; color: ${colors.ink}; }
                   h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: 1.6em !important; color: ${colors.ink}; }
                   blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; }
