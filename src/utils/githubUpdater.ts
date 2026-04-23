@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 import { Linking, Platform, NativeModules } from 'react-native';
 import Constants from 'expo-constants';
+import { log } from './Logger';
 
 const { UpdaterModule } = NativeModules;
 
@@ -69,7 +70,7 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         const latestNum = getVersionNumber(latestVersion);
         const currentNum = getVersionNumber(currentVersion);
 
-        console.log(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum}`);
+        log.info(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum}`);
 
         const isNewVersion = latestNum > currentNum;
         const isReinstall = latestNum === currentNum && allowSameVersion;
@@ -85,7 +86,7 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         };
 
     } catch (error) {
-        console.error('Update Check Error:', error);
+        log.error('Update Check Error:', error as any);
         return null;
     }
 }
@@ -112,7 +113,7 @@ export async function requestInstallPermission(): Promise<void> {
     try {
         await UpdaterModule.openInstallPermissionSettings();
     } catch (e) {
-        console.warn("Failed to open install settings", e);
+        log.warn("Failed to open install settings", e as any);
     }
 }
 
@@ -177,7 +178,7 @@ export async function downloadAndInstallApk(
         } catch (e) {}
 
         if (isMiui || !UpdaterModule) {
-            console.log('Using legacy installation method (MIUI detected or Module missing)');
+            log.info('Using legacy installation method (MIUI detected or Module missing)');
             return await Linking.openURL(downloadUrl);
         }
 
@@ -185,7 +186,7 @@ export async function downloadAndInstallApk(
         return await UpdaterModule.installPackage(absolutePath);
 
     } catch (e) {
-        console.error("Install Error:", e);
+        log.error("Install Error:", e as any);
         try {
             await Linking.openURL(downloadUrl);
             return true;

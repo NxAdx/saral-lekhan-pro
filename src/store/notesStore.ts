@@ -6,9 +6,11 @@ import { log } from '../utils/Logger';
 const DB_NAME = 'saral_lekhan.db';
 let db = SQLite.openDatabase(DB_NAME);
 
-function reopenDatabaseConnection() {
+async function reopenDatabaseConnection() {
   try {
-    (db as any)?.closeAsync?.();
+    if ((db as any)?.closeAsync) {
+      await (db as any).closeAsync();
+    }
   } catch (error) {
     // Ignore close errors and still attempt to reopen.
     log.warn("SQLite close before reopen failed", error as any);
@@ -44,7 +46,7 @@ interface NotesState {
   getNotesFilteredByTag: (tag: string) => Note[];
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
-  resetDB: () => void;
+  resetDB: () => Promise<void>;
   bootstrap: (initialNotesJson?: string) => void;
 }
 
@@ -66,7 +68,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   initDB: () => {
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       // Step 1: Ensure the notes table exists with all columns.
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS notes (
@@ -85,14 +87,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           tx.executeSql(
             `SELECT COUNT(*) as count FROM pragma_table_info('notes') WHERE name='is_deleted';`,
             [],
-            (_, { rows }) => {
+            (_: any, { rows }: any) => {
               const hasColumn = rows.item(0)?.count > 0;
               if (!hasColumn) {
                 tx.executeSql(
                   `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
                   [],
                   () => get().loadNotes(),
-                  (_, err) => {
+                  (_: any, err: any) => {
                     log.warn('Migration ALTER failed', err as any);
                     get().loadNotes();
                     return true;
@@ -102,7 +104,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
                 get().loadNotes();
               }
             },
-            (_, err) => {
+            (_: any, err: any) => {
               log.warn('pragma_table_info check failed, loading anyway', err as any);
               get().loadNotes();
               return true;
@@ -110,7 +112,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           );
         }
       );
-    }, (err) => {
+    }, (err: any) => {
         log.error("Failed to init DB (Transaction Error)", err);
         // CRITICAL: Always mark as loaded so the app doesn't stay stuck on the loading screen.
         set({ isLoaded: true });
@@ -119,11 +121,11 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   loadNotes: () => {
     log.info("Loading notes from DB...");
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(
         `SELECT * FROM notes ORDER BY updated_at DESC;`, [],
-        (_, { rows: { _array } }) => {
-          const loadedNotes = _array.map(row => ({
+        (_: any, { rows: { _array } }: any) => {
+          const loadedNotes = _array.map((row: any) => ({
             ...row,
             pinned: row.pinned === 1,
             is_deleted: row.is_deleted === 1
@@ -132,7 +134,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           set({ notes: loadedNotes, isLoaded: true });
         }
       );
-    }, (err) => {
+    }, (err: any) => {
       log.error("Failed to load notes", err);
       // Ensure app never stays stuck on the loading skeleton
       set({ isLoaded: true });
@@ -153,12 +155,12 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     log.info(`Adding new note: ${newNote.title}`);
     set((state) => ({ notes: [newNote, ...state.notes] }));
 
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(
         `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0);`,
         [newNote.id, newNote.title, newNote.body, newNote.tag, newNote.created_at, newNote.updated_at, newNote.pinned ? 1 : 0]
       );
-    }, (err) => {
+    }, (err: any) => {
       log.error("Failed to insert note", err);
     });
 
@@ -176,12 +178,12 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
     const n = get().notes.find(x => x.id === id);
     if (n) {
-      db.transaction((tx) => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
           [n.title, n.body, n.tag, n.updated_at, n.pinned ? 1 : 0, id]
         );
-      }, (err) => {
+      }, (err: any) => {
         log.error("Failed to update note", err);
       });
     }
@@ -198,7 +200,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     set((state) => ({
       notes: state.notes.map((n) => n.id === id ? { ...n, is_deleted: true } : n)
     }));
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(`UPDATE notes SET is_deleted = 1 WHERE id = ?;`, [id]);
     });
   },
@@ -207,14 +209,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     set((state) => ({
       notes: state.notes.map((n) => n.id === id ? { ...n, is_deleted: false } : n)
     }));
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(`UPDATE notes SET is_deleted = 0 WHERE id = ?;`, [id]);
     });
   },
 
   permanentlyDeleteNote: (id) => {
     set((state) => ({ notes: state.notes.filter((n) => n.id !== id) }));
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(`DELETE FROM notes WHERE id = ?;`, [id]);
     });
   },
@@ -223,9 +225,9 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const trashIds = get().notes.filter(n => n.is_deleted).map(n => n.id);
     if (trashIds.length === 0) return;
     set((state) => ({ notes: state.notes.filter((n) => !n.is_deleted) }));
-    db.transaction((tx) => {
+    db.transaction((tx: any) => {
       tx.executeSql(`DELETE FROM notes WHERE is_deleted = 1;`);
-    }, (err) => {
+    }, (err: any) => {
       log.error("Failed to empty trash", err);
     });
   },
@@ -239,10 +241,10 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     return Array.from(tags).sort();
   },
 
-  resetDB: () => {
+  resetDB: async () => {
     set({ notes: [], isLoaded: false });
     // Re-initialize and load notes from the newly restored/replaced database file
-    reopenDatabaseConnection();
+    await reopenDatabaseConnection();
     get().initDB();
   },
 }));

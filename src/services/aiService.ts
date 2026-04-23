@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAiStore } from '../store/aiStore';
+import { log } from '../utils/Logger';
 
 export class AiService {
 
     static async getBestModel(apiKey: string): Promise<string> {
         try {
-            console.log("Fetching available Gemini models for API key...");
+            log.info("Fetching available Gemini models for API key...");
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
             const data = await res.json();
 
@@ -22,12 +23,12 @@ export class AiService {
 
                 if (best) {
                     const modelName = best.name.replace('models/', '');
-                    console.log("Dynamically selected model:", modelName);
+                    log.info("Dynamically selected model:", modelName);
                     return modelName;
                 }
             }
         } catch (e) {
-            console.warn("Failed to fetch model list. Falling back to default.", e);
+            log.warn("Failed to fetch model list. Falling back to default.", e as any);
         }
         return "gemini-1.5-flash"; // Ultimate fallback
     }
@@ -47,7 +48,7 @@ export class AiService {
             const response = await result.response;
             return response.text();
         } catch (e: any) {
-            console.error("AI Summarization failed", e);
+            log.error("AI Summarization failed", e);
             throw new Error(e.message || "Failed to summarize note. Check your API Key.");
         }
     }
@@ -67,7 +68,7 @@ export class AiService {
             const response = await result.response;
             return response.text().trim().replace(/^"|"$/g, ''); // strip quotes just in case
         } catch (e: any) {
-            console.error("AI Title generation failed", e);
+            log.error("AI Title generation failed", e);
             throw new Error(e.message || "Failed to generate title. Check your API Key.");
         }
     }
@@ -85,7 +86,7 @@ export class AiService {
             const response = await result.response;
             return response.text();
         } catch (e: any) {
-            console.error("AI Content generation failed", e);
+            log.error("AI Content generation failed", e);
             throw new Error(e.message || "Failed to generate content. Check your API Key.");
         }
     }
@@ -105,7 +106,7 @@ export class AiService {
             const response = await result.response;
             return response.text();
         } catch (e: any) {
-            console.error("AI Content formatting failed", e);
+            log.error("AI Content formatting failed", e);
             throw new Error(e.message || "Failed to format note. Check your API Key.");
         }
     }

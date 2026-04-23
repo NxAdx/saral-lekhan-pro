@@ -16,7 +16,8 @@ Builds:
     subdir: android/app
     sudo:
       - apt-get update
-      - apt-get install -y curl
+      - apt-get install -y curl openjdk-17-jdk-headless
+      - update-alternatives --auto java
       - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
       - apt-get install -y nodejs
     init:
@@ -28,8 +29,6 @@ Builds:
       - cd ../..
       - npx expo prebuild --platform android --clean
     scanignore:
-      - node_modules
-    scandelete:
       - node_modules
 
 AutoUpdateMode: Version

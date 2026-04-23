@@ -437,18 +437,18 @@ export default function SettingsScreen() {
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flex: 1 }}>
-                            <Text style={s.listLabel}>App Version</Text>
+                            <Text style={s.listLabel}>{loc.settingsScreen.appVersion}</Text>
                             <Text style={s.listSub}>
-                                Current: v{APP_VERSION}
+                                {loc.settingsScreen.currentVersion}: v{APP_VERSION}
                                 {updateInfo?.hasUpdate
                                     ? (updateInfo.isReinstall
-                                        ? ` • Reinstall v${updateInfo.version}`
-                                        : ` • Latest: v${updateInfo.version}`)
-                                    : ' • Up to date'}
+                                        ? ` • ${loc.settingsScreen.reinstall} v${updateInfo.version}`
+                                        : ` • ${loc.settingsScreen.latestVersion}: v${updateInfo.version}`)
+                                    : ` • ${loc.settingsScreen.upToDate}`}
                             </Text>
                         </View>
                         {isCheckingUpdate ? (
-                            <Text style={[s.listSub, { color: colors.accent }]}>Checking...</Text>
+                            <Text style={[s.listSub, { color: colors.accent }]}>{loc.settingsScreen.checking}</Text>
                         ) : updateInfo?.hasUpdate ? (
                             <Pressable
                                 onPress={handleDownloadUpdate}
@@ -457,8 +457,8 @@ export default function SettingsScreen() {
                             >
                                 <Text style={{ color: colors.white, fontFamily: font.sansBold }}>
                                     {isDownloadingUpdate
-                                        ? `${Math.round(downloadProgress * 100)}% Downloading`
-                                        : (updateInfo?.isReinstall ? 'Reinstall' : 'Update Now')}
+                                        ? `${Math.round(downloadProgress * 100)}% ${loc.settingsScreen.downloading}`
+                                        : (updateInfo?.isReinstall ? loc.settingsScreen.reinstall : loc.settingsScreen.updateNow)}
                                 </Text>
                             </Pressable>
                         ) : (
@@ -474,7 +474,7 @@ export default function SettingsScreen() {
                                 }}
                             >
                                 <Text style={{ color: colors.ink, fontFamily: font.sansSemi, fontSize: 13 }}>
-                                    Check for Updates
+                                    {loc.settingsScreen.checkForUpdates}
                                 </Text>
                             </Pressable>
                         )}
@@ -505,7 +505,7 @@ export default function SettingsScreen() {
                                 ]}
                             >
                                 <Text style={[s.modeText, { color: settings.nightMode === m ? (theme.isDark ? colors.bg : colors.white) : colors.inkMid, includeFontPadding: false }]}>
-                                    {m === 'system' ? 'System' : m === 'light' ? 'Light' : 'Dark'}
+                                    {m === 'system' ? loc.settingsScreen.system : m === 'light' ? loc.settingsScreen.light : loc.settingsScreen.dark}
                                 </Text>
                             </Pressable>
                         ))}
@@ -515,7 +515,7 @@ export default function SettingsScreen() {
                     <View style={s.listItem}>
                         <View style={s.listContent}>
                             <Text style={s.listLabel}>{loc.settingsScreen.autoSave}</Text>
-                            <Text style={s.listSub}>Automatically save notes as you type</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.autoSaveSub}</Text>
                         </View>
                         <Switch
                             value={settings.autoSave}
@@ -628,7 +628,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* SECURITY & PRIVACY */}
-                <Text style={s.sectionTitle}>Security & Privacy</Text>
+                <Text style={s.sectionTitle}>{loc.settingsScreen.securityPrivacy}</Text>
                 <View style={s.singleRowCard}>
                     <View style={[s.listItem, s.listItemNoBorder]}>
                         <View style={s.listContent}>
@@ -650,7 +650,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* CLOUD & BACKUP */}
-                <Text style={s.sectionTitle}>Cloud & Intelligence</Text>
+                <Text style={s.sectionTitle}>{loc.settingsScreen.cloudIntelligence}</Text>
                 <View style={s.listBlock}>
                     {/* Spark AI Key */}
                     <View style={s.listItem}>
@@ -697,7 +697,7 @@ export default function SettingsScreen() {
                                         }
                                     }}
                                 >
-                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, includeFontPadding: false, textAlign: 'center' }}>Save</Text>
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, includeFontPadding: false, textAlign: 'center' }}>{loc.settingsScreen.save}</Text>
                                 </Pressable>
                                 {ai.geminiApiKey ? (
                                     <Pressable
@@ -707,7 +707,7 @@ export default function SettingsScreen() {
                                             setSyncAlert({ visible: true, title: "Key Removed", sub: "Your API key has been removed." });
                                         }}
                                     >
-                                        <Text style={{ fontFamily: font.sansSemi, color: '#FF5E5B', fontSize: 13, includeFontPadding: false, textAlign: 'center' }}>Remove</Text>
+                                        <Text style={{ fontFamily: font.sansSemi, color: '#FF5E5B', fontSize: 13, includeFontPadding: false, textAlign: 'center' }}>{loc.settingsScreen.remove}</Text>
                                     </Pressable>
                                 ) : null}
                             </View>
@@ -720,8 +720,8 @@ export default function SettingsScreen() {
                     {/* Local Backup Vault & Donations */}
                     <View style={[s.listItem, s.listItemNoBorder]}>
                         <View style={s.listContent}>
-                            <Text style={s.listLabel}>Data Vault (Local Backup)</Text>
-                            <Text style={s.listSub}>Safely export or import your markdown notes.</Text>
+                            <Text style={s.listLabel}>{loc.settingsScreen.dataVault}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.dataVaultSub}</Text>
 
                             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
                                 <Pressable
@@ -729,7 +729,7 @@ export default function SettingsScreen() {
                                     onPress={handleBackup}
                                 >
                                     <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                        Export Backup
+                                        {loc.settingsScreen.exportBackup}
                                     </Text>
                                 </Pressable>
 
@@ -738,27 +738,27 @@ export default function SettingsScreen() {
                                     onPress={handleRestore}
                                 >
                                     <Text style={{ fontFamily: font.sansSemi, color: colors.inkMid, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                        Import Backup
+                                        {loc.settingsScreen.importBackup}
                                     </Text>
                                 </Pressable>
                             </View>
 
-                            <Text style={{ fontFamily: font.sansSemi, fontSize: 14, color: colors.ink, marginTop: 24, marginBottom: 8 }}>Support The Developer</Text>
-                            <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginBottom: 16 }}>Saral Lekhan is 100% free on F-Droid. If you love the app, consider supporting its development!</Text>
+                            <Text style={{ fontFamily: font.sansSemi, fontSize: 14, color: colors.ink, marginTop: 24, marginBottom: 8 }}>{loc.settingsScreen.supportDeveloper}</Text>
+                            <Text style={{ fontFamily: font.sans, fontSize: 12, color: colors.inkDim, marginBottom: 16 }}>{loc.settingsScreen.supportDeveloperSub}</Text>
 
                             <View style={{ gap: 12 }}>
                                 <Pressable
                                     style={{ paddingVertical: 12, backgroundColor: '#1DB760', borderRadius: theme.radius.md, alignItems: 'center' }}
                                     onPress={() => Linking.openURL('upi://pay?pa=9479933411@nyes&pn=Aadarsh%20Lokhande&cu=INR')}
                                 >
-                                    <Text style={{ fontFamily: font.sansSemi, color: '#FFF', fontSize: 13 }}>Support via UPI (For Indian Users)</Text>
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13 }}>{loc.settingsScreen.supportUpi}</Text>
                                 </Pressable>
 
                                 <Pressable
                                     style={{ paddingVertical: 12, backgroundColor: '#FF5E5B', borderRadius: theme.radius.md, alignItems: 'center' }}
                                     onPress={() => Linking.openURL('https://ko-fi.com/aadarshlokhande')}
                                 >
-                                    <Text style={{ fontFamily: font.sansSemi, color: '#FFF', fontSize: 13 }}>Support via Ko-fi (Global)</Text>
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13 }}>{loc.settingsScreen.supportKofi}</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -766,18 +766,18 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* HELP & FEEDBACK */}
-                <Text style={s.sectionTitle}>Help & Feedback</Text>
+                <Text style={s.sectionTitle}>{loc.settingsScreen.helpFeedback}</Text>
                 <View style={s.listBlock}>
                     <View style={[s.listItem, s.listItemNoBorder, { paddingVertical: 14 }]}>
                         <View style={s.listContent}>
-                            <Text style={s.listLabel}>Found a bug?</Text>
-                            <Text style={s.listSub}>Help us improve Saral Lekhan.</Text>
+                            <Text style={s.listLabel}>{loc.settingsScreen.foundBug}</Text>
+                            <Text style={s.listSub}>{loc.settingsScreen.foundBugSub}</Text>
                         </View>
                         <Pressable 
                             onPress={() => Linking.openURL('https://github.com/NxAdx/saral-lekhan-pro/issues/new')}
                             style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: colors.accentBg, borderRadius: theme.radius.sm, justifyContent: 'center' }}
                         >
-                            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>Report Issue</Text>
+                            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>{loc.settingsScreen.reportIssue}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -785,7 +785,7 @@ export default function SettingsScreen() {
                 {/* About Developer Section */}
                 <View style={{ marginTop: 24, paddingVertical: 20, alignItems: 'center', opacity: 0.6 }}>
                     <Text style={{ fontFamily: font.sans, fontSize: 13, color: colors.inkMid }}>
-                        Designed by
+                        {loc.settingsScreen.aboutDeveloper}
                     </Text>
                     <Text style={{ fontFamily: font.sansBold, fontSize: 15, color: colors.accent, marginTop: 4 }}>
                         Aadarsh Lokhande
@@ -861,12 +861,12 @@ export default function SettingsScreen() {
                                     ))}
                                     
                                     <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.strokeDim }}>
-                                        <Text style={{ fontFamily: font.sans, color: colors.inkMid, fontSize: 13, marginBottom: 12 }}>Older changes are available on GitHub.</Text>
+                                        <Text style={{ fontFamily: font.sans, color: colors.inkMid, fontSize: 13, marginBottom: 12 }}>{loc.settingsScreen.olderChanges}</Text>
                                         <Pressable 
                                             onPress={() => Linking.openURL('https://github.com/NxAdx/saral-lekhan-pro/releases')}
                                             style={{ padding: 12, backgroundColor: colors.bgRaised, borderRadius: 8, borderWidth: 1, borderColor: colors.strokeDim, alignItems: 'center' }}
                                         >
-                                            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>View Full Changelog</Text>
+                                            <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: colors.accent }}>{loc.settingsScreen.viewFullChangelog}</Text>
                                         </Pressable>
                                     </View>
                                 </View>
@@ -882,12 +882,12 @@ export default function SettingsScreen() {
                 subtitle={updateModal.sub}
                 actions={[
                     {
-                        label: "Wait",
+                        label: loc.settingsScreen.wait,
                         style: 'cancel',
                         onPress: () => setUpdateModal(prev => ({ ...prev, visible: false })),
                     },
                     {
-                        label: updateModal.info?.isReinstall ? "Reinstall Now" : "Update Now",
+                        label: updateModal.info?.isReinstall ? loc.settingsScreen.reinstallNow : loc.settingsScreen.updateNow,
                         onPress: () => {
                             setUpdateModal(prev => ({ ...prev, visible: false }));
                             handleDownloadUpdate();

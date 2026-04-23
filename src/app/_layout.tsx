@@ -151,7 +151,8 @@ export function RootLayout(props: any) {
       ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
       background: finalBgColor,
     },
-  }), [isDark, finalBgColor]);
+    fonts: (isDark ? (DarkTheme as any).fonts : (DefaultTheme as any).fonts),
+  }) as any, [isDark, finalBgColor]);
 
   return (
       <ThemeProvider value={navTheme}>
