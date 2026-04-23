@@ -23,7 +23,7 @@ jobs:
       - name: 2. Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           cache: 'npm'
 
       - name: 3. Setup Java Environment
