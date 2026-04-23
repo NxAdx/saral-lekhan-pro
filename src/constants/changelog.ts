@@ -21,6 +21,30 @@ export interface ChangelogItem {
 
 export const APP_CHANGELOG: ChangelogItem[] = [
     {
+    version: "2.17.34",
+    date: "2026-04-23",
+    title: {
+      en: "Editor Keyboard Fix & Code Refactor",
+      hi: "एडिटर कीबोर्ड फिक्स और कोड रिफैक्टर",
+    },
+    changes: {
+      en: [
+        "Editor: Fixed keyboard scrolling obstruction — bottom content is now fully visible when keyboard is active on Android.",
+        "Editor: Added auto-scroll to cursor position on new note screen for smoother typing experience.",
+        "Refactor: Extracted shared editor CSS template into a reusable utility, eliminating 50+ lines of duplicated code.",
+        "Refactor: Replaced hardcoded 'Poppins-SemiBold' in editor CSS with dynamic font tokens.",
+        "F-Droid: Updated build recipe with proper scanignore configuration for React Native dependencies."
+      ],
+      hi: [
+        "एडिटर: कीबोर्ड स्क्रॉलिंग की बाधा ठीक की गई — Android पर कीबोर्ड खुलने पर अब नीचे का कंटेंट पूरी तरह दिखाई देता है।",
+        "एडिटर: नए नोट स्क्रीन पर कर्सर पोजिशन पर ऑटो-स्क्रॉल जोड़ा गया।",
+        "रिफैक्टर: साझा एडिटर CSS टेम्पलेट को एक पुन: प्रयोज्य यूटिलिटी में निकाला गया, 50+ पंक्तियों का डुप्लिकेट कोड हटाया।",
+        "रिफैक्टर: एडिटर CSS में हार्डकोडेड 'Poppins-SemiBold' को डायनामिक फ़ॉन्ट टोकन से बदला गया।",
+        "F-Droid: React Native डिपेंडेंसीज़ के लिए उचित scanignore कॉन्फ़िगरेशन के साथ बिल्ड रेसिपी अपडेट की गई।"
+      ]
+    }
+  },
+    {
     version: "2.17.33",
     date: "2026-03-24",
     title: {

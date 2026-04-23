@@ -20,6 +20,7 @@ import { SparkGenerationPhase } from '../../types/spark';
 import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
 import { imageUriToDataUri } from '../../utils/editorMedia';
+import { buildEditorCss } from '../../utils/editorCssTemplate';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -298,7 +299,7 @@ export default function NewNoteScreen() {
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 60 },
+    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 200 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -360,7 +361,7 @@ export default function NewNoteScreen() {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <TextInput
             style={s.titleInput}
@@ -380,25 +381,12 @@ export default function NewNoteScreen() {
                 backgroundColor: colors.bg,
                 color: colors.inkMid,
                 placeholderColor: colors.inkDim,
-                // Apply dynamic settings fonts globally to editor via CSS
-                cssText: `
-                  body { font-family: '${font.sans}', -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: ${16 * theme.fontSize}px; line-height: ${Math.round(26 * theme.fontSize)}px; padding: 0; margin: 0; background-color: ${colors.bg}; color: ${colors.inkMid}; }
-                  h1 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 900 !important; font-size: ${32 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(40 * theme.fontSize)}px !important; margin-top: 10px; margin-bottom: 10px; }
-                  h2 { font-family: '${font.sansBold}', -apple-system, Roboto, Helvetica, Arial, sans-serif !important; font-weight: 800 !important; font-size: ${24 * theme.fontSize}px !important; color: ${colors.ink}; line-height: ${Math.round(32 * theme.fontSize)}px !important; margin-top: 8px; margin-bottom: 8px; }
-                  blockquote { border-left: 4px solid ${colors.accent}; padding-left: 12px; font-style: italic; color: ${colors.inkDim}; margin: 10px 0; }
-                  pre { position: relative; background-color: ${colors.bgRaised}; border: 1px solid ${colors.stroke}; border-left: 4px solid ${colors.accent}; color: ${colors.ink}; padding: 38px 16px 14px; border-radius: 16px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; line-height: ${Math.round(22 * theme.fontSize)}px; white-space: pre-wrap; overflow-x: auto; }
-                  pre::before { content: 'CODE'; position: absolute; top: 10px; left: 12px; color: ${colors.accent}; background-color: ${colors.accent}18; border: 1px solid ${colors.accent}44; border-radius: 999px; padding: 3px 8px; font-family: 'Poppins-SemiBold'; font-size: ${10 * theme.fontSize}px; letter-spacing: 1px; }
-                  code { background-color: ${colors.bgRaised}; color: ${colors.ink}; border-radius: 6px; padding: 2px 4px; font-family: '${font.mono}', monospace; font-size: ${14 * theme.fontSize}px; }
-                  pre code { display: block; background: transparent; padding: 0; border-radius: 0; color: inherit; white-space: pre-wrap; }
-                  hr { border: 0; border-top: 1px solid ${colors.stroke}; margin: 20px 0; }
-                  ul, ol { padding-left: 20px; font-size: 1em !important; margin: 10px 0; }
-                  li { font-size: 1em !important; margin: 6px 0; }
-                  .x-todo { padding-left: 0 !important; margin: 12px 0; }
-                  .x-todo li { list-style: none; display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
-                  .x-todo-box { position: static !important; left: 0 !important; display: inline-flex; width: 20px; min-width: 20px; height: 20px; align-items: center; justify-content: center; margin-top: 3px; }
-                  .x-todo-box input { position: static !important; width: 18px; height: 18px; margin: 0; accent-color: ${colors.accent}; }
-                  img { display: block; max-width: 100%; height: auto; border-radius: 16px; margin: 12px 0; }
-                `
+                cssText: buildEditorCss({
+                  fontSans: font.sans, fontSansBold: font.sansBold, fontSansSemi: font.sansSemi, fontMono: font.mono,
+                  fontSize: theme.fontSize,
+                  colorBg: colors.bg, colorBgRaised: colors.bgRaised, colorInk: colors.ink,
+                  colorInkMid: colors.inkMid, colorInkDim: colors.inkDim, colorAccent: colors.accent, colorStroke: colors.stroke,
+                }),
               }}
               onChange={(html) => {
                 const stripped = html.replace(/<[^>]*>?/gm, ' ');
@@ -412,6 +400,9 @@ export default function NewNoteScreen() {
                     noteId.current = id;
                   }
                 }
+              }}
+              onCursorPosition={(y) => {
+                scrollRef.current?.scrollTo({ y: Math.max(0, y - 200), animated: true });
               }}
               onHeightChange={(h) => {
                 setEditorHeight(Math.max(400, h + 100));
