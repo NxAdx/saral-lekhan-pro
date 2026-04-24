@@ -1,42 +1,37 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolvePackage(packageName) {
-    def workspace = System.getenv("GITHUB_WORKSPACE")
-    def repoRoot = workspace ? new File(workspace) : settingsDir.parentFile
-    
-    println "GRADLE_DEBUG: Repo root is ${repoRoot.absolutePath}"
-    
-    // 1. Try relative to repo root (most reliable in CI)
-    def pkgJson = new File(repoRoot, "node_modules/${packageName}/package.json")
-    if (pkgJson.exists()) {
-        println "GRADLE_DEBUG: Found ${packageName} at repo root"
-        return pkgJson.absolutePath
+def resolvePackage(packageName, envVar) {
+    // 1. Try environment variable (passed from CI workflow)
+    def envPath = System.getenv(envVar)
+    if (envPath && new File(envPath).exists()) {
+        println "GRADLE_DEBUG: Using ${packageName} from ENV: ${envPath}"
+        return envPath
     }
-    
+
     // 2. Try Node resolution
     try {
-        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, repoRoot)
+        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
         proc.waitFor()
         def path = proc.text.trim()
         if (path && new File(path).exists()) return path
     } catch (Exception e) {}
 
-    // 3. Last resort fallback
+    // 3. Fallback: Search relative to settingsDir
     def fallback = new File(settingsDir, "../node_modules/${packageName}/package.json")
     if (fallback.exists()) return fallback.absolutePath
 
-    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'. RepoRoot: ${repoRoot.absolutePath}")
+    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'. Tried Env ${envVar}, Node, and Fallback.")
 }
 
-def expoPkg = resolvePackage('expo')
+def expoPkg = resolvePackage('expo', 'EXPO_PATH')
 apply from: new File(expoPkg, "../scripts/autolinking.gradle")
 useExpoModules()
 
-def rnCommunityCliPkg = resolvePackage('@react-native-community/cli-platform-android')
+def rnCommunityCliPkg = resolvePackage('@react-native-community/cli-platform-android', 'RN_COMMUNITY_CLI_PATH')
 apply from: new File(rnCommunityCliPkg, "../native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 
-def rnGradlePluginPkg = resolvePackage('@react-native/gradle-plugin')
+def rnGradlePluginPkg = resolvePackage('@react-native/gradle-plugin', 'RN_GRADLE_PLUGIN_PATH')
 includeBuild(new File(rnGradlePluginPkg).getParentFile())
