@@ -1,38 +1,52 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolvePackagePath(String packageName) {
-    // 1. Try standard Node resolution
+println "GRADLE_DEBUG: settingsDir is ${settingsDir.absolutePath}"
+
+def resolvePackage(packageName) {
+    // 1. Try Node resolution (standard)
     try {
-        def command = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
-        command.waitFor()
-        def path = command.text.trim()
-        if (path && new File(path).exists()) return path
+        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
+        proc.waitFor()
+        def path = proc.text.trim()
+        if (path && new File(path).exists()) {
+            println "GRADLE_DEBUG: Resolved ${packageName} via node: ${path}"
+            return path
+        }
     } catch (Exception e) {}
 
-    // 2. Fallback: Search up from settingsDir
-    def currentDir = settingsDir
-    while (currentDir != null) {
-        def potentialPath = new File(currentDir, "node_modules/${packageName}/package.json")
-        if (potentialPath.exists()) return potentialPath.absolutePath
-        currentDir = currentDir.parentFile
+    // 2. Try relative to settingsDir
+    def fallback1 = new File(settingsDir, "../node_modules/${packageName}/package.json")
+    if (fallback1.exists()) {
+        println "GRADLE_DEBUG: Resolved ${packageName} via settingsDir: ${fallback1.absolutePath}"
+        return fallback1.absolutePath
     }
 
-    // 3. Fallback: Check common CI paths
-    def commonCiPath = new File("/home/runner/work/saral-lekhan-pro/saral-lekhan-pro/node_modules/${packageName}/package.json")
-    if (commonCiPath.exists()) return commonCiPath.absolutePath
+    // 3. Try relative to rootDir
+    def fallback2 = new File(rootDir, "../node_modules/${packageName}/package.json")
+    if (fallback2.exists()) {
+        println "GRADLE_DEBUG: Resolved ${packageName} via rootDir: ${fallback2.absolutePath}"
+        return fallback2.absolutePath
+    }
+    
+    // 4. Try current working directory
+    def fallback3 = new File("node_modules/${packageName}/package.json")
+    if (fallback3.exists()) {
+        println "GRADLE_DEBUG: Resolved ${packageName} via CWD: ${fallback3.absolutePath}"
+        return fallback3.absolutePath
+    }
 
-    throw new GradleException("CRITICAL: Could not resolve package '${packageName}'. Ensure 'npm install' has been run in the project root.")
+    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'.")
 }
 
-def expoPath = resolvePackagePath('expo')
-apply from: new File(expoPath, "../scripts/autolinking.gradle")
+def expoPkg = resolvePackage('expo')
+apply from: new File(expoPkg, "../scripts/autolinking.gradle")
 useExpoModules()
 
-def rnCommunityCliPath = resolvePackagePath('@react-native-community/cli-platform-android')
-apply from: new File(rnCommunityCliPath, "../native_modules.gradle")
+def rnCommunityCliPkg = resolvePackage('@react-native-community/cli-platform-android')
+apply from: new File(rnCommunityCliPkg, "../native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 
-def rnGradlePluginPath = resolvePackagePath('@react-native/gradle-plugin')
-includeBuild(new File(rnGradlePluginPath).getParentFile())
+def rnGradlePluginPkg = resolvePackage('@react-native/gradle-plugin')
+includeBuild(new File(rnGradlePluginPkg).getParentFile())
