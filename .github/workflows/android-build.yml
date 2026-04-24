@@ -43,7 +43,7 @@ jobs:
 
       - name: Read version from package.json
         id: get_version
-        run: echo "VERSION=$(node -p 'require(\"./package.json\").version')" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Build direct release AAB and APK
         run: npm run build:android:direct

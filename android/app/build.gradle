@@ -49,6 +49,17 @@ android {
     def buildTarget = System.getenv("SARAL_BUILD_TARGET") ?: "direct"
     def isFdroid = buildTarget == "fdroid"
 
+    flavorDimensions "target"
+
+    productFlavors {
+        direct {
+            dimension "target"
+        }
+        fdroid {
+            dimension "target"
+        }
+    }
+
     defaultConfig {
         applicationId 'com.sarallekhan'
         minSdkVersion rootProject.ext.minSdkVersion
