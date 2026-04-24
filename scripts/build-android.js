@@ -2,9 +2,11 @@ const { spawnSync } = require("child_process");
 const path = require("path");
 
 const target = String(process.argv[2] || "").trim().toLowerCase();
+// We no longer use flavors in Gradle to ensure compatibility with autolinking.
+// Instead, we use the SARAL_BUILD_TARGET env var to customize the build.
 const gradleTasksByTarget = {
-  direct: ["bundleDirectRelease", "assembleDirectRelease", "--no-daemon"],
-  fdroid: ["assembleFdroidRelease", "--no-daemon"],
+  direct: ["bundleRelease", "assembleRelease", "--no-daemon"],
+  fdroid: ["assembleRelease", "--no-daemon"],
 };
 
 if (!gradleTasksByTarget[target]) {
