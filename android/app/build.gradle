@@ -5,8 +5,8 @@ import groovy.json.JsonSlurper
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 def packageJson = new JsonSlurper().parse(file("${projectRoot}/package.json"))
-def appVersionName = packageJson.version.toString()
-def appVersionCode = Integer.parseInt(packageJson.androidVersionCode.toString())
+def appVersionName = packageJson.version?.toString() ?: "1.0.0"
+def appVersionCode = packageJson.androidVersionCode ? Integer.parseInt(packageJson.androidVersionCode.toString()) : 1
 
 /**
  * This is the configuration block to customize your React Native Android app.

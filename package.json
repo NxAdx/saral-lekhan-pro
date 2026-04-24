@@ -1,12 +1,15 @@
 {
   "name": "saral-lekhan",
   "private": true,
+  "androidVersionCode": 102,
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android:direct": "node scripts/build-android.js direct",
+    "build:android:fdroid": "node scripts/build-android.js fdroid"
   },
   "dependencies": {
     "@babel/runtime": "^7.20.0",
@@ -71,5 +74,5 @@
       ]
     }
   },
-  "version": "2.17.38"
+  "version": "2.17.39"
 }

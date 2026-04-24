@@ -2,87 +2,76 @@ name: Production Android Build
 
 on:
   push:
-    branches: [ "main", "release/*" ]
-    tags: [ "v*.*.*" ]
-  workflow_dispatch: # Allows manual trigger from the Actions tab
+    branches: ["main", "release/*"]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build Android App Bundle (AAB)
+    name: Build direct Android release artifacts
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    
+
     steps:
-      - name: 1. Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 2. Setup Node.js Environment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
-      - name: 3. Setup Java Environment
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
+          distribution: "temurin"
+          java-version: "17"
+          cache: "gradle"
 
-      - name: 4. Install Dependencies
+      - name: Install dependencies
         run: |
           for i in 1 2 3; do npm ci && break || sleep 5; done
 
-      - name: 5. Secure Secrets Injection
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+      - name: Decode Android keystore
         run: |
-          # Inject secrets (Empty JSON fallback if not needed for F-Droid)
-          cat <<< "${GOOGLE_SERVICES_JSON:-{}}" > android/app/google-services.json
-          
-          # Decode Base64 Keystore into binary file
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
-      - name: 5.5 Get Version from package.json
+      - name: Read version from package.json
         id: get_version
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(node -p 'require(\"./package.json\").version')" >> $GITHUB_OUTPUT
 
-      - name: 6. Build Production Bundle (AAB) & APK
-        working-directory: ./android
-        run: |
-          chmod +x ./gradlew
-          ./gradlew bundleRelease assembleRelease --no-daemon
+      - name: Build direct release AAB and APK
+        run: npm run build:android:direct
         env:
           MYAPP_UPLOAD_STORE_FILE: release.keystore
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
-      - name: 7. Upload Build Artifact (Google Play AAB)
+      - name: Upload direct release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: saral-lekhan-production-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: saral-lekhan-direct-aab
+          path: android/app/build/outputs/bundle/directRelease/app-direct-release.aab
           retention-days: 7
 
-      - name: 8. Upload Testable APK
+      - name: Upload direct release APK
         uses: actions/upload-artifact@v4
         with:
-          name: saral-lekhan-production-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: saral-lekhan-direct-apk
+          path: android/app/build/outputs/apk/direct/release/app-direct-release.apk
           retention-days: 7
 
-      - name: 9. Publish APK to GitHub Release
+      - name: Publish APK to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/release/app-release.apk
+          files: android/app/build/outputs/apk/direct/release/app-direct-release.apk
           name: Release ${{ github.ref_name }}
           generate_release_notes: true
         env:
