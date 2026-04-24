@@ -1,18 +1,13 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolve(packageName) {
-    try {
-        return ["node", "--print", "require.resolve('${packageName}/package.json')"].execute().text.trim()
-    } catch (Exception e) {
-        return "../node_modules/${packageName}/package.json"
-    }
-}
-
-apply from: new File(resolve('expo'), "../scripts/autolinking.gradle")
+// Direct relative paths are the most reliable in CI environments
+apply from: "../node_modules/expo/scripts/autolinking.gradle"
 useExpoModules()
 
-apply from: new File(resolve('@react-native-community/cli-platform-android'), "../native_modules.gradle")
+apply from: "../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
-includeBuild(new File(resolve('@react-native/gradle-plugin')).getParentFile())
+
+// Include the React Native Gradle Plugin directly from node_modules
+includeBuild("../node_modules/@react-native/gradle-plugin")
