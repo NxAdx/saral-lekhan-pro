@@ -1,37 +1,18 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolvePackage(packageName, envVar) {
-    // 1. Try environment variable (passed from CI workflow)
-    def envPath = System.getenv(envVar)
-    if (envPath && new File(envPath).exists()) {
-        println "GRADLE_DEBUG: Using ${packageName} from ENV: ${envPath}"
-        return envPath
-    }
-
-    // 2. Try Node resolution
+def resolve(packageName) {
     try {
-        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
-        proc.waitFor()
-        def path = proc.text.trim()
-        if (path && new File(path).exists()) return path
-    } catch (Exception e) {}
-
-    // 3. Fallback: Search relative to settingsDir
-    def fallback = new File(settingsDir, "../node_modules/${packageName}/package.json")
-    if (fallback.exists()) return fallback.absolutePath
-
-    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'. Tried Env ${envVar}, Node, and Fallback.")
+        return ["node", "--print", "require.resolve('${packageName}/package.json')"].execute().text.trim()
+    } catch (Exception e) {
+        return "../node_modules/${packageName}/package.json"
+    }
 }
 
-def expoPkg = resolvePackage('expo', 'EXPO_PATH')
-apply from: new File(expoPkg, "../scripts/autolinking.gradle")
+apply from: new File(resolve('expo'), "../scripts/autolinking.gradle")
 useExpoModules()
 
-def rnCommunityCliPkg = resolvePackage('@react-native-community/cli-platform-android', 'RN_COMMUNITY_CLI_PATH')
-apply from: new File(rnCommunityCliPkg, "../native_modules.gradle")
+apply from: new File(resolve('@react-native-community/cli-platform-android'), "../native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
-
-def rnGradlePluginPkg = resolvePackage('@react-native/gradle-plugin', 'RN_GRADLE_PLUGIN_PATH')
-includeBuild(new File(rnGradlePluginPkg).getParentFile())
+includeBuild(new File(resolve('@react-native/gradle-plugin')).getParentFile())

@@ -41,13 +41,9 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
-      - name: Read version and resolve paths
-        id: build_env
-        run: |
-          echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-          echo "EXPO_PATH=$(pwd)/node_modules/expo/package.json" >> $GITHUB_ENV
-          echo "RN_COMMUNITY_CLI_PATH=$(pwd)/node_modules/@react-native-community/cli-platform-android/package.json" >> $GITHUB_ENV
-          echo "RN_GRADLE_PLUGIN_PATH=$(pwd)/node_modules/@react-native/gradle-plugin/package.json" >> $GITHUB_ENV
+      - name: Read version from package.json
+        id: get_version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Build direct release AAB and APK
         run: npm run build:android:direct
