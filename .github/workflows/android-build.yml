@@ -35,16 +35,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Resolve Build Paths
+        run: |
+          echo "EXPO_AUTOLINKING_SCRIPT=$(pwd)/node_modules/expo/scripts/autolinking.gradle" >> $GITHUB_ENV
+          echo "RN_NATIVE_MODULES_SCRIPT=$(pwd)/node_modules/@react-native-community/cli-platform-android/native_modules.gradle" >> $GITHUB_ENV
+          echo "RN_GRADLE_PLUGIN_DIR=$(pwd)/node_modules/@react-native/gradle-plugin" >> $GITHUB_ENV
+
       - name: Decode Android keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-
-      - name: Debug Paths
-        run: |
-          pwd
-          ls -la
-          find . -maxdepth 2 -name "node_modules"
-          ls -la node_modules/expo/package.json || echo "expo not found"
 
       - name: Read version from package.json
         id: get_version

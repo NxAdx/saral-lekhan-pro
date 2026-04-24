@@ -1,37 +1,28 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolve(packageName) {
-    // Discovery logic: find node_modules in self, parent, or grandparent
-    def searchPaths = [
-        new File(settingsDir, "../node_modules/${packageName}/package.json"),
-        new File(settingsDir, "node_modules/${packageName}/package.json"),
-        new File(settingsDir, "../../node_modules/${packageName}/package.json")
-    ]
-    
-    for (f in searchPaths) {
-        if (f.exists()) return f.absolutePath
-    }
-
-    // Try Node resolution as last resort
-    try {
-        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute()
-        proc.waitFor()
-        def path = proc.text.trim()
-        if (path && new File(path).exists()) return path
-    } catch (Exception e) {}
-
-    throw new GradleException("CRITICAL: Could not find package '${packageName}'. Tried: ${searchPaths.collect { it.absolutePath }}")
+def getExpoAutolinking() {
+    def envPath = System.getenv("EXPO_AUTOLINKING_SCRIPT")
+    if (envPath && new File(envPath).exists()) return envPath
+    return "../node_modules/expo/scripts/autolinking.gradle"
 }
 
-def expoPkg = resolve('expo')
-apply from: new File(expoPkg, "../scripts/autolinking.gradle")
+def getNativeModules() {
+    def envPath = System.getenv("RN_NATIVE_MODULES_SCRIPT")
+    if (envPath && new File(envPath).exists()) return envPath
+    return "../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"
+}
+
+def getGradlePlugin() {
+    def envPath = System.getenv("RN_GRADLE_PLUGIN_DIR")
+    if (envPath && new File(envPath).exists()) return envPath
+    return "../node_modules/@react-native/gradle-plugin"
+}
+
+apply from: getExpoAutolinking()
 useExpoModules()
 
-def rnCommunityCliPkg = resolve('@react-native-community/cli-platform-android')
-apply from: new File(rnCommunityCliPkg, "../native_modules.gradle")
+apply from: getNativeModules()
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
-
-def gradlePluginPkg = resolve('@react-native/gradle-plugin')
-includeBuild(new File(gradlePluginPkg).parentFile)
+includeBuild(getGradlePlugin())

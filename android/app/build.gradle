@@ -8,6 +8,18 @@ def packageJson = new JsonSlurper().parse(file("${projectRoot}/package.json"))
 def appVersionName = packageJson.version?.toString() ?: "1.0.0"
 def appVersionCode = packageJson.androidVersionCode ? Integer.parseInt(packageJson.androidVersionCode.toString()) : 1
 
+def getNativeModulesScript() {
+    def envPath = System.getenv("RN_NATIVE_MODULES_SCRIPT")
+    if (envPath && new File(envPath).exists()) return envPath
+    
+    // Fallback using node resolution (same as standard RN template)
+    try {
+        return ["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json')"].execute(null, rootDir).text.trim().replace("package.json", "native_modules.gradle")
+    } catch (Exception e) {
+        return "../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"
+    }
+}
+
 react {
     entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
     reactNativeDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
@@ -103,5 +115,5 @@ dependencies {
     }
 }
 
-apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json')"].execute(null, rootDir).text.trim(), "../native_modules.gradle");
+apply from: new File(getNativeModulesScript());
 applyNativeModulesAppBuildGradle(project)
