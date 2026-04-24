@@ -1,13 +1,37 @@
 rootProject.name = 'Saral Lekhan'
 
-// Direct relative paths are the most reliable in CI environments
-apply from: "../node_modules/expo/scripts/autolinking.gradle"
+def resolve(packageName) {
+    // Discovery logic: find node_modules in self, parent, or grandparent
+    def searchPaths = [
+        new File(settingsDir, "../node_modules/${packageName}/package.json"),
+        new File(settingsDir, "node_modules/${packageName}/package.json"),
+        new File(settingsDir, "../../node_modules/${packageName}/package.json")
+    ]
+    
+    for (f in searchPaths) {
+        if (f.exists()) return f.absolutePath
+    }
+
+    // Try Node resolution as last resort
+    try {
+        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute()
+        proc.waitFor()
+        def path = proc.text.trim()
+        if (path && new File(path).exists()) return path
+    } catch (Exception e) {}
+
+    throw new GradleException("CRITICAL: Could not find package '${packageName}'. Tried: ${searchPaths.collect { it.absolutePath }}")
+}
+
+def expoPkg = resolve('expo')
+apply from: new File(expoPkg, "../scripts/autolinking.gradle")
 useExpoModules()
 
-apply from: "../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"
+def rnCommunityCliPkg = resolve('@react-native-community/cli-platform-android')
+apply from: new File(rnCommunityCliPkg, "../native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 
-// Include the React Native Gradle Plugin directly from node_modules
-includeBuild("../node_modules/@react-native/gradle-plugin")
+def gradlePluginPkg = resolve('@react-native/gradle-plugin')
+includeBuild(new File(gradlePluginPkg).parentFile)

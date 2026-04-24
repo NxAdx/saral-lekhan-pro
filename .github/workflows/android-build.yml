@@ -41,6 +41,13 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
+      - name: Debug Paths
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 2 -name "node_modules"
+          ls -la node_modules/expo/package.json || echo "expo not found"
+
       - name: Read version from package.json
         id: get_version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
