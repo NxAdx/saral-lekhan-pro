@@ -1,40 +1,38 @@
 rootProject.name = 'Saral Lekhan'
 
-def resolvePackage(packageName) {
-    // 1. Try resolving using node (standard Expo way)
+def resolvePackagePath(String packageName) {
+    // 1. Try standard Node resolution
     try {
         def command = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
         command.waitFor()
         def path = command.text.trim()
         if (path && new File(path).exists()) return path
     } catch (Exception e) {}
-    
-    // 2. Try relative to rootDir (which is usually the 'android' folder)
-    def relativePath = "../node_modules/${packageName}/package.json"
-    def fallback = new File(rootDir, relativePath)
-    if (fallback.exists()) return fallback.absolutePath
-    
-    // 3. Try relative to the parent of rootDir
-    def projectRoot = rootDir.parentFile
-    def fallback2 = new File(projectRoot, "node_modules/${packageName}/package.json")
-    if (fallback2.exists()) return fallback2.absolutePath
 
-    // 4. Try absolute search from root (extreme fallback for some CI environments)
-    def search = new File("/home/runner/work/saral-lekhan-pro/saral-lekhan-pro/node_modules/${packageName}/package.json")
-    if (search.exists()) return search.absolutePath
-    
-    throw new GradleException("Could not resolve ${packageName}. Checked: ${fallback.absolutePath} and ${fallback2.absolutePath}. Run 'npm install'.")
+    // 2. Fallback: Search up from settingsDir
+    def currentDir = settingsDir
+    while (currentDir != null) {
+        def potentialPath = new File(currentDir, "node_modules/${packageName}/package.json")
+        if (potentialPath.exists()) return potentialPath.absolutePath
+        currentDir = currentDir.parentFile
+    }
+
+    // 3. Fallback: Check common CI paths
+    def commonCiPath = new File("/home/runner/work/saral-lekhan-pro/saral-lekhan-pro/node_modules/${packageName}/package.json")
+    if (commonCiPath.exists()) return commonCiPath.absolutePath
+
+    throw new GradleException("CRITICAL: Could not resolve package '${packageName}'. Ensure 'npm install' has been run in the project root.")
 }
 
-def expoPackageJson = resolvePackage('expo')
-apply from: new File(expoPackageJson, "../scripts/autolinking.gradle")
+def expoPath = resolvePackagePath('expo')
+apply from: new File(expoPath, "../scripts/autolinking.gradle")
 useExpoModules()
 
-def rnCommunityCliPackageJson = resolvePackage('@react-native-community/cli-platform-android')
-apply from: new File(rnCommunityCliPackageJson, "../native_modules.gradle")
+def rnCommunityCliPath = resolvePackagePath('@react-native-community/cli-platform-android')
+apply from: new File(rnCommunityCliPath, "../native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 
-def rnGradlePluginPackageJson = resolvePackage('@react-native/gradle-plugin')
-includeBuild(new File(rnGradlePluginPackageJson).getParentFile())
+def rnGradlePluginPath = resolvePackagePath('@react-native/gradle-plugin')
+includeBuild(new File(rnGradlePluginPath).getParentFile())
