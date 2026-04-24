@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Saral Lekhan Plus",
+    "slug": "saral-lekhan-plus",
+    "version": "2.17.43",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sarallekhan"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.sarallekhan"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
