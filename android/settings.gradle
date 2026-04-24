@@ -1,41 +1,31 @@
 rootProject.name = 'Saral Lekhan'
 
-println "GRADLE_DEBUG: settingsDir is ${settingsDir.absolutePath}"
-
 def resolvePackage(packageName) {
-    // 1. Try Node resolution (standard)
-    try {
-        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, rootDir)
-        proc.waitFor()
-        def path = proc.text.trim()
-        if (path && new File(path).exists()) {
-            println "GRADLE_DEBUG: Resolved ${packageName} via node: ${path}"
-            return path
-        }
-    } catch (Exception e) {}
-
-    // 2. Try relative to settingsDir
-    def fallback1 = new File(settingsDir, "../node_modules/${packageName}/package.json")
-    if (fallback1.exists()) {
-        println "GRADLE_DEBUG: Resolved ${packageName} via settingsDir: ${fallback1.absolutePath}"
-        return fallback1.absolutePath
-    }
-
-    // 3. Try relative to rootDir
-    def fallback2 = new File(rootDir, "../node_modules/${packageName}/package.json")
-    if (fallback2.exists()) {
-        println "GRADLE_DEBUG: Resolved ${packageName} via rootDir: ${fallback2.absolutePath}"
-        return fallback2.absolutePath
+    def workspace = System.getenv("GITHUB_WORKSPACE")
+    def repoRoot = workspace ? new File(workspace) : settingsDir.parentFile
+    
+    println "GRADLE_DEBUG: Repo root is ${repoRoot.absolutePath}"
+    
+    // 1. Try relative to repo root (most reliable in CI)
+    def pkgJson = new File(repoRoot, "node_modules/${packageName}/package.json")
+    if (pkgJson.exists()) {
+        println "GRADLE_DEBUG: Found ${packageName} at repo root"
+        return pkgJson.absolutePath
     }
     
-    // 4. Try current working directory
-    def fallback3 = new File("node_modules/${packageName}/package.json")
-    if (fallback3.exists()) {
-        println "GRADLE_DEBUG: Resolved ${packageName} via CWD: ${fallback3.absolutePath}"
-        return fallback3.absolutePath
-    }
+    // 2. Try Node resolution
+    try {
+        def proc = ["node", "--print", "require.resolve('${packageName}/package.json')"].execute(null, repoRoot)
+        proc.waitFor()
+        def path = proc.text.trim()
+        if (path && new File(path).exists()) return path
+    } catch (Exception e) {}
 
-    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'.")
+    // 3. Last resort fallback
+    def fallback = new File(settingsDir, "../node_modules/${packageName}/package.json")
+    if (fallback.exists()) return fallback.absolutePath
+
+    throw new GradleException("GRADLE_ERROR: Could not resolve package '${packageName}'. RepoRoot: ${repoRoot.absolutePath}")
 }
 
 def expoPkg = resolvePackage('expo')
