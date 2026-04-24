@@ -1,0 +1,5 @@
+- Improved markdown rendering and toolbar buttons
+- Fixed keyboard occlusion in note editor
+- Enhanced privacy controls and security
+- F-Droid build flavor support
+- Performance and stability improvements

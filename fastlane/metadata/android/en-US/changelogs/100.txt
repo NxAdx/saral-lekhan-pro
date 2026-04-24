@@ -1,0 +1,6 @@
+- Removed Sentry tracking for a privacy-focused open-source release
+- Added Empty All trash feature with confirmation dialog
+- Fixed undo/redo crashes in the editor
+- Polished Find & Replace, Insert Link, and Image Source modals
+- Synced new note editor with existing note editor layout
+- Standardized Spark AI button position across all editor views

@@ -1,0 +1,45 @@
+Saral Lekhan (सरल लेखन) is a privacy-first note-taking app for writers, students,
+and anyone who wants a calm place to think and write.
+
+Key Features:
+
+📝 Rich Text Editor
+Full formatting support with bold, italic, underline, headings (H1/H2),
+blockquotes, bullet lists, numbered lists, checkboxes, code blocks,
+horizontal rules, links, and inline images.
+
+✨ Spark AI (Optional)
+Bring your own Gemini API key to unlock AI-powered writing tools:
+• Smart title generation from your content
+• Note summarization
+• Auto-formatting and cleanup
+• Custom AI prompts
+
+Spark AI is disabled until you manually add your own Gemini API key.
+
+🎨 Themes
+Choose from multiple handcrafted color themes with automatic light and dark
+mode support.
+
+🔒 Privacy First
+• No accounts required
+• No tracking or analytics
+• No ads
+• All notes stay stored locally on your device
+• Optional biometric lock screen
+
+🌐 Multi-Language Support
+Full interface in English, Hindi (हिंदी), and more, including Hindi punctuation
+support in the editor toolbar.
+
+📤 Export, Backup, and Restore
+Export notes as beautifully formatted PDFs and import or export local database
+backups when you need them.
+
+🏷️ Organization Tools
+Use tags, trash recovery, and find-and-replace tools to keep long writing
+projects under control.
+
+This app is free and open-source software published under the MIT License.
+The core app works locally on-device. The optional Spark AI feature uses the
+proprietary Gemini service only after you enable it with your own API key.

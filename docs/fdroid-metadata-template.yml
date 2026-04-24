@@ -1,37 +1,39 @@
 Categories:
+  - Note
   - Writing
 License: MIT
 AuthorName: NxAdx
 WebSite: https://github.com/NxAdx/saral-lekhan-pro
 SourceCode: https://github.com/NxAdx/saral-lekhan-pro
 IssueTracker: https://github.com/NxAdx/saral-lekhan-pro/issues
+AntiFeatures:
+  NonFreeNet:
+    en-US: Spark AI is optional and only contacts Gemini after the user adds a personal API key.
 
 RepoType: git
 Repo: https://github.com/NxAdx/saral-lekhan-pro.git
 
 Builds:
-  - versionName: '2.17.34'
-    versionCode: 101
-    commit: v2.17.34
-    subdir: android/app
+  - versionName: '2.17.39'
+    versionCode: 102
+    commit: v2.17.39
+    subdir: android
     sudo:
       - apt-get update
-      - apt-get install -y curl openjdk-17-jdk-headless
-      - update-alternatives --auto java
-      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-      - apt-get install -y nodejs
+      - apt-get install -y nodejs npm openjdk-17-jdk-headless
     init:
-      - cd ../..
-      - npm install --legacy-peer-deps
-    gradle:
-      - release
-    prebuild:
-      - cd ../..
-      - npx expo prebuild --platform android --clean
-    scanignore:
+      - cd ..
+      - npm ci --legacy-peer-deps
+    build:
+      - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      - export PATH="$JAVA_HOME/bin:$PATH"
+      - export SARAL_BUILD_TARGET=fdroid
+      - bash gradlew assembleFdroidRelease --no-daemon
+    output: app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+    scandelete:
       - node_modules
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '2.17.34'
-CurrentVersionCode: 101
+CurrentVersion: '2.17.39'
+CurrentVersionCode: 102

@@ -11,8 +11,22 @@ This registry tracks practical capabilities and hard constraints for AI agents w
   - updater-visible hotfixes must ship as a tagged release (`refs/tags/v*`).
 - **ADB**: device diagnostics and log capture.
   - Path: `C:\Program Files (x86)\Minimal ADB and Fastboot\adb.exe`
+- **Android CLI**: Official Google CLI for agent-based Android development.
+  - Path: `%USERPROFILE%\.android-cli\android.exe`
+  - Usage: `android init`, `android skills add`, `android sdk list`
 - **Sentry**: runtime crash and error telemetry.
 - **Firebase/Google Services**: OAuth + Drive integration validated in CI via secret and fingerprint checks.
+
+## 2) Specialized Agent Skills
+The project includes a suite of **Official Android Skills** from `https://github.com/android/skills`, localized in `.agents/skills/`. These skills provide agents with technical specifications and best practices for:
+- **AGP 9 Upgrades**: Systematic migration and build troubleshooting.
+- **Edge-to-Edge**: Implementation of adaptive system bar support.
+- **Jetpack Compose Migration**: Pattern-based conversion from XML Views to Compose.
+- **Navigation 3**: Implementation and migration guidelines.
+- **Play Billing**: Version upgrades and compliance.
+- **R8/Proguard Analysis**: Optimization and size reduction.
+
+These skills are registered in `skills-lock.json` and are automatically loaded by the Antigravity agent.
 
 ## 2) Build Baseline (Current)
 - Java: **17** in CI (local Java 20 can break legacy Gradle script parsing).
@@ -26,7 +40,7 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 - Runtime UX flags are supported through:
   - `src/store/runtimeUxFlagsStore.ts`
   - `runtime-flags.json`
-  - `expo.extra.runtimeFlagsUrl` in `app.json`
+  - `RUNTIME_FLAGS_URL` resolved from `src/utils/buildInfo.ts`
 - Current remotely switchable keys:
   - `spark_loading_modal_v1`
   - `spark_loading_animation_v1`
@@ -67,9 +81,9 @@ This registry tracks practical capabilities and hard constraints for AI agents w
 ## 5) Product Consistency Constraints
 - Startup/system background and icon branding should remain aligned to `#d9d7d2`.
 - Always synchronize release version values across:
-  - `app.json`
   - `package.json`
-  - `android/app/build.gradle` (`versionName`, `versionCode`)
+  - `app.config.js`
+  - `android/app/build.gradle` (`versionName`, `versionCode` sourced from `package.json`)
 
 ## 6) Documentation Discipline
 - `docs/` is intentionally version-controlled for handover continuity.

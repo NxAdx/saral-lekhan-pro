@@ -63,7 +63,5 @@ npx eas-cli build -p android --profile production
 - **CI Behavior (March 2026)**: Production workflow builds from committed `android/` sources directly and validates `GOOGLE_SERVICES_JSON` before Gradle starts.
 
 ## Telemetry & Production Monitoring
-- **Crash Reporting (Sentry)**: For production online builds, you must integrate `@sentry/react-native`. Sentry provides stack traces that map back to your TypeScript code rather than obfuscated Java errors.
-  1. `npx expo install @sentry/react-native`
-  2. Map your DSN in `app.json` under the `plugins` array.
-- **Over-The-Air (OTA) Updates**: The `updates` key has been added to `app.json`. To push a hotfix without a new Play Store release, run `eas update --branch production`.
+- **Crash Reporting (Sentry)**: For production online builds, integrate `@sentry/react-native` and wire its config through the committed native project plus `app.config.js` as needed.
+- **Over-The-Air (OTA) Updates**: The current direct/F-Droid strategy does not rely on Expo OTA. Direct Android updates ship through tagged GitHub Releases, while the F-Droid flavor is distributed through F-Droid.

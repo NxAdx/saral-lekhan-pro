@@ -1,156 +1,93 @@
 # In-App Updater Logic (Android)
 
-Last updated: 2026-03-08
-Scope: GitHub release based APK updates for `com.sarallekhan`.
+Last updated: 2026-04-23
+Scope: direct GitHub-release APK updates for `com.sarallekhan`, plus the F-Droid
+distribution split.
 
-## 1. Design Overview
+## Overview
 
-The app uses a custom updater, not Expo OTA, for APK replacement:
+Saral Lekhan now has two Android distribution lanes:
 
-1. Read all release metadata from GitHub REST API (v2.16.x uses `/releases`).
-2. Compare semantic version with installed app version strictly.
-3. Download `.apk` asset when a NEWER version is available.
-4. Launch Android package installer intent.
+1. `direct`
+   - Checks GitHub Releases for newer APKs.
+   - Can request `REQUEST_INSTALL_PACKAGES`.
+   - Registers `UpdaterPackage` and `InstallReceiver`.
+2. `fdroid`
+   - Disables the updater module and hides the update path.
+   - Ships without `REQUEST_INSTALL_PACKAGES`.
+   - Does not make GitHub updater calls.
 
 Core files:
 
-- `src/utils/githubUpdater.ts` - fetch, compare, download, and installer intent.
-- `src/app/(main)/settings.tsx` - updater UI state using `ThemedModal`.
-- `src/app/(main)/index.tsx` - background update check on app launch using `ThemedModal`.
-- `android/app/src/main/AndroidManifest.xml` - install permission for unknown sources flow.
-- `app.json` - Android permission declaration for managed config.
+- `src/utils/githubUpdater.ts`
+- `src/utils/buildInfo.ts`
+- `src/app/(main)/settings.tsx`
+- `android/app/build.gradle`
+- `android/app/src/direct/AndroidManifest.xml`
+- `android/app/src/fdroid/AndroidManifest.xml`
+- `android/app/src/main/java/com/sarallekhan/MainApplication.java`
 
-## 2. Runtime Flow
+## Runtime Flow
 
-### Step A: Check for update
+### Direct builds
 
-`checkForUpdate()` now calls:
+`checkForUpdate()` calls:
 
 - `GET https://api.github.com/repos/NxAdx/saral-lekhan-pro/releases`
 
-Behavior (Strict Versioning):
+Behavior:
 
-1. Fetches all releases to find the latest available version.
-2. Removes leading `v` from tags.
-3. Compares with installed version using a strict semantic parts comparison (`x.y.z`).
-4. Finds `.apk` asset in the release.
-5. Returns:
-   - `hasUpdate = true` ONLY for strictly newer versions.
-   - `isReinstall = true` if versions match (only prompted for manual checks).
-6. UI: Uses `ThemedModal` instead of native `Alert` for a consistent look.
-
-### Step B: Download and install
+1. Fetch release metadata from GitHub.
+2. Strip leading `v` from version tags.
+3. Compare strict semantic parts with the installed app version.
+4. Find the latest APK asset.
+5. Return update metadata for the settings UI.
 
 `downloadAndInstallApk()`:
 
-1. Downloads APK to app cache using `FileSystem.createDownloadResumable`.
-2. Converts file path to content URI via `FileSystem.getContentUriAsync`.
-3. Fires installer intent:
-   - action: `android.intent.action.VIEW`
-   - type: `application/vnd.android.package-archive`
-   - flags include read grant + new task.
+1. Downloads the APK into cache.
+2. Verifies install permission support.
+3. Uses `UpdaterModule` when available.
+4. Falls back to opening the download URL in the system browser on failure.
 
-If installer launch fails:
+### F-Droid builds
 
-1. Opens unknown-app-sources settings for this package.
-2. Falls back to opening the APK URL in browser.
+F-Droid builds set `UPDATER_MODE=fdroid`, so:
 
-## 3. Permission Requirements
+1. `checkForUpdate()` returns `null` immediately.
+2. install-permission helpers are no-ops.
+3. the updater package is not registered in `MainApplication`.
+4. the update UI is hidden in settings.
 
-Updater requires Android unknown source install capability.
+## Permission Model
 
-Required permission:
+Direct-only permission:
 
 - `android.permission.REQUEST_INSTALL_PACKAGES`
 
-It must exist in both:
+Location:
 
-1. `app.json` (managed config)
-2. `android/app/src/main/AndroidManifest.xml` (committed native project used by CI release builds)
+- `android/app/src/direct/AndroidManifest.xml`
 
-If manifest is missing this permission, users can see download reach 100% but installer never opens on some Android devices.
+F-Droid builds intentionally do not carry this permission.
 
-## 4. UI State Contract (Settings Screen)
+## Verification Checklist
 
-Updater UI state variables:
+For direct builds:
 
-- `isCheckingUpdate`
-- `isDownloadingUpdate`
-- `downloadProgress`
-- `updateInfo`
+1. Tag a release and confirm a GitHub Release exists.
+2. Confirm an APK asset is attached to the release.
+3. Open Settings -> Check for Updates.
+4. Confirm install permission guidance appears when needed.
 
-Current behavior:
+For F-Droid builds:
 
-1. On download start:
-   - `isDownloadingUpdate = true`
-   - `downloadProgress = 0`
-2. On success:
-   - progress set to `1`
-   - installer is triggered
-   - user receives `Installer Started` modal guidance
-3. On failure:
-   - `Update Failed` modal shown
-4. `finally` always sets `isDownloadingUpdate = false`
+1. Open Settings and confirm updater UI is absent.
+2. Confirm no GitHub updater requests happen.
+3. Confirm the package does not request installer permission.
 
-This avoids the historical "stuck at Downloading 100%" state.
+## Operational Notes
 
-## 5. Known Failure Modes & Fixes
-
-### A) Stuck at 100% with no installer popup
-
-Likely causes:
-
-1. Missing `REQUEST_INSTALL_PACKAGES` in committed native manifest.
-2. OEM blocks install intent until unknown sources is allowed manually.
-3. UI state not reset after intent fire.
-
-Fix status:
-
-- Addressed by commit `71c5692` (manifest permission + guaranteed UI reset + installer guidance modal).
-
-### B) Update available but cannot install
-
-Likely causes:
-
-1. GitHub release exists but no APK asset attached.
-2. APK URL blocked/network issue.
-3. Device policy disallows sideloading.
-
-Fix/diagnosis:
-
-1. Check release page has `.apk` asset.
-2. Open download URL directly in browser.
-3. Enable unknown-app installation permission for Saral Lekhan.
-
-### C) Updater shows nothing though build succeeded
-
-Likely cause:
-
-- Workflow uploaded artifact, but GitHub release publish failed (403 integration permission issue).
-
-Fix:
-
-1. Repo Settings -> Actions -> Workflow permissions -> `Read and write`.
-2. Re-run tag workflow and confirm real release exists.
-
-## 6. Verification Checklist (Post-build)
-
-After each production build:
-
-1. Verify GitHub release was created for tag.
-2. Verify `.apk` attached to release.
-3. On device with older app version:
-   - open Settings -> Check for Updates
-   - start download
-   - confirm installer opens or guidance modal appears
-4. If installer does not appear:
-   - allow unknown app installs for Saral Lekhan
-   - retry once
-
-## 7. Future Improvements
-
-Recommended:
-
-1. Add a timeout watchdog that auto-fails download if no progress for N seconds.
-2. Track updater events with Sentry breadcrumbs (check/download/install-intent outcome).
-3. Add explicit "Open Downloaded APK" retry button when installer intent fails.
+- The updater is for the direct flavor only.
+- F-Droid builds rely on the F-Droid repository for updates.
+- Spark AI remains optional and independent of the updater flow.

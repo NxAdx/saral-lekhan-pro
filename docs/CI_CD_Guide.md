@@ -1,52 +1,53 @@
 # CI/CD Guide - Mobile APK Workflow
 
-This document outlines the GitHub Actions workflow designed to ensure every commit is validated and production-grade APKs are generated automatically.
+This document summarizes the current GitHub Actions flow for Android artifacts.
 
-## 🛠️ Workflow Objective
-Generate a **Production Release APK** on every tag or manual trigger, ensuring code quality via automated checks.
+## Workflow Objective
 
-## 🔄 Pipeline Stages
+Generate direct Android release artifacts on tags or manual runs and produce a
+debug APK for pull requests.
 
-1.  **Code Validation**
-    - `npm lint`: Verify coding standards.
-    - `npm test`: Run Jest unit tests.
-    - `npm run tsc`: Static type checking.
-2.  **Build Preparation**
-    - Install Node.js (v18+).
-    - Cache `node_modules` and Gradle dependencies.
-    - Set up Android SDK and NDK.
-3.  **Security Scan**
-    - Check for exposed secrets/keys.
-    - Audit dependencies for known vulnerabilities.
-4.  **Production Build**
-    - `npx expo prebuild`: Generate native Android project.
-    - `./gradlew assembleRelease`: Generate the production APK.
-5.  **Artifact Generation**
-    - Upload unsigned APK to GitHub Artifacts.
-    - (Optional) Sign APK and upload to Play Store internal track.
+## Pipeline Stages
 
-## 🚀 Manual Build Commands
-To simulate the CI build locally:
+1. Install Node.js 20 and Java 17.
+2. Install dependencies with `npm ci`.
+3. Build the committed native Android project directly.
+4. Upload direct-release artifacts or direct debug APKs.
+
+## Production Build
+
+The production workflow now builds the direct flavor from committed native
+sources:
+
+- `npm run build:android:direct`
+
+Outputs:
+
+- `android/app/build/outputs/bundle/directRelease/app-direct-release.aab`
+- `android/app/build/outputs/apk/direct/release/app-direct-release.apk`
+
+## Pull Request Build
+
+The PR workflow builds:
+
+- `cd android && ./gradlew assembleDirectDebug --no-daemon`
+
+Output:
+
+- `android/app/build/outputs/apk/direct/debug/app-direct-debug.apk`
+
+## Secrets Required
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+- `ANDROID_STORE_PASSWORD`
+
+## Triggering a Release
+
 ```bash
-# Clean build
-cd android && ./gradlew clean
-# Generate Release APK
-./gradlew assembleRelease
+git tag v2.17.39
+git push origin v2.17.39
 ```
 
-## 🔐 Secrets Required
-- `EXPO_TOKEN`: Access to Expo services.
-- `ANDROID_KEYSTORE`: For signing production builds (base64 encoded).
-- `KEYSTORE_PASSWORD`: Password for the keystore.
-
-## 🚀 Triggering a Release
-To trigger the automated production build and GitHub release:
-```bash
-git tag v2.15.3
-git push origin v2.15.3
-```
-*Note: This will automatically generate the APK and publish it to the GitHub Releases page.*
-
-## 📁 Artifact Location
-After a successful run, the APK can be found under the **Actions** tab on GitHub:
-`outputs/apk/release/app-release.apk`
+This triggers the direct-release workflow and publishes the APK to GitHub Releases.

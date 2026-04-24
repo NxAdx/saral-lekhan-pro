@@ -166,7 +166,7 @@ To catch crashes that happen on users' phones:
 2. Create a new "React Native" project called `saral-lekhan`.
 3. Copy your **DSN** (Data Source Name).
 4. In your code, open `src/app/_layout.tsx` and replace the placeholder DSN with your actual one.
-5. In `app.json`, update the `organization` and `project` slugs to match your Sentry account.
+5. If you add Sentry later, keep its config aligned with `app.config.js` and the committed native Android project.
 
 ---
 
@@ -196,6 +196,6 @@ Artifacts in Actions are not the same as GitHub Releases.
 
 ### C) Native permission parity (important for updater)
 Because this project commits the native `android/` folder for release builds:
-1. If you add an Android permission in `app.json`, mirror it in `android/app/src/main/AndroidManifest.xml`.
-2. For updater installs, ensure `android.permission.REQUEST_INSTALL_PACKAGES` exists in the committed manifest.
-3. Otherwise update download can reach 100% without showing the installer prompt on some devices.
+1. If you add an Android permission for the direct build, mirror it in the committed native manifests.
+2. `REQUEST_INSTALL_PACKAGES` is now direct-only and lives in `android/app/src/direct/AndroidManifest.xml`.
+3. The F-Droid flavor should not ship installer permissions or updater entry points.

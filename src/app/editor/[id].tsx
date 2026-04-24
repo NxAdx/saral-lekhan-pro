@@ -495,7 +495,7 @@ export default function EditNoteScreen() {
     exportBtnText: { color: colors.white }, // High contrast for share/export
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 200 },
+    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 350 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -595,7 +595,7 @@ export default function EditNoteScreen() {
       </View>
 
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
             <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: radius.lg }}>
               <TextInput
@@ -638,7 +638,8 @@ export default function EditNoteScreen() {
                   scrollEnabled={false}
                   useContainer={false}
                   onCursorPosition={(y) => {
-                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 200), animated: true });
+                    // Optimized for Android: scroll so cursor is roughly in the middle-top of the visible area
+                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 120), animated: true });
                   }}
                   onHeightChange={(h) => {
                     setEditorHeight(Math.max(400, h + 100));

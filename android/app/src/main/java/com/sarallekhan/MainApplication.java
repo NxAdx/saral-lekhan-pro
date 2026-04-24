@@ -31,8 +31,10 @@ public class MainApplication extends Application implements ReactApplication {
       protected List<ReactPackage> getPackages() {
         @SuppressWarnings("UnnecessaryLocalVariable")
         List<ReactPackage> packages = new PackageList(this).getPackages();
-        // Packages that cannot be autolinked yet can be added manually here:
-        packages.add(new UpdaterPackage());
+        packages.add(new BuildInfoPackage());
+        if (!BuildConfig.IS_FDROID_BUILD) {
+          packages.add(new UpdaterPackage());
+        }
         return packages;
       }
 

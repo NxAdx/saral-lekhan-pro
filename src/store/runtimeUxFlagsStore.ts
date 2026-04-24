@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
 import { create } from 'zustand';
 import { log } from '../utils/Logger';
+import { RUNTIME_FLAGS_URL } from '../utils/buildInfo';
 
 export interface RuntimeUxFlags {
   spark_loading_modal_v1: boolean;
@@ -47,11 +47,7 @@ const mergeFlags = (base: RuntimeUxFlags, incoming: unknown): RuntimeUxFlags => 
   };
 };
 
-const getRuntimeFlagsUrl = (): string => {
-  const expoConfigExtra = (Constants.expoConfig as any)?.extra;
-  const legacyExtra = (Constants.manifest as any)?.extra;
-  return String(expoConfigExtra?.runtimeFlagsUrl || legacyExtra?.runtimeFlagsUrl || '').trim();
-};
+const getRuntimeFlagsUrl = (): string => RUNTIME_FLAGS_URL;
 
 const fetchWithTimeout = async (url: string, timeoutMs: number): Promise<Response> => {
   const timeoutPromise = new Promise<never>((_, reject) => {
