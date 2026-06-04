@@ -14,26 +14,28 @@ RepoType: git
 Repo: https://github.com/NxAdx/saral-lekhan-pro.git
 
 Builds:
-  - versionName: '2.17.39'
+  - versionName: '2.17.56'
     versionCode: 102
-    commit: v2.17.39
-    subdir: android
+    commit: v2.17.56
+    subdir: android/app
     sudo:
       - apt-get update
-      - apt-get install -y nodejs npm openjdk-17-jdk-headless
+      - apt-get install -y npm openjdk-17-jdk-headless
     init:
-      - cd ..
-      - npm ci --legacy-peer-deps
-    build:
-      - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-      - export PATH="$JAVA_HOME/bin:$PATH"
-      - export SARAL_BUILD_TARGET=fdroid
-      - bash gradlew assembleFdroidRelease --no-daemon
-    output: app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+      - cd ../..
+      - npm install --legacy-peer-deps
+    gradle:
+      - yes
+    prebuild:
+      - cd ../..
+      - sed -i -e '1a "expo":{"autolinking":{"android":{"buildFromSource":[".*"]}}},' package.json
+      - export SARAL_BUILD_TARGET=fdroid && npx expo prebuild -p android --clean
+      - sed -i 's/System.getenv("SARAL_BUILD_TARGET") ?: "direct"/"fdroid"/' android/app/build.gradle
+      - sed -i -e '/signingConfig /d' android/app/build.gradle
     scandelete:
       - node_modules
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '2.17.39'
+CurrentVersion: '2.17.56'
 CurrentVersionCode: 102
