@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
-  Platform, StatusBar, ScrollView, BackHandler, Keyboard
+  Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -55,6 +55,7 @@ export default function NewNoteScreen() {
   const [imageUrl, setImageUrl] = useState('');
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const noteId = useRef<number | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const ai = useAiStore();
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
@@ -63,20 +64,27 @@ export default function NewNoteScreen() {
   const richText = useRef<RichEditor>(null);
   const scrollRef = useRef<ScrollView>(null);
   const editorListBreakoutScript = useMemo(() => `
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Enter') return;
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
-      const range = selection.getRangeAt(0);
-      let node = range.startContainer;
-      while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') {
-        node = node.parentNode;
-      }
-      if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
-        e.preventDefault();
-        document.execCommand('outdent', false, null);
-      }
-    });
+    (function() {
+      if (window.__breakoutListenerAdded) return;
+      window.__breakoutListenerAdded = true;
+      document.addEventListener('beforeinput', function(e) {
+        if (e.inputType !== 'insertParagraph') return;
+        var selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+        var range = selection.getRangeAt(0);
+        var node = range.startContainer;
+        while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') {
+          node = node.parentNode;
+        }
+        if (node && node.nodeName === 'BLOCKQUOTE' && node.textContent.trim() === '') {
+          e.preventDefault();
+          document.execCommand('formatBlock', false, 'div');
+        } else if (node && node.nodeName === 'LI' && node.textContent.trim() === '') {
+          e.preventDefault();
+          document.execCommand('outdent', false, null);
+        }
+      });
+    })();
     true;
   `, []);
   const finishGeneration = useCallback(
@@ -120,6 +128,24 @@ export default function NewNoteScreen() {
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
   }, [isDirty, settings.autoSave]);
+
+  // Track keyboard height so we can add extra padding to the ScrollView,
+  // ensuring content at the bottom remains visible above the toolbar+keyboard.
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const onShow = (e: any) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setKeyboardHeight(e.endCoordinates.height);
+    };
+    const onHide = () => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setKeyboardHeight(0);
+    };
+    const sub1 = Keyboard.addListener(showEvent, onShow);
+    const sub2 = Keyboard.addListener(hideEvent, onHide);
+    return () => { sub1.remove(); sub2.remove(); };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -372,7 +398,7 @@ export default function NewNoteScreen() {
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 160 },
+    content: { paddingHorizontal: 24, paddingTop: 24 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -434,8 +460,8 @@ export default function NewNoteScreen() {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 60 : 160 }]} keyboardShouldPersistTaps="handled">
           <TextInput
             style={s.titleInput}
             placeholder={loc.editor.titlePlaceholder}

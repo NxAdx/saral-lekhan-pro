@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable,
-  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard,
+  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -75,6 +75,7 @@ export default function EditNoteScreen() {
   const isApplyingInitialContent = useRef(false);
   const [editorHeight, setEditorHeight] = useState<number>(400);
   const [editorReady, setEditorReady] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const finishGeneration = useCallback(
     (nextPhase: SparkGenerationPhase) => {
       setGenerationPhase(nextPhase);
@@ -116,24 +117,32 @@ export default function EditNoteScreen() {
       setBodyText(stripped || '');
     }
 
-    // Inject List & Quote Breakout Script
+    // Inject List & Quote Breakout Script — uses 'beforeinput' instead of
+    // 'keydown' because Android virtual keyboards don't reliably fire keydown
+    // with e.key === 'Enter'. The 'beforeinput' event fires consistently on
+    // both platforms with inputType === 'insertParagraph' for Enter.
     const script = `
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          const selection = window.getSelection();
-          if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            let node = range.startContainer;
-            while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') { 
-              node = node.parentNode; 
-            }
-            if (node && (node.nodeName === 'LI' || node.nodeName === 'BLOCKQUOTE') && node.textContent.trim() === '') {
-              e.preventDefault();
-              document.execCommand('outdent', false, null);
-            }
+      (function() {
+        if (window.__breakoutListenerAdded) return;
+        window.__breakoutListenerAdded = true;
+        document.addEventListener('beforeinput', function(e) {
+          if (e.inputType !== 'insertParagraph') return;
+          var selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0) return;
+          var range = selection.getRangeAt(0);
+          var node = range.startContainer;
+          while (node && node.nodeName !== 'LI' && node.nodeName !== 'BLOCKQUOTE' && node.nodeName !== 'BODY') {
+            node = node.parentNode;
           }
-        }
-      });
+          if (node && node.nodeName === 'BLOCKQUOTE' && node.textContent.trim() === '') {
+            e.preventDefault();
+            document.execCommand('formatBlock', false, 'div');
+          } else if (node && node.nodeName === 'LI' && node.textContent.trim() === '') {
+            e.preventDefault();
+            document.execCommand('outdent', false, null);
+          }
+        });
+      })();
       true;
     `;
 
@@ -187,6 +196,24 @@ export default function EditNoteScreen() {
   const showSaved = useCallback(() => {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+  }, []);
+
+  // Track keyboard height so we can add extra padding to the ScrollView,
+  // ensuring content at the bottom remains visible above the toolbar+keyboard.
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const onShow = (e: any) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setKeyboardHeight(e.endCoordinates.height);
+    };
+    const onHide = () => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setKeyboardHeight(0);
+    };
+    const sub1 = Keyboard.addListener(showEvent, onShow);
+    const sub2 = Keyboard.addListener(hideEvent, onHide);
+    return () => { sub1.remove(); sub2.remove(); };
   }, []);
 
   useEffect(() => {
@@ -496,7 +523,7 @@ export default function EditNoteScreen() {
     exportBtnText: { color: colors.white }, // High contrast for share/export
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 160 },
+    content: { paddingHorizontal: 24, paddingTop: 24 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -595,8 +622,8 @@ export default function EditNoteScreen() {
         </View>
       </View>
 
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 60 : 160 }]} keyboardShouldPersistTaps="handled">
             <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: radius.lg }}>
               <TextInput
                 style={s.titleInput}
