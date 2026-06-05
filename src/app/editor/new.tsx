@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
-  Platform, StatusBar, ScrollView, BackHandler
+  Platform, StatusBar, ScrollView, BackHandler, Keyboard
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -144,6 +144,7 @@ export default function NewNoteScreen() {
   }, [title, tag, addNote]);
 
   const handleDone = useCallback(async () => {
+    Keyboard.dismiss();
     await handleSave();
     router.back();
   }, [handleSave, router]);
@@ -162,7 +163,7 @@ export default function NewNoteScreen() {
 
   const handleInsertLink = () => {
     if (linkUrl.trim()) {
-      richText.current?.insertLink(title || 'Link', linkUrl.trim());
+      richText.current?.insertLink('Link', linkUrl.trim());
       setLinkUrl('');
       setShowLinkModal(false);
     }
@@ -200,6 +201,78 @@ export default function NewNoteScreen() {
       });
     }
   };
+
+  const handleReplace = useCallback(() => {
+    if (!findText.trim()) return;
+    // Walk text nodes and replace first match
+    const findStr = findText.trim();
+    const repStr = replaceText;
+    const script = `
+      (function() {
+        var found = false;
+        function walk(node) {
+          if (node.nodeType === 3) {
+            var index = node.data.indexOf(${JSON.stringify(findStr)});
+            if (index !== -1 && !found) {
+              node.data = node.data.substring(0, index) + ${JSON.stringify(repStr)} + node.data.substring(index + ${JSON.stringify(findStr)}.length);
+              found = true;
+              return;
+            }
+          } else if (node.nodeType === 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+            for (var i = 0; i < node.childNodes.length; i++) {
+              walk(node.childNodes[i]);
+              if (found) return;
+            }
+          }
+        }
+        walk(document.body);
+        if (found) {
+          var event = new Event('input', { bubbles: true });
+          document.body.dispatchEvent(event);
+        }
+        return found;
+      })();
+    `;
+    // @ts-ignore
+    richText.current?.injectJavascript(script);
+    setIsDirty(true);
+  }, [findText, replaceText]);
+
+  const handleReplaceAll = useCallback(() => {
+    if (!findText.trim()) return;
+    const findStr = findText.trim();
+    const repStr = replaceText;
+    const script = `
+      (function() {
+        function escapeRegExp(string) {
+          return string.replace(/[.*+?^$\${}()|[\\]\\\\]/g, '\\\\$&');
+        }
+        var count = 0;
+        function walk(node) {
+          if (node.nodeType === 3) {
+            var regex = new RegExp(escapeRegExp(${JSON.stringify(findStr)}), 'g');
+            if (regex.test(node.data)) {
+              node.data = node.data.replace(regex, ${JSON.stringify(repStr)});
+              count++;
+            }
+          } else if (node.nodeType === 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+            for (var i = 0; i < node.childNodes.length; i++) {
+              walk(node.childNodes[i]);
+            }
+          }
+        }
+        walk(document.body);
+        if (count > 0) {
+          var event = new Event('input', { bubbles: true });
+          document.body.dispatchEvent(event);
+        }
+        return count;
+      })();
+    `;
+    // @ts-ignore
+    richText.current?.injectJavascript(script);
+    setIsDirty(true);
+  }, [findText, replaceText]);
 
   const handleAiTitle = async () => {
     if (isGenerating) return;
@@ -299,7 +372,7 @@ export default function NewNoteScreen() {
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 200 },
+    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 160 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -402,7 +475,7 @@ export default function NewNoteScreen() {
                 }
               }}
               onCursorPosition={(y) => {
-                scrollRef.current?.scrollTo({ y: Math.max(0, y - 200), animated: true });
+                scrollRef.current?.scrollTo({ y: Math.max(0, y - 140), animated: true });
               }}
               onHeightChange={(h) => {
                 setEditorHeight(Math.max(400, h + 100));
@@ -746,17 +819,12 @@ export default function NewNoteScreen() {
           {
             label: loc.editor.replaceAll || 'Replace All',
             style: 'default',
-            onPress: async () => {
-              if (findText.trim()) {
-                const html = await richText.current?.getContentHtml();
-                if (html) {
-                  const updatedHtml = html.split(findText).join(replaceText);
-                  richText.current?.setContentHTML(updatedHtml);
-                  setFindText('');
-                  setReplaceText('');
-                }
-              }
-            }
+            onPress: handleReplaceAll
+          },
+          {
+            label: loc.editor.replace || 'Replace',
+            style: 'default',
+            onPress: handleReplace
           },
           {
             label: loc.editor.cancel,

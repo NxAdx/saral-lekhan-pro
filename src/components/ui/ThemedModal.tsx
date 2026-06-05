@@ -121,10 +121,7 @@ export const ThemedModal = ({ visible, title, subtitle, onClose, actions, custom
                                 <Pressable
                                     key={i}
                                     style={[s.btn, isCancel && s.btnCancel, isDestructive && s.btnDestructive]}
-                                    onPress={() => {
-                                        act.onPress();
-                                        onClose();
-                                    }}
+                                    onPress={act.onPress}
                                 >
                                     {act.icon}
                                     <Text style={[s.btnLabel, isCancel && s.btnLabelCancel, isDestructive && s.btnLabelDestructive]}>

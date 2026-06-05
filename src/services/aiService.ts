@@ -2,9 +2,19 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAiStore } from '../store/aiStore';
 import { log } from '../utils/Logger';
 
+// In-memory model cache to avoid redundant getBestModel API calls
+const modelCache: { key: string; model: string; cachedAt: number } | null = null;
+const MODEL_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+let _modelCache: typeof modelCache = null;
+
 export class AiService {
 
     static async getBestModel(apiKey: string): Promise<string> {
+        // Return cached model if still valid
+        if (_modelCache && _modelCache.key === apiKey && (Date.now() - _modelCache.cachedAt) < MODEL_CACHE_TTL) {
+            return _modelCache.model;
+        }
+
         try {
             log.info("Fetching available Gemini models for API key...");
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
@@ -24,6 +34,7 @@ export class AiService {
                 if (best) {
                     const modelName = best.name.replace('models/', '');
                     log.info("Dynamically selected model:", modelName);
+                    _modelCache = { key: apiKey, model: modelName, cachedAt: Date.now() };
                     return modelName;
                 }
             }

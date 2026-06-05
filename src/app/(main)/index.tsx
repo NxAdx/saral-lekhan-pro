@@ -25,6 +25,8 @@ import { checkForUpdate } from '../../utils/githubUpdater';
 const HOME_BRAND_EN = 'Saral';
 const HOME_BRAND_HI = 'Lekhan';
 
+const NoteSeparator = () => <View style={{ height: 8 }} />;
+
 function formatDate(ts: number, loc: any): string {
   const d = new Date(ts);
   const now = new Date();
@@ -397,7 +399,7 @@ export default function HomeScreen() {
               />
           </View>
         )}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={
           <View style={s.empty}>
             <Text style={s.emptyTitle}>
@@ -436,6 +438,7 @@ export default function HomeScreen() {
             onPress: () => {
               selectedIds.forEach(id => deleteNote(id));
               clearSelection();
+              setShowBulkDeleteModal(false);
             }
           },
           { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowBulkDeleteModal(false) }

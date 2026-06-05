@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable,
-  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler,
+  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -212,6 +212,7 @@ export default function EditNoteScreen() {
   }, [note, title, tag, updateNote, showSaved]);
 
   const handleDone = useCallback(async () => {
+    Keyboard.dismiss();
     await handleSave();
     router.back();
   }, [handleSave, router]);
@@ -234,7 +235,7 @@ export default function EditNoteScreen() {
 
   const handleInsertLink = () => {
     if (linkUrl.trim()) {
-      richText.current?.insertLink(title || 'Link', linkUrl.trim());
+      richText.current?.insertLink('Link', linkUrl.trim());
       setLinkUrl('');
       setShowLinkModal(false);
     }
@@ -495,7 +496,7 @@ export default function EditNoteScreen() {
     exportBtnText: { color: colors.white }, // High contrast for share/export
 
     scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 350 },
+    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 160 },
     titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
 
     // Rich Editor specific
@@ -594,8 +595,7 @@ export default function EditNoteScreen() {
         </View>
       </View>
 
-      <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
             <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: radius.lg }}>
               <TextInput
@@ -638,8 +638,7 @@ export default function EditNoteScreen() {
                   scrollEnabled={false}
                   useContainer={false}
                   onCursorPosition={(y) => {
-                    // Optimized for Android: scroll so cursor is roughly in the middle-top of the visible area
-                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 120), animated: true });
+                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 140), animated: true });
                   }}
                   onHeightChange={(h) => {
                     setEditorHeight(Math.max(400, h + 100));
@@ -775,7 +774,6 @@ export default function EditNoteScreen() {
             <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
           </View>
         </KeyboardAvoidingView>
-      </View>
 
       <SparkLoadingModal
         visible={sparkLoadingModalEnabled && isGenerating}

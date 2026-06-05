@@ -17,6 +17,8 @@ class Logger {
     private static instance: Logger;
     private logs: LogEntry[] = [];
     private isInitialized = false;
+    private saveTimer: ReturnType<typeof setTimeout> | null = null;
+    private static readonly SAVE_DEBOUNCE_MS = 2000;
 
     private constructor() {
         this.init();
@@ -50,7 +52,7 @@ class Logger {
         const originalHandler = (global as any).ErrorUtils?.getGlobalHandler();
         (global as any).ErrorUtils?.setGlobalHandler(async (error: any, isFatal: any) => {
             this.error(`FATAL EXCEPTION: ${error.message}`, { stack: error.stack, isFatal });
-            await this.saveLogs();
+            await this.flushLogs();
             if (originalHandler) {
                 originalHandler(error, isFatal);
             }
@@ -63,6 +65,24 @@ class Logger {
         } catch (e) {
             console.error("Failed to save logs to file", e);
         }
+    }
+
+    /** Flush logs to disk immediately (used for fatal errors) */
+    private async flushLogs() {
+        if (this.saveTimer) {
+            clearTimeout(this.saveTimer);
+            this.saveTimer = null;
+        }
+        await this.saveLogs();
+    }
+
+    /** Schedule a debounced disk write */
+    private scheduleSave() {
+        if (this.saveTimer) clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => {
+            this.saveTimer = null;
+            this.saveLogs();
+        }, Logger.SAVE_DEBOUNCE_MS);
     }
 
     private addLog(level: LogLevel, message: string, details?: any) {
@@ -78,8 +98,8 @@ class Logger {
             this.logs.pop();
         }
 
-        // Save periodically/directly
-        this.saveLogs();
+        // Debounced disk write instead of writing on every single log
+        this.scheduleSave();
 
         // Also log to console in development
         if (__DEV__) {

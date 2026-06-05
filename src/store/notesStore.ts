@@ -145,7 +145,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const now = Date.now();
     const newNote: Note = {
       ...note,
-      id: now + Math.floor(Math.random() * 100000),
+      id: now * 1000 + Math.floor(Math.random() * 1000000),
       created_at: now,
       updated_at: now,
       pinned: note.pinned ?? false,
@@ -169,24 +169,25 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   updateNote: (id, updates) => {
     const now = Date.now();
+    const prev = get().notes.find(x => x.id === id);
+    if (!prev) return;
+
+    const merged = { ...prev, ...updates, updated_at: now };
 
     set((state) => ({
       notes: state.notes.map((n) =>
-        n.id === id ? { ...n, ...updates, updated_at: now } : n
+        n.id === id ? merged : n
       ),
     }));
 
-    const n = get().notes.find(x => x.id === id);
-    if (n) {
-      db.transaction((tx: any) => {
-        tx.executeSql(
-          `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
-          [n.title, n.body, n.tag, n.updated_at, n.pinned ? 1 : 0, id]
-        );
-      }, (err: any) => {
-        log.error("Failed to update note", err);
-      });
-    }
+    db.transaction((tx: any) => {
+      tx.executeSql(
+        `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
+        [merged.title, merged.body, merged.tag, merged.updated_at, merged.pinned ? 1 : 0, id]
+      );
+    }, (err: any) => {
+      log.error("Failed to update note", err);
+    });
   },
 
   getNotesFilteredByTag: (tag) => {

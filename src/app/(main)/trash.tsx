@@ -9,6 +9,8 @@ import { strings } from '../../i18n/strings';
 import { BentoCard } from '../../components/ui/BentoCard';
 import { ThemedModal } from '../../components/ui/ThemedModal';
 
+const NoteSeparator = () => <View style={{ height: 8 }} />;
+
 export default function TrashScreen() {
     const router = useRouter();
     const theme = useTheme();
@@ -34,10 +36,12 @@ export default function TrashScreen() {
 
     const handleRestore = () => {
         if (selectedActionId !== null) restoreNote(selectedActionId);
+        setShowActionModal(false);
     };
 
     const handlePermanentDelete = () => {
         if (selectedActionId !== null) permanentlyDeleteNote(selectedActionId);
+        setShowActionModal(false);
     };
 
     const s = useMemo(() => StyleSheet.create({
@@ -104,7 +108,7 @@ export default function TrashScreen() {
                             <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
                             <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                         </Svg>
-                        <Text style={s.emptyAllText}>Empty All</Text>
+                        <Text style={s.emptyAllText}>{loc.emptyAll || 'Empty All'}</Text>
                     </Pressable>
                 )}
             </View>
@@ -123,7 +127,7 @@ export default function TrashScreen() {
                         />
                     </View>
                 )}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                ItemSeparatorComponent={NoteSeparator}
                 ListEmptyComponent={
                     <View style={s.empty}>
                         <Text style={s.emptyTitle}>{loc.trashEmpty}</Text>
@@ -157,12 +161,12 @@ export default function TrashScreen() {
 
             <ThemedModal
                 visible={showEmptyTrashModal}
-                title="Empty Trash"
-                subtitle={`Permanently delete all ${deletedNotes.length} notes in trash? This cannot be undone.`}
+                title={loc.emptyTrash || 'Empty Trash'}
+                subtitle={`${loc.emptyTrashConfirm || 'Permanently delete all'} ${deletedNotes.length} ${loc.trashNotes || 'notes in trash? This cannot be undone.'}`}
                 onClose={() => setShowEmptyTrashModal(false)}
                 actions={[
                     {
-                        label: `Delete All (${deletedNotes.length})`,
+                        label: `${loc.deleteAll || 'Delete All'} (${deletedNotes.length})`,
                         style: 'destructive',
                         onPress: () => {
                             emptyTrash();
