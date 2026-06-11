@@ -6,12 +6,13 @@ import { useTheme } from '../../store/themeStore';
 interface TagPillProps {
   label: string;
   active?: boolean;
+  icon?: React.ReactNode;
   onPress?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function TagPill({ label, active, onPress }: TagPillProps) {
+export function TagPill({ label, active, icon, onPress }: TagPillProps) {
   const { colors, font, radius, fontSize } = useTheme();
   const pressed = useSharedValue(0);
 
@@ -35,6 +36,7 @@ export function TagPill({ label, active, onPress }: TagPillProps) {
       ]}
       hitSlop={8}
     >
+      {icon}
       <Text
         style={[
           styles.label,
@@ -55,6 +57,8 @@ export function TagPill({ label, active, onPress }: TagPillProps) {
 
 const styles = StyleSheet.create({
   pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,

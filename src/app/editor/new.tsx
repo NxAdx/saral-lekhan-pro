@@ -4,7 +4,8 @@ import {
   Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
+import { NativeMarkdownEditor, NativeMarkdownEditorRef } from '../../components/ui/NativeMarkdownEditor';
+import { htmlToMarkdown } from '../../utils/htmlToMarkdown';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -68,7 +69,8 @@ export default function NewNoteScreen() {
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
   const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
-  const richText = useRef<RichEditor>(null);
+  const richText = useRef<NativeMarkdownEditorRef>(null);
+  const [isEditMode, setIsEditMode] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
   const editorListBreakoutScript = useMemo(() => `
     (function() {
@@ -166,7 +168,7 @@ export default function NewNoteScreen() {
   const handleSave = useCallback(async () => {
     let html = '';
     if (noteType === 'text') {
-      html = (await richText.current?.getContentHtml()) || '';
+      html = (bodyText) || '';
     } else {
       const markdown = checklistItemsToText(checklistItems);
       html = markdownToHtml(markdown);
@@ -213,12 +215,12 @@ export default function NewNoteScreen() {
   }, [isDirty, settings.autoSave, router]);
 
   const insertHindiPunctuation = (char: string) => {
-    richText.current?.insertText(char);
+    richText.current?.insertTextAtCursor(char);
   };
 
   const handleInsertLink = () => {
     if (linkUrl.trim()) {
-      richText.current?.insertLink('Link', linkUrl.trim());
+      richText.current?.insertTextAtCursor(`[Link](${'linkUrl.trim()'})`);
       setLinkUrl('');
       setShowLinkModal(false);
     }
@@ -226,7 +228,7 @@ export default function NewNoteScreen() {
 
   const handleInsertImage = () => {
     if (imageUrl.trim()) {
-      richText.current?.insertImage(imageUrl.trim());
+      richText.current?.insertTextAtCursor(`![Image](${'imageUrl.trim()'.replace(/\s*trim\(\)/, '')})`);
       setImageUrl('');
       setShowImageModal(false);
     }
@@ -245,7 +247,7 @@ export default function NewNoteScreen() {
         const dataUri = asset.base64
           ? `data:image/jpeg;base64,${asset.base64}`
           : await imageUriToDataUri(asset.uri);
-        richText.current?.insertImage(dataUri);
+        richText.current?.insertTextAtCursor(`![Image](${'dataUri'.replace(/\s*trim\(\)/, '')})`);
         setShowImageModal(false);
       }
     } catch (error: any) {
@@ -383,7 +385,7 @@ export default function NewNoteScreen() {
       setGenerationPhase('generating');
       const output = await AiService.getDynamicGeneration(aiPrompt.trim());
       setGenerationPhase('applying');
-      richText.current?.insertHTML(`<br><br>${markdownToHtml(output)}<br>`);
+      richText.current?.insertTextAtCursor(`\n\n${output}\n`);
       setAiPrompt('');
       didSucceed = true;
     } catch (e: any) {
@@ -405,7 +407,7 @@ export default function NewNoteScreen() {
       setGenerationPhase('generating');
       const output = await AiService.getFormatNote(bodyText.trim());
       setGenerationPhase('applying');
-      richText.current?.setContentHTML(markdownToHtml(output));
+      setBodyText(output);
       didSucceed = true;
     } catch (e: any) {
       setGenerationPhase('error');
@@ -487,13 +489,13 @@ export default function NewNoteScreen() {
           <Pressable 
             onPress={async () => {
               if (noteType === 'text') {
-                const html = await richText.current?.getContentHtml() || '';
+                const html = bodyText || '';
                 const items = textToChecklistItems(stripMarkdown(html));
                 setChecklistItems(items);
                 setNoteType('checklist');
               } else {
                 const markdown = checklistItemsToText(checklistItems);
-                richText.current?.setContentHTML(markdownToHtml(markdown));
+                setBodyText(markdownToHtml(markdown));
                 setNoteType('text');
               }
               setIsDirty(true);
@@ -531,43 +533,20 @@ export default function NewNoteScreen() {
 
           <View style={[s.editorContainer, { minHeight: editorHeight }]}>
             {noteType === 'text' ? (
-              <RichEditor
-                ref={richText}
-              initialContentHTML=""
-              placeholder={loc.editor.bodyPlaceholder}
-              editorStyle={{
-                backgroundColor: colors.bg,
-                color: colors.inkMid,
-                placeholderColor: colors.inkDim,
-                cssText: buildEditorCss({
-                  fontSans: font.sans, fontSansBold: font.sansBold, fontSansSemi: font.sansSemi, fontMono: font.mono,
-                  fontSize: theme.fontSize,
-                  colorBg: colors.bg, colorBgRaised: colors.bgRaised, colorInk: colors.ink,
-                  colorInkMid: colors.inkMid, colorInkDim: colors.inkDim, colorAccent: colors.accent, colorStroke: colors.stroke,
-                }),
-              }}
-              onChange={(html) => {
-                const stripped = html.replace(/<[^>]*>?/gm, ' ');
-                setBodyText(stripped);
-                setIsDirty(true);
-                if (settings.autoSave && (title.trim() || stripped.trim())) {
-                  if (noteId.current) {
-                    useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag, folder_name: folderName });
-                  } else {
-                    const id = addNote({ title, body: html, tag, pinned: false, note_type: 'text', folder_name: folderName });
-                    noteId.current = id;
-                  }
-                }
-              }}
-              onCursorPosition={(y) => {
-                scrollRef.current?.scrollTo({ y: Math.max(0, y - 140), animated: true });
-              }}
-              onHeightChange={(h) => {
-                setEditorHeight(Math.max(400, h + 100));
-              }}
-              scrollEnabled={false}
-              useContainer={false}
-            />
+              <NativeMarkdownEditor
+                    ref={richText}
+                    value={bodyText}
+                    onChange={(text) => {
+                      setBodyText(text);
+                      setIsDirty(true);
+                      
+                    }}
+                    placeholder={loc.editor.bodyPlaceholder}
+                    minHeight={editorHeight}
+                    theme={theme}
+                    loc={loc}
+                    isEditMode={isEditMode}
+                  />
             ) : (
               <ChecklistEditor
                 items={checklistItems}
@@ -637,18 +616,8 @@ export default function NewNoteScreen() {
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <Path d="M9 14l-4 -4l4 -4" />
-                      <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
-                  </Svg>
-              </Pressable>
-              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <Path d="M15 14l4 -4l-4 -4" />
-                      <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
-                  </Svg>
-              </Pressable>
+              {/* Undo/Redo handled natively by keyboard now */}
+              
               <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
                   <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <Circle cx="10" cy="10" r="7" />
@@ -658,76 +627,7 @@ export default function NewNoteScreen() {
             </View>
           </View>
 
-        {noteType === 'text' && (
-          <RichToolbar
-            editor={richText}
-          style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
-          iconTint={colors.ink}
-          selectedIconTint={colors.accent}
-          disabledIconTint={colors.inkDim}
-          iconSize={18}
-          iconGap={24}
-          itemStyle={s.toolbarItem}
-          flatContainerStyle={{ paddingBottom: 4 }}
-          selectedButtonStyle={{ backgroundColor: 'transparent', borderBottomWidth: 2.5, borderBottomColor: colors.accent }}
-          unselectedButtonStyle={{ backgroundColor: 'transparent' }}
-          actions={[
-            actions.setBold,
-            actions.setItalic,
-            actions.setUnderline,
-            actions.checkboxList,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            actions.line,
-            actions.code,
-            actions.heading1,
-            actions.heading2,
-            actions.blockquote,
-            actions.insertLink,
-            actions.insertImage,
-            'insertPurnaViram',
-            'insertDoublePurnaViram'
-          ]}
-          iconMap={{
-            [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
-            [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
-            [actions.insertLink]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-              </Svg>
-            ),
-            [actions.insertImage]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <Circle cx="8.5" cy="8.5" r="1.5" />
-                <Path d="M21 15l-5-5L5 21" />
-              </Svg>
-            ),
-            [actions.checkboxList]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Rect x="4" y="4" width="16" height="16" rx="3" />
-                <Path d="M8 12l3 3l5 -6" />
-              </Svg>
-            ),
-            [actions.line]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round">
-                <Path d="M5 12h14" />
-              </Svg>
-            ),
-            [actions.code]: ({ tintColor }: any) => (
-              <Text style={{ color: tintColor, fontFamily: font.mono, fontSize: 13, fontWeight: '700', includeFontPadding: false }}>
-                {'</>'}
-              </Text>
-            ),
-            'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
-            'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
-          }}
-          onInsertLink={() => setShowLinkModal(true)}
-          onPressAddImage={() => setShowImageModal(true)}
-          insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
-        />
-        )}
+        
 
         <View style={s.bottomBar}>
           <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
@@ -843,7 +743,7 @@ export default function NewNoteScreen() {
             label: loc.plusFeatures.aiSummaryInsert,
             style: 'cancel',
             onPress: () => {
-              richText.current?.insertHTML(`<br><br><blockquote><b>${loc.plusFeatures.aiSummaryPrefix}</b><br>${markdownToHtml(summaryText)}</blockquote><br>`);
+              richText.current?.insertTextAtCursor(`\n\n> **${loc.plusFeatures.aiSummaryPrefix}**\n> ${summaryText.split('\n').join('\n> ')}\n\n`);
               setShowSummaryModal(false);
             }
           }

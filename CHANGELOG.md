@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## v2.19.0 - Editor Rewrite & UI Polish
+- **Pure Native Editor:** Replaced the legacy WebView rich text editor with a lightning-fast native Markdown text box. Perfect 60FPS scrolling and instant keyboard responsiveness.
+- **Dual-Mode Magic:** A new View Mode automatically renders your Markdown into beautiful headings and lists.
+- **Consolidated Category Rail:** Replaced the clunky double-rails for folders and tags into a single, unified, horizontal category filter on the home screen.
+- **OTA Updates Re-Enabled:** The in-app updater and remote UX flags have been fully re-enabled.
+- **Premium UX:** Replaced all formatting toolbar buttons with rounded, vector-perfect icons.
+- **Backwards Compatibility:** Old notes seamlessly auto-convert their legacy HTML into clean Markdown without losing formatting.
 
 ## [2.18.0] - 2026-06-11
 ### Added

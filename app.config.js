@@ -1,8 +1,5 @@
 const packageJson = require("./package.json");
 
-const BUILD_TARGET = String(process.env.SARAL_BUILD_TARGET || "direct").trim().toLowerCase();
-const isFdroidBuild = BUILD_TARGET === "fdroid";
-
 module.exports = {
   expo: {
     name: "Saral Lekhan",
@@ -42,11 +39,9 @@ module.exports = {
       ],
     },
     extra: {
-      runtimeFlagsUrl: isFdroidBuild
-        ? ""
-        : "https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json",
-      distributionChannel: isFdroidBuild ? "fdroid" : "direct",
-      updaterMode: isFdroidBuild ? "fdroid" : "github",
+      runtimeFlagsUrl: "https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json",
+      distributionChannel: "direct",
+      updaterMode: "github",
       eas: {
         projectId: "d9a30678-cf8c-4f8b-8c28-0b49f63f3208",
       },

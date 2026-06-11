@@ -407,7 +407,7 @@ export default function HomeScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
         <TagPill 
           label={loc.home?.allFolders || "All Notes"} 
-          active={selectedFolder === null} 
+          active={selectedFolder === null && selectedTag === ALL_TAG_ID} 
           onPress={() => {
             setSelectedFolder(null);
             setSelectedTag(ALL_TAG_ID);
@@ -415,24 +415,32 @@ export default function HomeScreen() {
         />
         {uniqueFolders.map((folder) => (
           <TagPill 
-            key={folder} 
+            key={`folder-${folder}`} 
             label={folder} 
+            icon={
+              <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={selectedFolder === folder ? '#fff' : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4, marginTop: -2 }}>
+                <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </Svg>
+            }
             active={selectedFolder === folder} 
             onPress={() => {
-              setSelectedFolder(folder);
+              setSelectedFolder(selectedFolder === folder ? null : folder);
               setSelectedTag(ALL_TAG_ID);
             }} 
           />
         ))}
+        {uniqueTags.map((tag) => (
+          <TagPill 
+            key={`tag-${tag}`} 
+            label={`#${tag}`} 
+            active={selectedTag === tag} 
+            onPress={() => {
+              setSelectedTag(selectedTag === tag ? ALL_TAG_ID : tag);
+              setSelectedFolder(null);
+            }} 
+          />
+        ))}
       </ScrollView>
-      {uniqueTags.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
-          <TagPill label={loc.allTag} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
-          {uniqueTags.map((tag) => (
-            <TagPill key={tag} label={tag} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
-          ))}
-        </ScrollView>
-      )}
     </View >
   ), [searchFocused, searchQuery, selectedTag, selectedFolder, uniqueTags, uniqueFolders, s, colors, loc]);
 
