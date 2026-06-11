@@ -17,9 +17,7 @@ const distributionChannel = String(
   nativeBuildInfo?.distributionChannel || manifestExtra.distributionChannel || "direct"
 ).trim().toLowerCase();
 
-const updaterMode = String(nativeBuildInfo?.updaterMode || manifestExtra.updaterMode || "github")
-  .trim()
-  .toLowerCase();
+const updaterMode = "github";
 
 const runtimeFlagsUrl = String(
   nativeBuildInfo?.runtimeFlagsUrl ?? manifestExtra.runtimeFlagsUrl ?? ""

@@ -2,11 +2,11 @@ import * as FileSystem from 'expo-file-system';
 import { Linking, Platform, NativeModules } from 'react-native';
 import Constants from 'expo-constants';
 import { log } from './Logger';
-import { UPDATER_MODE, IS_FDROID_BUILD } from './buildInfo';
+import { UPDATER_MODE } from './buildInfo';
 
 const { UpdaterModule } = NativeModules;
 
-export { DISTRIBUTION_CHANNEL, UPDATER_MODE, IS_FDROID_BUILD } from './buildInfo';
+export { DISTRIBUTION_CHANNEL, UPDATER_MODE } from './buildInfo';
 
 export const APP_VERSION = (
     Constants.expoConfig?.version ||
@@ -41,7 +41,7 @@ export interface UpdateInfo {
  * Checks the public GitHub repository for the latest release.
  */
 export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
-    if (UPDATER_MODE !== 'github' || IS_FDROID_BUILD) return null;
+    if (UPDATER_MODE !== 'github') return null;
     try {
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }

@@ -424,7 +424,6 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
                 {/* APP UPDATER */}
-                {UPDATER_MODE !== 'fdroid' && (
                 <View
                     style={{
                         marginBottom: 24,
@@ -480,7 +479,6 @@ export default function SettingsScreen() {
                         )}
                     </View>
                 </View>
-                )}
 
 
                 {/* APPEARANCE SECTION */}
