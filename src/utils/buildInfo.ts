@@ -23,10 +23,7 @@ const runtimeFlagsUrl = String(
   nativeBuildInfo?.runtimeFlagsUrl ?? manifestExtra.runtimeFlagsUrl ?? ""
 ).trim();
 
-const isFdroidBuild =
-  typeof nativeBuildInfo?.isFdroidBuild === "boolean"
-    ? nativeBuildInfo.isFdroidBuild
-    : updaterMode === "fdroid" || distributionChannel === "fdroid";
+const isFdroidBuild = false;
 
 export const BUILD_INFO = {
   distributionChannel,
