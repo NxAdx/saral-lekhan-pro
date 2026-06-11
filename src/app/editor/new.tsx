@@ -180,7 +180,7 @@ export default function NewNoteScreen() {
           title: title.trim(), 
           body: html, 
           tag: tag.trim(),
-          folder_name: folderName.trim() || null,
+          folder_name: null,
           note_type: noteType,
           checklist_items: noteType === 'checklist' ? checklistItems : null
         });
@@ -190,7 +190,7 @@ export default function NewNoteScreen() {
           body: html, 
           tag: tag.trim(), 
           pinned: false,
-          folder_name: folderName.trim() || null,
+          folder_name: null,
           note_type: noteType,
           checklist_items: noteType === 'checklist' ? checklistItems : null
         });
@@ -580,21 +580,7 @@ export default function NewNoteScreen() {
                 onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
               />
             </View>
-            <View style={{ width: 1, height: 20, backgroundColor: colors.strokeDim, marginHorizontal: 12 }} />
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={s.folderIcon}>
-                <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-              </Svg>
-              <TextInput
-                style={s.tagInput}
-                placeholder={loc.home?.folderPlaceholder || "Folder..."}
-                placeholderTextColor={colors.inkDim + '88'}
-                value={folderName}
-                onChangeText={(t) => { setFolderName(t); setIsDirty(true); }}
-                autoCapitalize="words"
-                onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
-              />
-            </View>
+            
           </View>
         </ScrollView>
 

@@ -88,10 +88,7 @@ interface NotesState {
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
   // ─── New methods (Phase 1 & 5) ────────────────────────────────────
-  moveNote: (id: number, folderName: string | null) => void;
-  getUniqueFolders: () => string[];
-  getNotesInFolder: (folder: string | null) => Note[];
-  resetDB: () => Promise<void>;
+        resetDB: () => Promise<void>;
   bootstrap: (initialNotesJson?: string) => void;
 }
 
@@ -382,48 +379,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     return Array.from(tags).sort();
   },
 
-  // ─── New: Folder Organization (Phase 5) ──────────────────────────────
-
-  moveNote: (id, folderName) => {
-    const now = Date.now();
-    const prev = get().notes.find(x => x.id === id);
-    if (!prev) return;
-    if (prev.folder_name === folderName) return; // no-op if same folder
-
-    const merged = { ...prev, folder_name: folderName, updated_at: now, sync_status: 'pending' as SyncStatus };
-
-    set((state) => ({
-      notes: state.notes.map((n) => n.id === id ? merged : n),
-    }));
-
-    db.transaction((tx: any) => {
-      tx.executeSql(
-        `UPDATE notes SET folder_name = ?, updated_at = ?, sync_status = ? WHERE id = ?;`,
-        [folderName, now, 'pending', id]
-      );
-    }, (err: any) => {
-      log.error("Failed to move note", err);
-    });
-  },
-
-  getUniqueFolders: () => {
-    const folders = new Set(
-      get().notes
-        .filter(n => !n.is_deleted && n.folder_name)
-        .map(n => n.folder_name!)
-    );
-    return Array.from(folders).sort();
-  },
-
-  getNotesInFolder: (folder) => {
-    const { notes } = get();
-    const activeNotes = notes.filter(n => !n.is_deleted);
-    if (folder === null) {
-      // Root folder — notes without a folder_name
-      return sortNotes(activeNotes.filter(n => !n.folder_name));
-    }
-    return sortNotes(activeNotes.filter(n => n.folder_name === folder));
-  },
+  
 
   resetDB: async () => {
     set({ notes: [], isLoaded: false });

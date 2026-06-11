@@ -66,11 +66,11 @@ export default function HomeScreen() {
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
   // Get notes for the selected folder, then filter by tag
-  const allNotesInFolder = useNotesStore((s) => s.getNotesInFolder(selectedFolder));
+  const allNotes = useNotesStore((s) => s.notes);
   const notes = useMemo(() => {
-    if (selectedTag === ALL_TAG_ID) return allNotesInFolder;
-    return allNotesInFolder.filter(n => n.tag === selectedTag);
-  }, [allNotesInFolder, selectedTag]);
+    if (selectedTag === ALL_TAG_ID) return allNotes;
+    return allNotes.filter(n => n.tag === selectedTag);
+  }, [allNotes, selectedTag]);
   
   const getUniqueFolders = useNotesStore((s) => s.getUniqueFolders);
   const addNote = useNotesStore((s) => s.addNote);
@@ -94,9 +94,9 @@ export default function HomeScreen() {
   const uniqueFolders = useMemo(() => getUniqueFolders(), [getUniqueFolders, isLoaded]);
   const uniqueTags = useMemo(() => {
     const tags = new Set<string>();
-    allNotesInFolder.forEach(n => { if (n.tag) tags.add(n.tag); });
+    allNotes.forEach(n => { if (n.tag) tags.add(n.tag); });
     return Array.from(tags).sort();
-  }, [allNotesInFolder]);
+  }, [allNotes]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -404,45 +404,25 @@ export default function HomeScreen() {
           </Pressable>
         )}
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
-        <TagPill 
-          label={loc.home?.allFolders || "All Notes"} 
-          active={selectedFolder === null && selectedTag === ALL_TAG_ID} 
-          onPress={() => {
-            setSelectedFolder(null);
-            setSelectedTag(ALL_TAG_ID);
-          }} 
-        />
-        {uniqueFolders.map((folder) => (
+      {uniqueTags.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
           <TagPill 
-            key={`folder-${folder}`} 
-            label={folder} 
-            icon={
-              <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={selectedFolder === folder ? '#fff' : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4, marginTop: -2 }}>
-                <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-              </Svg>
-            }
-            active={selectedFolder === folder} 
-            onPress={() => {
-              setSelectedFolder(selectedFolder === folder ? null : folder);
-              setSelectedTag(ALL_TAG_ID);
-            }} 
+            label={loc.allTag || "All Notes"} 
+            active={selectedTag === ALL_TAG_ID} 
+            onPress={() => setSelectedTag(ALL_TAG_ID)} 
           />
-        ))}
-        {uniqueTags.map((tag) => (
-          <TagPill 
-            key={`tag-${tag}`} 
-            label={`#${tag}`} 
-            active={selectedTag === tag} 
-            onPress={() => {
-              setSelectedTag(selectedTag === tag ? ALL_TAG_ID : tag);
-              setSelectedFolder(null);
-            }} 
-          />
-        ))}
-      </ScrollView>
+          {uniqueTags.map((tag) => (
+            <TagPill 
+              key={`tag-${tag}`} 
+              label={`#${tag}`} 
+              active={selectedTag === tag} 
+              onPress={() => setSelectedTag(selectedTag === tag ? ALL_TAG_ID : tag)} 
+            />
+          ))}
+        </ScrollView>
+      )}
     </View >
-  ), [searchFocused, searchQuery, selectedTag, selectedFolder, uniqueTags, uniqueFolders, s, colors, loc]);
+  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 

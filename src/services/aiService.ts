@@ -2,10 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAiStore } from '../store/aiStore';
 import { log } from '../utils/Logger';
 
-// In-memory model cache to avoid redundant getBestModel API calls
-const modelCache: { key: string; model: string; cachedAt: number } | null = null;
 const MODEL_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-let _modelCache: typeof modelCache = null;
+let _modelCache: { key: string; model: string; cachedAt: number } | null = null;
 
 export class AiService {
 
