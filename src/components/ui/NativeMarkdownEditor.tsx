@@ -2,6 +2,7 @@ import React, { forwardRef, useImperativeHandle, useState, useRef } from 'react'
 import { View, TextInput, StyleSheet, Pressable, Text, ScrollView, TextInputSelectionChangeEventData } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Svg, Path, Circle, Rect } from 'react-native-svg';
+import { Feather } from '@expo/vector-icons';
 
 interface NativeMarkdownEditorProps {
   value: string;
@@ -178,61 +179,14 @@ export const MarkdownToolbar = ({ onInsert, theme }: { onInsert: (prefix: string
   return (
     <View style={[s.toolbar, { backgroundColor: colors.bg, borderTopColor: colors.strokeDim }]}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="always" contentContainerStyle={s.toolbarContent}>
-        <ToolbarButton onPress={() => onInsert('**', '**')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-            <Path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('*', '*')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M19 4L10 20" />
-            <Path d="M15 4H9" />
-            <Path d="M15 20H9" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('~~', '~~')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M16 4H9a3 3 0 0 0 -2.83 4" />
-            <Path d="M14 12a4 4 0 0 1 0 8H6" />
-            <Path d="M4 12h16" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('# ', '')} icon={
-           <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-             <Path d="M4 9h16" />
-             <Path d="M4 15h16" />
-             <Path d="M10 3l-2 18" />
-             <Path d="M16 3l-2 18" />
-           </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('- ', '')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M9 6l11 0" />
-            <Path d="M9 12l11 0" />
-            <Path d="M9 18l11 0" />
-            <Path d="M5 6l0 .01" />
-            <Path d="M5 12l0 .01" />
-            <Path d="M5 18l0 .01" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('> ', '')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M10 21h-4a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-4" />
-            <Path d="M15 11l-3 -3l-3 3" />
-            <Path d="M12 8v7" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('```\n', '\n```')} icon={
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <Path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
-          </Svg>
-        } />
-        <ToolbarButton onPress={() => onInsert('---')} icon={
-           <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-             <Path d="M5 12h14" />
-           </Svg>
-        } />
+        <ToolbarButton onPress={() => onInsert('**', '**')} icon={<Feather name="bold" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('*', '*')} icon={<Feather name="italic" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('~~', '~~')} icon={<Feather name="trash-2" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('# ', '')} icon={<Feather name="type" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('- ', '')} icon={<Feather name="list" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('> ', '')} icon={<Feather name="message-square" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('```\n', '\n```')} icon={<Feather name="code" size={20} color={colors.ink} />} />
+        <ToolbarButton onPress={() => onInsert('---')} icon={<Feather name="minus" size={20} color={colors.ink} />} />
         <ToolbarButton onPress={() => onInsert('\u0964')} icon={<Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>} />
         <ToolbarButton onPress={() => onInsert('\u0965')} icon={<Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>} />
       </ScrollView>

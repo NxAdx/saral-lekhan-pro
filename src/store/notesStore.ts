@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
 import { log } from '../utils/Logger';
-import type { NoteType, SyncStatus, ChecklistItem, ChecklistSortOption } from '../types/note';
+import type { SyncStatus } from '../types/note';
 
 // Open (or create) the SQLite database
 const DB_NAME = 'saral_lekhan.db';
@@ -30,9 +30,6 @@ export interface Note {
   pinned: boolean;
   is_deleted: boolean;
   // ─── New fields (Phase 1) ────────────────────────────────────────────
-  note_type: NoteType;
-  checklist_items: ChecklistItem[] | null;
-  checklist_sort: ChecklistSortOption | null;
   folder_name: string | null;
   sync_status: SyncStatus;
   labels: string[] | null;
@@ -49,9 +46,6 @@ export const ALL_FOLDER_ID = ALL_FOLDER;
 // we already used for `is_deleted`, but generalized to many columns.
 const REQUIRED_COLUMNS: { name: string; definition: string }[] = [
   { name: 'is_deleted',      definition: 'INTEGER DEFAULT 0' },
-  { name: 'note_type',       definition: "TEXT DEFAULT 'text'" },
-  { name: 'checklist_items', definition: 'TEXT DEFAULT NULL' },
-  { name: 'checklist_sort',  definition: 'TEXT DEFAULT NULL' },
   { name: 'folder_name',     definition: 'TEXT DEFAULT NULL' },
   { name: 'sync_status',     definition: "TEXT DEFAULT 'local_only'" },
   { name: 'labels',          definition: 'TEXT DEFAULT NULL' },
@@ -65,9 +59,6 @@ type AddNoteInput = {
   body: string;
   tag: string;
   pinned: boolean;
-  note_type?: NoteType;
-  checklist_items?: ChecklistItem[] | null;
-  checklist_sort?: ChecklistSortOption | null;
   folder_name?: string | null;
   labels?: string[] | null;
 };
@@ -79,7 +70,7 @@ interface NotesState {
   initDB: () => void;
   loadNotes: () => void;
   addNote: (note: AddNoteInput) => number;
-  updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned' | 'note_type' | 'checklist_items' | 'checklist_sort' | 'folder_name' | 'labels'>>) => void;
+  updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned' | 'folder_name' | 'labels'>>) => void;
   deleteNote: (id: number) => void;
   restoreNote: (id: number) => void;
   permanentlyDeleteNote: (id: number) => void;
@@ -96,15 +87,6 @@ interface NotesState {
 // Safely parses a raw SQLite row into our enriched Note interface.
 // All new fields have safe defaults so existing rows (without these columns) work.
 function parseNoteRow(row: any): Note {
-  let checklistItems: ChecklistItem[] | null = null;
-  if (row.checklist_items) {
-    try {
-      checklistItems = JSON.parse(row.checklist_items);
-    } catch (e) {
-      log.warn('Failed to parse checklist_items JSON', e as any);
-    }
-  }
-
   let labels: string[] | null = null;
   if (row.labels) {
     try {
@@ -123,9 +105,6 @@ function parseNoteRow(row: any): Note {
     updated_at: row.updated_at || 0,
     pinned: row.pinned === 1,
     is_deleted: row.is_deleted === 1,
-    note_type: (row.note_type as NoteType) || 'text',
-    checklist_items: checklistItems,
-    checklist_sort: (row.checklist_sort as ChecklistSortOption) || null,
     folder_name: row.folder_name || null,
     sync_status: (row.sync_status as SyncStatus) || 'local_only',
     labels: labels,
@@ -261,9 +240,6 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       updated_at: now,
       pinned: note.pinned ?? false,
       is_deleted: false,
-      note_type: note.note_type || 'text',
-      checklist_items: note.checklist_items || null,
-      checklist_sort: note.checklist_sort || null,
       folder_name: note.folder_name || null,
       sync_status: 'local_only',
       labels: note.labels || null,
@@ -272,17 +248,15 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     log.info(`Adding new note: ${newNote.title}`);
     set((state) => ({ notes: [newNote, ...state.notes] }));
 
-    const checklistJson = newNote.checklist_items ? JSON.stringify(newNote.checklist_items) : null;
     const labelsJson = newNote.labels ? JSON.stringify(newNote.labels) : null;
 
     db.transaction((tx: any) => {
       tx.executeSql(
-        `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted, note_type, checklist_items, checklist_sort, folder_name, sync_status, labels)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?);`,
+        `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted, folder_name, sync_status, labels)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?);`,
         [
           newNote.id, newNote.title, newNote.body, newNote.tag,
           newNote.created_at, newNote.updated_at, newNote.pinned ? 1 : 0,
-          newNote.note_type, checklistJson, newNote.checklist_sort,
           newNote.folder_name, newNote.sync_status, labelsJson
         ]
       );
@@ -306,18 +280,15 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       ),
     }));
 
-    const checklistJson = merged.checklist_items ? JSON.stringify(merged.checklist_items) : null;
     const labelsJson = merged.labels ? JSON.stringify(merged.labels) : null;
 
     db.transaction((tx: any) => {
       tx.executeSql(
         `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ?,
-         note_type = ?, checklist_items = ?, checklist_sort = ?,
          folder_name = ?, sync_status = ?, labels = ?
          WHERE id = ?;`,
         [
           merged.title, merged.body, merged.tag, merged.updated_at, merged.pinned ? 1 : 0,
-          merged.note_type, checklistJson, merged.checklist_sort,
           merged.folder_name, merged.sync_status, labelsJson,
           id
         ]

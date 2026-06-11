@@ -11,6 +11,7 @@ interface BentoCardProps {
     note: Note;
     date: string;
     selected?: boolean;
+    isSelectionMode?: boolean;
     onPress?: () => void;
     onLongPress?: () => void;
 }
@@ -21,6 +22,7 @@ export const BentoCard = React.memo(({
     note,
     date,
     selected = false,
+    isSelectionMode = false,
     onPress,
     onLongPress,
 }: BentoCardProps) => {
@@ -105,9 +107,9 @@ export const BentoCard = React.memo(({
     const animStyle = useAnimatedStyle(() => {
         return {
             transform: [
-                { scale: withTiming(pressed.value ? 0.98 : 1, { duration: 150 }) }
+                { scale: withTiming(pressed.value && !isSelectionMode ? 0.98 : 1, { duration: 150 }) }
             ],
-            elevation: withTiming(pressed.value ? shadow.gentle.elevation : shadow.soft.elevation, { duration: 150 })
+            elevation: withTiming(pressed.value && !isSelectionMode ? shadow.gentle.elevation : shadow.soft.elevation, { duration: 150 })
         };
     });
 

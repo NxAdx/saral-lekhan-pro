@@ -142,6 +142,14 @@ export default function HomeScreen() {
     setSelectedIds(new Set());
   }, []);
 
+  const toggleSelectAll = useCallback(() => {
+    if (selectedIds.size === filteredNotes.length) {
+      clearSelection();
+    } else {
+      setSelectedIds(new Set(filteredNotes.map(n => n.id)));
+    }
+  }, [filteredNotes, selectedIds.size, clearSelection]);
+
   const handleBulkDelete = useCallback(() => {
     setShowBulkDeleteModal(true);
   }, []);
@@ -325,6 +333,18 @@ export default function HomeScreen() {
             </Pressable>
             <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
             <View style={{ flex: 1 }} />
+            <Pressable onPress={toggleSelectAll} style={s.circleBtn} hitSlop={12}>
+              {selectedIds.size === filteredNotes.length && filteredNotes.length > 0 ? (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M9 11l3 3l8 -8" />
+                  <Path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
+                </Svg>
+              ) : (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="4" y="4" width="16" height="16" rx="2" />
+                </Svg>
+              )}
+            </Pressable>
             <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
               <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
@@ -437,12 +457,13 @@ export default function HomeScreen() {
         ListHeaderComponent={ListHeader}
         renderItem={({ item, index }) => (
           <View style={s.noteContainer}>
-            <BentoCard
+              <BentoCard
               note={item}
               onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
               onLongPress={() => handleLongPress(item.id)}
               date={formatDate(item.updated_at, loc)}
               selected={selectedIds.has(item.id)}
+              isSelectionMode={isSelectionMode}
               />
           </View>
         )}

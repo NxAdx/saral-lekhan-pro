@@ -12,6 +12,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
 import { Svg, Path, Circle, Rect, Polyline } from 'react-native-svg';
+import { Feather } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
@@ -26,8 +27,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
 import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
-import { ChecklistEditor } from '../../components/ui/ChecklistEditor';
-import { NoteType, ChecklistItem, textToChecklistItems, checklistItemsToText } from '../../types/note';
+
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -48,9 +48,6 @@ export default function EditNoteScreen() {
   const [tag, setTag] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
   
-  // Phase 4: Checklist mode state
-  const [noteType, setNoteType] = useState<NoteType>('text');
-  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   const [saved, setSaved] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -124,8 +121,6 @@ export default function EditNoteScreen() {
 
       const stripped = note.body.replace(/<[^>]*>?/gm, ' ');
       setBodyText(stripped || '');
-      setNoteType(note.note_type || 'text');
-      setChecklistItems(note.checklist_items || []);
     }
 
     // Inject List & Quote Breakout Script — uses 'beforeinput' instead of
@@ -229,30 +224,21 @@ export default function EditNoteScreen() {
     return () => subscription.remove();
   }, [isDirty, settings.autoSave]);
 
-  const handleSave = useCallback(async () => {
-    let html = note?.body || '';
-    if (noteType === 'text') {
-      html = (bodyText) || '';
-    } else {
-      // In checklist mode, we serialize items to markdown text for backward compatibility
-      // so older app versions can still read it as a text note.
-      const markdown = checklistItemsToText(checklistItems);
-      html = markdownToHtml(markdown);
-    }
-    
+  const handleSave = useCallback(() => {
     if (note) {
-      updateNote(note.id, { 
-        title: title.trim(), 
-        body: html?.trim() || '', 
-        tag: tag.trim(),
-        folder_name: null,
-        note_type: noteType,
-        checklist_items: noteType === 'checklist' ? checklistItems : null
-      });
-      setIsDirty(false);
-      showSaved();
+      if (title.trim() === '' && bodyText.trim() === '') {
+        deleteNote(note.id);
+        router.back();
+      } else {
+        updateNote(note.id, {
+          title,
+          body: bodyText,
+          tag,
+        });
+        showSaved();
+      }
     }
-  }, [note, title, tag, updateNote, showSaved, noteType, checklistItems]);
+  }, [note, title, tag, updateNote, showSaved, bodyText]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
@@ -426,12 +412,7 @@ export default function EditNoteScreen() {
       const filename = `${safeTitle}.${ext}`;
       const newUri = `${FileSystem.cacheDirectory}${filename}`;
       
-      let rawContent = '';
-      if (note.note_type === 'checklist' && note.checklist_items) {
-        rawContent = checklistItemsToText(note.checklist_items);
-      } else {
-        rawContent = ext === 'txt' ? bodyText : note.body;
-      }
+      let rawContent = note.body;
       
       let content = rawContent;
       
@@ -642,34 +623,6 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
-          <Pressable 
-            onPress={async () => {
-              if (noteType === 'text') {
-                const html = bodyText || '';
-                const items = textToChecklistItems(stripMarkdown(html));
-                setChecklistItems(items);
-                setNoteType('checklist');
-              } else {
-                const markdown = checklistItemsToText(checklistItems);
-                setBodyText(markdownToHtml(markdown));
-                setNoteType('text');
-              }
-              setIsDirty(true);
-            }} 
-            style={s.circleBtn} 
-            hitSlop={12}
-          >
-            {noteType === 'text' ? (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Polyline points="9 11 12 14 22 4" />
-                <Path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-              </Svg>
-            ) : (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 6h16M4 12h16M4 18h7" />
-              </Svg>
-            )}
-          </Pressable>
           <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
             <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
@@ -705,30 +658,19 @@ export default function EditNoteScreen() {
               />
 
               <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-                {noteType === 'text' ? (
-                  <NativeMarkdownEditor
-                    ref={richText}
-                    value={bodyText}
-                    onChange={(text) => {
-                      setBodyText(text);
-                      setIsDirty(true);
-                      if (settings.autoSave) updateNote(Number(id), { title, body: text, tag, folder_name: null });
-                    }}
-                    placeholder={loc.editor.bodyPlaceholder}
-                    minHeight={editorHeight}
-                    theme={theme}
-                    loc={loc}
-                    isEditMode={isEditMode}
-                  />
-                ) : (
-                  <ChecklistEditor
-                    items={checklistItems}
-                    onChange={(items) => {
-                      setChecklistItems(items);
-                      setIsDirty(true);
-                    }}
-                  />
-                )}
+                <NativeMarkdownEditor
+                  ref={richText}
+                  value={bodyText}
+                  onChange={(text) => {
+                    setBodyText(text);
+                    setIsDirty(true);
+                  }}
+                  placeholder={loc.editor.bodyPlaceholder}
+                  minHeight={editorHeight}
+                  theme={theme}
+                  loc={loc}
+                  isEditMode={isEditMode}
+                />
               </View>
             </View>
 
@@ -767,7 +709,9 @@ export default function EditNoteScreen() {
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              {/* Undo/Redo handled natively by keyboard now */}
+              <Pressable onPress={() => setIsEditMode(!isEditMode)} hitSlop={12}>
+                <Feather name={isEditMode ? "eye" : "edit-2"} size={20} color={colors.inkMid} />
+              </Pressable>
               
               <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
                   <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -779,7 +723,7 @@ export default function EditNoteScreen() {
           </View>
           
           {/* Markdown Toolbar - Rendered just above the keyboard but outside ScrollView */}
-          {noteType === 'text' && isEditMode && (
+          {isEditMode && (
             <MarkdownToolbar
               theme={theme}
               onInsert={(prefix, suffix) => {

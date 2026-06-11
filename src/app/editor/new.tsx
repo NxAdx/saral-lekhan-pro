@@ -12,6 +12,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
 import { Svg, Path, Circle, Rect, Polyline } from 'react-native-svg';
+import { Feather } from '@expo/vector-icons';
 import { useAiStore } from '../../store/aiStore';
 import { AiService } from '../../services/aiService';
 import { ThemedModal } from '../../components/ui/ThemedModal';
@@ -22,8 +23,7 @@ import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
 import { imageUriToDataUri } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
-import { ChecklistEditor } from '../../components/ui/ChecklistEditor';
-import { NoteType, ChecklistItem, textToChecklistItems, checklistItemsToText } from '../../types/note';
+
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -40,9 +40,6 @@ export default function NewNoteScreen() {
 
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
 
-  // Phase 4: Checklist mode state
-  const [noteType, setNoteType] = useState<NoteType>('text');
-  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
@@ -158,33 +155,6 @@ export default function NewNoteScreen() {
 
   
 
-  const handleSave = useCallback(async () => {
-    let html = '';
-    if (noteType === 'text') {
-      html = (bodyText) || '';
-    } else {
-      const markdown = checklistItemsToText(checklistItems);
-      html = markdownToHtml(markdown);
-    }
-    
-    if (title.trim() || html.trim()) {
-      if (noteId.current) {
-        useNotesStore.getState().updateNote(noteId.current, { 
-          title: title.trim(), 
-          body: html, 
-          tag: tag.trim(),
-          folder_name: null,
-          note_type: noteType,
-          checklist_items: noteType === 'checklist' ? checklistItems : null
-        });
-      } else {
-        const id = addNote({ 
-          title: title.trim(), 
-          body: html, 
-          tag: tag.trim(), 
-          pinned: false,
-          folder_name: null,
-          note_type: noteType,
           checklist_items: noteType === 'checklist' ? checklistItems : null
         });
         noteId.current = id;
@@ -479,34 +449,6 @@ export default function NewNoteScreen() {
           )}
         </View>
         <View style={s.headerRight}>
-          <Pressable 
-            onPress={async () => {
-              if (noteType === 'text') {
-                const html = bodyText || '';
-                const items = textToChecklistItems(stripMarkdown(html));
-                setChecklistItems(items);
-                setNoteType('checklist');
-              } else {
-                const markdown = checklistItemsToText(checklistItems);
-                setBodyText(markdownToHtml(markdown));
-                setNoteType('text');
-              }
-              setIsDirty(true);
-            }} 
-            style={s.circleBtn} 
-            hitSlop={12}
-          >
-            {noteType === 'text' ? (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Polyline points="9 11 12 14 22 4" />
-                <Path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-              </Svg>
-            ) : (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 6h16M4 12h16M4 18h7" />
-              </Svg>
-            )}
-          </Pressable>
           <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
@@ -525,14 +467,12 @@ export default function NewNoteScreen() {
           />
 
           <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-            {noteType === 'text' ? (
               <NativeMarkdownEditor
                     ref={richText}
                     value={bodyText}
                     onChange={(text) => {
                       setBodyText(text);
                       setIsDirty(true);
-                      
                     }}
                     placeholder={loc.editor.bodyPlaceholder}
                     minHeight={editorHeight}
@@ -540,23 +480,6 @@ export default function NewNoteScreen() {
                     loc={loc}
                     isEditMode={isEditMode}
                   />
-            ) : (
-              <ChecklistEditor
-                items={checklistItems}
-                onChange={(items) => {
-                  setChecklistItems(items);
-                  setIsDirty(true);
-                  if (settings.autoSave) {
-                    if (noteId.current) {
-                      useNotesStore.getState().updateNote(noteId.current, { note_type: 'checklist', checklist_items: items, folder_name: null });
-                    } else {
-                      const id = addNote({ title, body: '', tag, pinned: false, note_type: 'checklist', checklist_items: items, folder_name: null });
-                      noteId.current = id;
-                    }
-                  }
-                }}
-              />
-            )}
           </View>
 
 
@@ -595,7 +518,9 @@ export default function NewNoteScreen() {
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              {/* Undo/Redo handled natively by keyboard now */}
+              <Pressable onPress={() => setIsEditMode(!isEditMode)} hitSlop={12}>
+                <Feather name={isEditMode ? "eye" : "edit-2"} size={20} color={colors.inkMid} />
+              </Pressable>
               
               <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
                   <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -607,7 +532,7 @@ export default function NewNoteScreen() {
           </View>
           
           {/* Markdown Toolbar - Rendered just above the keyboard but outside ScrollView */}
-          {noteType === 'text' && isEditMode && (
+          {isEditMode && (
             <MarkdownToolbar
               theme={theme}
               onInsert={(prefix, suffix) => {

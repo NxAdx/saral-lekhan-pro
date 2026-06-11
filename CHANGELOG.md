@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.19.1 - Stability & UX Polish
+- **Live Preview:** Added an Edit/Preview toggle in the markdown editor for instant rich-text visualization.
+- **Selection Mode Fixes:** Added a "Select All" button and removed bouncy animations during bulk selection for a faster, stable experience.
+- **Checklist Removed:** Completely removed the Checklist feature to keep the app strictly Markdown-first.
+- **Crisp Icons:** Replaced custom toolbar icons with standard vector icons for a premium look.
+
 ## v2.19.0 - Editor Rewrite & UI Polish
 - **Pure Native Editor:** Replaced the legacy WebView rich text editor with a lightning-fast native Markdown text box. Perfect 60FPS scrolling and instant keyboard responsiveness.
 - **Dual-Mode Magic:** A new View Mode automatically renders your Markdown into beautiful headings and lists.
