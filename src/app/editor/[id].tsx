@@ -46,7 +46,6 @@ export default function EditNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
-  const [folderName, setFolderName] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
   
   // Phase 4: Checklist mode state
@@ -122,7 +121,7 @@ export default function EditNoteScreen() {
     if (note) {
       setTitle(note.title);
       setTag(note.tag || '');
-      setFolderName(note.folder_name || '');
+
       const stripped = note.body.replace(/<[^>]*>?/gm, ' ');
       setBodyText(stripped || '');
       setNoteType(note.note_type || 'text');
@@ -264,7 +263,7 @@ export default function EditNoteScreen() {
       setIsDirty(false);
       showSaved();
     }
-  }, [note, title, tag, folderName, updateNote, showSaved, noteType, checklistItems]);
+  }, [note, title, tag, updateNote, showSaved, noteType, checklistItems]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
@@ -724,7 +723,7 @@ export default function EditNoteScreen() {
                     onChange={(text) => {
                       setBodyText(text);
                       setIsDirty(true);
-                      if (settings.autoSave) updateNote(Number(id), { title, body: text, tag, folder_name: folderName });
+                      if (settings.autoSave) updateNote(Number(id), { title, body: text, tag, folder_name: null });
                     }}
                     placeholder={loc.editor.bodyPlaceholder}
                     minHeight={editorHeight}

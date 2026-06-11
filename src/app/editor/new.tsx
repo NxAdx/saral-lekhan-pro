@@ -37,7 +37,7 @@ export default function NewNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
-  const [folderName, setFolderName] = useState('');
+
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
 
   // Phase 4: Checklist mode state
@@ -198,7 +198,7 @@ export default function NewNoteScreen() {
       }
       setIsDirty(false);
     }
-  }, [title, tag, folderName, addNote, noteType, checklistItems]);
+  }, [title, tag, addNote, noteType, checklistItems]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
@@ -555,9 +555,9 @@ export default function NewNoteScreen() {
                   setIsDirty(true);
                   if (settings.autoSave) {
                     if (noteId.current) {
-                      useNotesStore.getState().updateNote(noteId.current, { note_type: 'checklist', checklist_items: items, folder_name: folderName });
+                      useNotesStore.getState().updateNote(noteId.current, { note_type: 'checklist', checklist_items: items, folder_name: null });
                     } else {
-                      const id = addNote({ title, body: '', tag, pinned: false, note_type: 'checklist', checklist_items: items, folder_name: folderName });
+                      const id = addNote({ title, body: '', tag, pinned: false, note_type: 'checklist', checklist_items: items, folder_name: null });
                       noteId.current = id;
                     }
                   }
