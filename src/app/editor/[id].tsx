@@ -421,8 +421,7 @@ export default function EditNoteScreen() {
           '---',
           `id: ${note.id}`,
           `created: ${new Date(note.created_at).toISOString()}`,
-          `updated: ${new Date(note.updated_at).toISOString()}`,
-          `type: ${note.note_type || 'text'}`
+          `updated: ${new Date(note.updated_at).toISOString()}`
         ];
         if (note.tag) frontmatter.push(`tags: [${note.tag}]`);
         if (note.folder_name) frontmatter.push(`folder: "${note.folder_name}"`);

@@ -7,7 +7,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { Svg, Path } from 'react-native-svg';
+import { Svg, Path, Rect } from 'react-native-svg';
 import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
 import { shallow } from 'zustand/shallow';
 import { useTheme } from '../../store/themeStore';

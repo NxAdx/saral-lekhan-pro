@@ -1,6 +1,5 @@
 import JSZip from 'jszip';
 import * as FileSystem from 'expo-file-system';
-import { NoteType, ChecklistItem, textToChecklistItems } from '../types/note';
 import { useNotesStore } from '../store/notesStore';
 import { log } from './Logger';
 
@@ -67,20 +66,10 @@ export async function importGoogleKeepZip(zipUri: string): Promise<ImportResult>
         
         let title = keepNote.title || '';
         let body = '';
-        let noteType: NoteType = 'text';
-        let checklistItems: ChecklistItem[] | null = null;
-        
         // Determine type and extract content
         if (keepNote.listContent && keepNote.listContent.length > 0) {
-          noteType = 'checklist';
-          checklistItems = keepNote.listContent.map((item, index) => ({
-            id: `keep_li_${Date.now()}_${index}`,
-            text: item.text || '',
-            isChecked: item.isChecked || false,
-            order: index
-          }));
+          body = keepNote.listContent.map(item => `- [${item.isChecked ? 'x' : ' '}] ${item.text || ''}`).join('\n');
         } else if (keepNote.textContent) {
-          noteType = 'text';
           body = keepNote.textContent;
           // Basic conversion to markdown if needed, but textContent is usually plain text
         } else if (!title) {
@@ -98,8 +87,6 @@ export async function importGoogleKeepZip(zipUri: string): Promise<ImportResult>
           body,
           tag,
           pinned: keepNote.isPinned || false,
-          note_type: noteType,
-          checklist_items: checklistItems,
           labels: allLabels.length > 0 ? allLabels : null
         });
         

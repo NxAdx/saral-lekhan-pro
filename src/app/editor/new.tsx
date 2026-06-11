@@ -34,6 +34,7 @@ export default function NewNoteScreen() {
   const loc = strings[settings.language] || strings['En'];
 
   const addNote = useNotesStore((s) => s.addNote);
+  const updateNote = useNotesStore((s) => s.updateNote);
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
@@ -171,8 +172,8 @@ export default function NewNoteScreen() {
       });
       noteId.current = id;
     }
-    showSaved();
-  }, [title, tag, bodyText, updateNote, addNote, showSaved]);
+    setAppAlert({ visible: true, title: loc.common?.success || 'Saved', subtitle: loc.editor?.savedSubtitle || 'Note saved' });
+  }, [title, tag, bodyText, updateNote, addNote, loc]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
