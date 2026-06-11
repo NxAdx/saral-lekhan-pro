@@ -153,15 +153,26 @@ export default function NewNoteScreen() {
     return () => { sub1.remove(); sub2.remove(); };
   }, []);
 
-  
-
-          checklist_items: noteType === 'checklist' ? checklistItems : null
-        });
-        noteId.current = id;
-      }
-      setIsDirty(false);
+  const handleSave = useCallback(() => {
+    if (title.trim() === '' && bodyText.trim() === '') return;
+    
+    if (noteId.current) {
+      updateNote(noteId.current, {
+        title,
+        body: bodyText,
+        tag,
+      });
+    } else {
+      const id = addNote({
+        title,
+        body: bodyText,
+        tag,
+        pinned: false,
+      });
+      noteId.current = id;
     }
-  }, [title, tag, addNote, noteType, checklistItems]);
+    showSaved();
+  }, [title, tag, bodyText, updateNote, addNote, showSaved]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
