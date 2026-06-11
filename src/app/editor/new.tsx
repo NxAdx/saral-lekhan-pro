@@ -9,8 +9,8 @@ import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
-import { Svg, Path, Circle, Rect } from 'react-native-svg';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
+import { Svg, Path, Circle, Rect, Polyline } from 'react-native-svg';
 import { useAiStore } from '../../store/aiStore';
 import { AiService } from '../../services/aiService';
 import { ThemedModal } from '../../components/ui/ThemedModal';
@@ -21,6 +21,8 @@ import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
 import { imageUriToDataUri } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
+import { ChecklistEditor } from '../../components/ui/ChecklistEditor';
+import { NoteType, ChecklistItem, textToChecklistItems, checklistItemsToText } from '../../types/note';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -34,7 +36,12 @@ export default function NewNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
+  const [folderName, setFolderName] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
+
+  // Phase 4: Checklist mode state
+  const [noteType, setNoteType] = useState<NoteType>('text');
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
@@ -157,17 +164,39 @@ export default function NewNoteScreen() {
   }, [editorListBreakoutScript]);
 
   const handleSave = useCallback(async () => {
-    const html = await richText.current?.getContentHtml();
-    if (title.trim() || (html && html.trim())) {
+    let html = '';
+    if (noteType === 'text') {
+      html = (await richText.current?.getContentHtml()) || '';
+    } else {
+      const markdown = checklistItemsToText(checklistItems);
+      html = markdownToHtml(markdown);
+    }
+    
+    if (title.trim() || html.trim()) {
       if (noteId.current) {
-        useNotesStore.getState().updateNote(noteId.current, { title: title.trim(), body: html || '', tag: tag.trim() });
+        useNotesStore.getState().updateNote(noteId.current, { 
+          title: title.trim(), 
+          body: html, 
+          tag: tag.trim(),
+          folder_name: folderName.trim() || null,
+          note_type: noteType,
+          checklist_items: noteType === 'checklist' ? checklistItems : null
+        });
       } else {
-        const id = addNote({ title: title.trim(), body: html || '', tag: tag.trim(), pinned: false });
+        const id = addNote({ 
+          title: title.trim(), 
+          body: html, 
+          tag: tag.trim(), 
+          pinned: false,
+          folder_name: folderName.trim() || null,
+          note_type: noteType,
+          checklist_items: noteType === 'checklist' ? checklistItems : null
+        });
         noteId.current = id;
       }
       setIsDirty(false);
     }
-  }, [title, tag, addNote]);
+  }, [title, tag, folderName, addNote, noteType, checklistItems]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
@@ -407,6 +436,7 @@ export default function NewNoteScreen() {
     tagRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.strokeDim + '55' },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
     tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
+    folderIcon: { marginRight: 6, opacity: 0.7 },
 
     bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
     bottomBarText: { ...type.labelMedium, fontFamily: font.mono, color: colors.inkDim },
@@ -454,6 +484,34 @@ export default function NewNoteScreen() {
           )}
         </View>
         <View style={s.headerRight}>
+          <Pressable 
+            onPress={async () => {
+              if (noteType === 'text') {
+                const html = await richText.current?.getContentHtml() || '';
+                const items = textToChecklistItems(stripMarkdown(html));
+                setChecklistItems(items);
+                setNoteType('checklist');
+              } else {
+                const markdown = checklistItemsToText(checklistItems);
+                richText.current?.setContentHTML(markdownToHtml(markdown));
+                setNoteType('text');
+              }
+              setIsDirty(true);
+            }} 
+            style={s.circleBtn} 
+            hitSlop={12}
+          >
+            {noteType === 'text' ? (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Polyline points="9 11 12 14 22 4" />
+                <Path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </Svg>
+            ) : (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M4 6h16M4 12h16M4 18h7" />
+              </Svg>
+            )}
+          </Pressable>
           <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
@@ -472,8 +530,9 @@ export default function NewNoteScreen() {
           />
 
           <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-            <RichEditor
-              ref={richText}
+            {noteType === 'text' ? (
+              <RichEditor
+                ref={richText}
               initialContentHTML=""
               placeholder={loc.editor.bodyPlaceholder}
               editorStyle={{
@@ -493,9 +552,9 @@ export default function NewNoteScreen() {
                 setIsDirty(true);
                 if (settings.autoSave && (title.trim() || stripped.trim())) {
                   if (noteId.current) {
-                    useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag });
+                    useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag, folder_name: folderName });
                   } else {
-                    const id = addNote({ title, body: html, tag, pinned: false });
+                    const id = addNote({ title, body: html, tag, pinned: false, note_type: 'text', folder_name: folderName });
                     noteId.current = id;
                   }
                 }
@@ -509,20 +568,54 @@ export default function NewNoteScreen() {
               scrollEnabled={false}
               useContainer={false}
             />
+            ) : (
+              <ChecklistEditor
+                items={checklistItems}
+                onChange={(items) => {
+                  setChecklistItems(items);
+                  setIsDirty(true);
+                  if (settings.autoSave) {
+                    if (noteId.current) {
+                      useNotesStore.getState().updateNote(noteId.current, { note_type: 'checklist', checklist_items: items, folder_name: folderName });
+                    } else {
+                      const id = addNote({ title, body: '', tag, pinned: false, note_type: 'checklist', checklist_items: items, folder_name: folderName });
+                      noteId.current = id;
+                    }
+                  }
+                }}
+              />
+            )}
           </View>
 
 
           <View style={s.tagRow}>
-            <Text style={s.tagHash}>#</Text>
-            <TextInput
-              style={s.tagInput}
-              placeholder={loc.editor.tagPlaceholder}
-              placeholderTextColor={colors.inkDim + '88'}
-              value={tag}
-              onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
-              autoCapitalize="none"
-              onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
-            />
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={s.tagHash}>#</Text>
+              <TextInput
+                style={s.tagInput}
+                placeholder={loc.editor.tagPlaceholder}
+                placeholderTextColor={colors.inkDim + '88'}
+                value={tag}
+                onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
+                autoCapitalize="none"
+                onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+              />
+            </View>
+            <View style={{ width: 1, height: 20, backgroundColor: colors.strokeDim, marginHorizontal: 12 }} />
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={s.folderIcon}>
+                <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </Svg>
+              <TextInput
+                style={s.tagInput}
+                placeholder={loc.home?.folderPlaceholder || "Folder..."}
+                placeholderTextColor={colors.inkDim + '88'}
+                value={folderName}
+                onChangeText={(t) => { setFolderName(t); setIsDirty(true); }}
+                autoCapitalize="words"
+                onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+              />
+            </View>
           </View>
         </ScrollView>
 
@@ -565,8 +658,9 @@ export default function NewNoteScreen() {
             </View>
           </View>
 
-        <RichToolbar
-          editor={richText}
+        {noteType === 'text' && (
+          <RichToolbar
+            editor={richText}
           style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
           iconTint={colors.ink}
           selectedIconTint={colors.accent}
@@ -631,9 +725,9 @@ export default function NewNoteScreen() {
           }}
           onInsertLink={() => setShowLinkModal(true)}
           onPressAddImage={() => setShowImageModal(true)}
-          insertPurnaViram={() => insertHindiPunctuation('\u0964')}
           insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
         />
+        )}
 
         <View style={s.bottomBar}>
           <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>

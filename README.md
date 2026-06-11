@@ -21,11 +21,14 @@
 | Feature | Description |
 |---------|-------------|
 | Rich Text Editor | Bold, italic, underline, H1/H2, blockquote, lists, checkboxes, code blocks, images, and links |
+| Checklist Mode | Dedicated interactive checklist notes with drag-and-drop reordering |
+| Folder Organization | Group and filter your notes by custom folders |
+| Google Keep Import | Directly import Google Keep Takeout `.zip` files seamlessly |
 | Spark AI | Optional AI writing help with your own Gemini API key |
 | Themes | Multiple handcrafted themes with light and dark mode support |
 | Privacy First | No accounts, no tracking, no ads, local-first data storage, optional biometric lock |
 | Multi-Language | Full UI in English, Hindi, and more, including Hindi punctuation support |
-| Export | Share notes as beautifully formatted PDFs |
+| Export | Share notes as beautifully formatted PDFs or Markdown with YAML frontmatter |
 | Trash & Recovery | Recover deleted notes or empty all trash |
 | Find & Replace | Built-in search and replace in the editor |
 | Tags | Organize notes with tags for quick search |

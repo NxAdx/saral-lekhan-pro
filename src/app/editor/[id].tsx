@@ -10,7 +10,7 @@ import { useTheme } from '../../store/themeStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { strings } from '../../i18n/strings';
 import { wordCount, markdownToHtml, stripMarkdown } from '../../utils/markdown';
-import { Svg, Path, Circle, Rect } from 'react-native-svg';
+import { Svg, Path, Circle, Rect, Polyline } from 'react-native-svg';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
@@ -25,6 +25,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
 import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
+import { ChecklistEditor } from '../../components/ui/ChecklistEditor';
+import { NoteType, ChecklistItem, textToChecklistItems, checklistItemsToText } from '../../types/note';
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -43,7 +45,12 @@ export default function EditNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
+  const [folderName, setFolderName] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
+  
+  // Phase 4: Checklist mode state
+  const [noteType, setNoteType] = useState<NoteType>('text');
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   const [saved, setSaved] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -113,8 +120,11 @@ export default function EditNoteScreen() {
     if (note) {
       setTitle(note.title);
       setTag(note.tag || '');
+      setFolderName(note.folder_name || '');
       const stripped = note.body.replace(/<[^>]*>?/gm, ' ');
       setBodyText(stripped || '');
+      setNoteType(note.note_type || 'text');
+      setChecklistItems(note.checklist_items || []);
     }
 
     // Inject List & Quote Breakout Script — uses 'beforeinput' instead of
@@ -230,13 +240,29 @@ export default function EditNoteScreen() {
   }, [isDirty, settings.autoSave]);
 
   const handleSave = useCallback(async () => {
-    const html = await richText.current?.getContentHtml();
+    let html = note?.body || '';
+    if (noteType === 'text') {
+      html = (await richText.current?.getContentHtml()) || '';
+    } else {
+      // In checklist mode, we serialize items to markdown text for backward compatibility
+      // so older app versions can still read it as a text note.
+      const markdown = checklistItemsToText(checklistItems);
+      html = markdownToHtml(markdown);
+    }
+    
     if (note) {
-      updateNote(note.id, { title: title.trim(), body: html?.trim() || '', tag: tag.trim() });
+      updateNote(note.id, { 
+        title: title.trim(), 
+        body: html?.trim() || '', 
+        tag: tag.trim(),
+        folder_name: folderName.trim() || null,
+        note_type: noteType,
+        checklist_items: noteType === 'checklist' ? checklistItems : null
+      });
       setIsDirty(false);
       showSaved();
     }
-  }, [note, title, tag, updateNote, showSaved]);
+  }, [note, title, tag, folderName, updateNote, showSaved, noteType, checklistItems]);
 
   const handleDone = useCallback(async () => {
     Keyboard.dismiss();
@@ -409,8 +435,32 @@ export default function EditNoteScreen() {
       const safeTitle = (note.title || 'Untitled_Note').replace(/[^a-zA-Z0-9 -]/g, '').trim().replace(/ /g, '_');
       const filename = `${safeTitle}.${ext}`;
       const newUri = `${FileSystem.cacheDirectory}${filename}`;
-      // Basic export: TXT gets unformatted plain text, MD gets the rich HTML (unless we add a Turndown parser)
-      const content = ext === 'txt' ? bodyText : note.body;
+      
+      let rawContent = '';
+      if (note.note_type === 'checklist' && note.checklist_items) {
+        rawContent = checklistItemsToText(note.checklist_items);
+      } else {
+        rawContent = ext === 'txt' ? bodyText : note.body;
+      }
+      
+      let content = rawContent;
+      
+      if (ext === 'md') {
+        const frontmatter = [
+          '---',
+          `id: ${note.id}`,
+          `created: ${new Date(note.created_at).toISOString()}`,
+          `updated: ${new Date(note.updated_at).toISOString()}`,
+          `type: ${note.note_type || 'text'}`
+        ];
+        if (note.tag) frontmatter.push(`tags: [${note.tag}]`);
+        if (note.folder_name) frontmatter.push(`folder: "${note.folder_name}"`);
+        if (note.is_pinned) frontmatter.push(`pinned: true`);
+        frontmatter.push('---', '');
+        
+        content = frontmatter.join('\n') + '\n\n' + rawContent;
+      }
+
       await FileSystem.writeAsStringAsync(newUri, content);
       await Sharing.shareAsync(newUri, { dialogTitle: safeTitle });
     } catch (e) {
@@ -532,6 +582,7 @@ export default function EditNoteScreen() {
     tagRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.strokeDim + '55' },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
     tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
+    folderIcon: { marginRight: 6, opacity: 0.7 },
     bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
     bottomBarText: { ...type.labelMedium, fontFamily: font.mono, color: colors.inkDim },
 
@@ -601,6 +652,34 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
+          <Pressable 
+            onPress={async () => {
+              if (noteType === 'text') {
+                const html = await richText.current?.getContentHtml() || '';
+                const items = textToChecklistItems(stripMarkdown(html));
+                setChecklistItems(items);
+                setNoteType('checklist');
+              } else {
+                const markdown = checklistItemsToText(checklistItems);
+                richText.current?.setContentHTML(markdownToHtml(markdown));
+                setNoteType('text');
+              }
+              setIsDirty(true);
+            }} 
+            style={s.circleBtn} 
+            hitSlop={12}
+          >
+            {noteType === 'text' ? (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Polyline points="9 11 12 14 22 4" />
+                <Path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </Svg>
+            ) : (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M4 6h16M4 12h16M4 18h7" />
+              </Svg>
+            )}
+          </Pressable>
           <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
             <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
@@ -636,8 +715,9 @@ export default function EditNoteScreen() {
               />
 
               <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-                <RichEditor
-                  key={id}
+                {noteType === 'text' ? (
+                  <RichEditor
+                    key={id}
                   ref={richText}
                   initialContentHTML=""
                   placeholder={loc.editor.bodyPlaceholder}
@@ -671,20 +751,46 @@ export default function EditNoteScreen() {
                     setEditorHeight(Math.max(400, h + 100));
                   }}
                 />
+                ) : (
+                  <ChecklistEditor
+                    items={checklistItems}
+                    onChange={(items) => {
+                      setChecklistItems(items);
+                      setIsDirty(true);
+                    }}
+                  />
+                )}
               </View>
             </View>
 
             <View style={s.tagRow}>
-              <Text style={s.tagHash}>#</Text>
-              <TextInput
-                style={s.tagInput}
-                placeholder={loc.editor.tagPlaceholder}
-                placeholderTextColor={colors.inkDim + '88'}
-                value={tag}
-                onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
-                autoCapitalize="none"
-                onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
-              />
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={s.tagHash}>#</Text>
+                <TextInput
+                  style={s.tagInput}
+                  placeholder={loc.editor.tagPlaceholder}
+                  placeholderTextColor={colors.inkDim + '88'}
+                  value={tag}
+                  onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
+                  autoCapitalize="none"
+                  onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+                />
+              </View>
+              <View style={{ width: 1, height: 20, backgroundColor: colors.strokeDim, marginHorizontal: 12 }} />
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={s.folderIcon}>
+                  <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </Svg>
+                <TextInput
+                  style={s.tagInput}
+                  placeholder={loc.home?.folderPlaceholder || "Folder..."}
+                  placeholderTextColor={colors.inkDim + '88'}
+                  value={folderName}
+                  onChangeText={(t) => { setFolderName(t); setIsDirty(true); }}
+                  autoCapitalize="words"
+                  onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+                />
+              </View>
             </View>
           </ScrollView>
 
@@ -727,8 +833,9 @@ export default function EditNoteScreen() {
             </View>
           </View>
 
-          <RichToolbar
-            editor={richText}
+          {noteType === 'text' && (
+            <RichToolbar
+              editor={richText}
             style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
             iconTint={colors.ink}
             selectedIconTint={colors.accent}
@@ -793,9 +900,9 @@ export default function EditNoteScreen() {
             }}
             onInsertLink={() => setShowLinkModal(true)}
             onPressAddImage={() => setShowImageModal(true)}
-            insertPurnaViram={() => insertHindiPunctuation('\u0964')}
             insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
           />
+          )}
 
           <View style={s.bottomBar}>
             <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>

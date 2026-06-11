@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as SQLite from 'expo-sqlite';
 import { log } from '../utils/Logger';
+import type { NoteType, SyncStatus, ChecklistItem, ChecklistSortOption } from '../types/note';
 
 // Open (or create) the SQLite database
 const DB_NAME = 'saral_lekhan.db';
@@ -18,6 +19,7 @@ async function reopenDatabaseConnection() {
   db = SQLite.openDatabase(DB_NAME);
 }
 
+// ─── Note Interface (enriched with simple-notes-sync fields) ───────────
 export interface Note {
   id: number;
   title: string;
@@ -27,18 +29,57 @@ export interface Note {
   updated_at: number;
   pinned: boolean;
   is_deleted: boolean;
+  // ─── New fields (Phase 1) ────────────────────────────────────────────
+  note_type: NoteType;
+  checklist_items: ChecklistItem[] | null;
+  checklist_sort: ChecklistSortOption | null;
+  folder_name: string | null;
+  sync_status: SyncStatus;
+  labels: string[] | null;
 }
 
 const ALL_TAG = '__all__';
 export const ALL_TAG_ID = ALL_TAG;
+const ALL_FOLDER = '__all__';
+export const ALL_FOLDER_ID = ALL_FOLDER;
 
+// ─── Safe column migration list ────────────────────────────────────────
+// Each entry is a column that should exist. The migrator will check each
+// one via pragma_table_info and ADD it if missing. This is the same pattern
+// we already used for `is_deleted`, but generalized to many columns.
+const REQUIRED_COLUMNS: { name: string; definition: string }[] = [
+  { name: 'is_deleted',      definition: 'INTEGER DEFAULT 0' },
+  { name: 'note_type',       definition: "TEXT DEFAULT 'text'" },
+  { name: 'checklist_items', definition: 'TEXT DEFAULT NULL' },
+  { name: 'checklist_sort',  definition: 'TEXT DEFAULT NULL' },
+  { name: 'folder_name',     definition: 'TEXT DEFAULT NULL' },
+  { name: 'sync_status',     definition: "TEXT DEFAULT 'local_only'" },
+  { name: 'labels',          definition: 'TEXT DEFAULT NULL' },
+];
+
+// ─── AddNote input type ────────────────────────────────────────────────
+// Only title/body/tag/pinned are required. All enriched fields are optional
+// so existing call sites (which only pass the original 4 fields) still compile.
+type AddNoteInput = {
+  title: string;
+  body: string;
+  tag: string;
+  pinned: boolean;
+  note_type?: NoteType;
+  checklist_items?: ChecklistItem[] | null;
+  checklist_sort?: ChecklistSortOption | null;
+  folder_name?: string | null;
+  labels?: string[] | null;
+};
+
+// ─── Store Interface ───────────────────────────────────────────────────
 interface NotesState {
   notes: Note[];
   isLoaded: boolean;
   initDB: () => void;
   loadNotes: () => void;
-  addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>) => number;
-  updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned'>>) => void;
+  addNote: (note: AddNoteInput) => number;
+  updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned' | 'note_type' | 'checklist_items' | 'checklist_sort' | 'folder_name' | 'labels'>>) => void;
   deleteNote: (id: number) => void;
   restoreNote: (id: number) => void;
   permanentlyDeleteNote: (id: number) => void;
@@ -46,10 +87,66 @@ interface NotesState {
   getNotesFilteredByTag: (tag: string) => Note[];
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
+  // ─── New methods (Phase 1 & 5) ────────────────────────────────────
+  moveNote: (id: number, folderName: string | null) => void;
+  getUniqueFolders: () => string[];
+  getNotesInFolder: (folder: string | null) => Note[];
   resetDB: () => Promise<void>;
   bootstrap: (initialNotesJson?: string) => void;
 }
 
+// ─── Row → Note parser ─────────────────────────────────────────────────
+// Safely parses a raw SQLite row into our enriched Note interface.
+// All new fields have safe defaults so existing rows (without these columns) work.
+function parseNoteRow(row: any): Note {
+  let checklistItems: ChecklistItem[] | null = null;
+  if (row.checklist_items) {
+    try {
+      checklistItems = JSON.parse(row.checklist_items);
+    } catch (e) {
+      log.warn('Failed to parse checklist_items JSON', e as any);
+    }
+  }
+
+  let labels: string[] | null = null;
+  if (row.labels) {
+    try {
+      labels = JSON.parse(row.labels);
+    } catch (e) {
+      log.warn('Failed to parse labels JSON', e as any);
+    }
+  }
+
+  return {
+    id: row.id,
+    title: row.title || '',
+    body: row.body || '',
+    tag: row.tag || '',
+    created_at: row.created_at || 0,
+    updated_at: row.updated_at || 0,
+    pinned: row.pinned === 1,
+    is_deleted: row.is_deleted === 1,
+    note_type: (row.note_type as NoteType) || 'text',
+    checklist_items: checklistItems,
+    checklist_sort: (row.checklist_sort as ChecklistSortOption) || null,
+    folder_name: row.folder_name || null,
+    sync_status: (row.sync_status as SyncStatus) || 'local_only',
+    labels: labels,
+  };
+}
+
+// ─── Sort helper: pinned notes float to top ────────────────────────────
+function sortNotes(notes: Note[]): Note[] {
+  return [...notes].sort((a, b) => {
+    // Pinned notes always come first
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    // Within the same pin group, sort by updated_at descending
+    return b.updated_at - a.updated_at;
+  });
+}
+
+// ─── Zustand Store ─────────────────────────────────────────────────────
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   isLoaded: false,
@@ -69,7 +166,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   initDB: () => {
     db.transaction((tx: any) => {
-      // Step 1: Ensure the notes table exists with all columns.
+      // Step 1: Ensure the notes table exists with the original schema.
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS notes (
           id INTEGER PRIMARY KEY NOT NULL,
@@ -82,34 +179,55 @@ export const useNotesStore = create<NotesState>((set, get) => ({
           is_deleted INTEGER DEFAULT 0
         );`, [],
         () => {
-          // Step 2: Safe migration — ONLY alter if column is actually missing.
-          // This prevents the "duplicate column name: is_deleted" crash on existing installs.
-          tx.executeSql(
-            `SELECT COUNT(*) as count FROM pragma_table_info('notes') WHERE name='is_deleted';`,
-            [],
-            (_: any, { rows }: any) => {
-              const hasColumn = rows.item(0)?.count > 0;
-              if (!hasColumn) {
-                tx.executeSql(
-                  `ALTER TABLE notes ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
-                  [],
-                  () => get().loadNotes(),
-                  (_: any, err: any) => {
-                    log.warn('Migration ALTER failed', err as any);
-                    get().loadNotes();
-                    return true;
-                  }
-                );
-              } else {
-                get().loadNotes();
+          // Step 2: Run safe migrations for all required columns.
+          // We check each column via pragma_table_info and only ALTER if missing.
+          // This is chained sequentially to avoid transaction conflicts.
+          let migrationsApplied = 0;
+
+          const runMigration = (index: number) => {
+            if (index >= REQUIRED_COLUMNS.length) {
+              // All migrations checked — load notes
+              if (migrationsApplied > 0) {
+                log.info(`Schema migration complete: ${migrationsApplied} column(s) added`);
               }
-            },
-            (_: any, err: any) => {
-              log.warn('pragma_table_info check failed, loading anyway', err as any);
               get().loadNotes();
-              return true;
+              return;
             }
-          );
+
+            const col = REQUIRED_COLUMNS[index];
+            tx.executeSql(
+              `SELECT COUNT(*) as count FROM pragma_table_info('notes') WHERE name=?;`,
+              [col.name],
+              (_: any, { rows }: any) => {
+                const hasColumn = rows.item(0)?.count > 0;
+                if (!hasColumn) {
+                  tx.executeSql(
+                    `ALTER TABLE notes ADD COLUMN ${col.name} ${col.definition};`,
+                    [],
+                    () => {
+                      migrationsApplied++;
+                      log.info(`Migration: added column '${col.name}'`);
+                      runMigration(index + 1);
+                    },
+                    (_: any, err: any) => {
+                      log.warn(`Migration ALTER failed for '${col.name}'`, err as any);
+                      runMigration(index + 1);
+                      return true;
+                    }
+                  );
+                } else {
+                  runMigration(index + 1);
+                }
+              },
+              (_: any, err: any) => {
+                log.warn(`pragma check failed for '${col.name}', skipping`, err as any);
+                runMigration(index + 1);
+                return true;
+              }
+            );
+          };
+
+          runMigration(0);
         }
       );
     }, (err: any) => {
@@ -125,11 +243,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       tx.executeSql(
         `SELECT * FROM notes ORDER BY updated_at DESC;`, [],
         (_: any, { rows: { _array } }: any) => {
-          const loadedNotes = _array.map((row: any) => ({
-            ...row,
-            pinned: row.pinned === 1,
-            is_deleted: row.is_deleted === 1
-          }));
+          const loadedNotes = _array.map(parseNoteRow);
           log.info(`Loaded ${loadedNotes.length} notes`);
           set({ notes: loadedNotes, isLoaded: true });
         }
@@ -150,15 +264,30 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       updated_at: now,
       pinned: note.pinned ?? false,
       is_deleted: false,
+      note_type: note.note_type || 'text',
+      checklist_items: note.checklist_items || null,
+      checklist_sort: note.checklist_sort || null,
+      folder_name: note.folder_name || null,
+      sync_status: 'local_only',
+      labels: note.labels || null,
     };
 
     log.info(`Adding new note: ${newNote.title}`);
     set((state) => ({ notes: [newNote, ...state.notes] }));
 
+    const checklistJson = newNote.checklist_items ? JSON.stringify(newNote.checklist_items) : null;
+    const labelsJson = newNote.labels ? JSON.stringify(newNote.labels) : null;
+
     db.transaction((tx: any) => {
       tx.executeSql(
-        `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0);`,
-        [newNote.id, newNote.title, newNote.body, newNote.tag, newNote.created_at, newNote.updated_at, newNote.pinned ? 1 : 0]
+        `INSERT INTO notes (id, title, body, tag, created_at, updated_at, pinned, is_deleted, note_type, checklist_items, checklist_sort, folder_name, sync_status, labels)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?);`,
+        [
+          newNote.id, newNote.title, newNote.body, newNote.tag,
+          newNote.created_at, newNote.updated_at, newNote.pinned ? 1 : 0,
+          newNote.note_type, checklistJson, newNote.checklist_sort,
+          newNote.folder_name, newNote.sync_status, labelsJson
+        ]
       );
     }, (err: any) => {
       log.error("Failed to insert note", err);
@@ -172,7 +301,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const prev = get().notes.find(x => x.id === id);
     if (!prev) return;
 
-    const merged = { ...prev, ...updates, updated_at: now };
+    const merged = { ...prev, ...updates, updated_at: now, sync_status: 'pending' as SyncStatus };
 
     set((state) => ({
       notes: state.notes.map((n) =>
@@ -180,10 +309,21 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       ),
     }));
 
+    const checklistJson = merged.checklist_items ? JSON.stringify(merged.checklist_items) : null;
+    const labelsJson = merged.labels ? JSON.stringify(merged.labels) : null;
+
     db.transaction((tx: any) => {
       tx.executeSql(
-        `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ? WHERE id = ?;`,
-        [merged.title, merged.body, merged.tag, merged.updated_at, merged.pinned ? 1 : 0, id]
+        `UPDATE notes SET title = ?, body = ?, tag = ?, updated_at = ?, pinned = ?,
+         note_type = ?, checklist_items = ?, checklist_sort = ?,
+         folder_name = ?, sync_status = ?, labels = ?
+         WHERE id = ?;`,
+        [
+          merged.title, merged.body, merged.tag, merged.updated_at, merged.pinned ? 1 : 0,
+          merged.note_type, checklistJson, merged.checklist_sort,
+          merged.folder_name, merged.sync_status, labelsJson,
+          id
+        ]
       );
     }, (err: any) => {
       log.error("Failed to update note", err);
@@ -193,8 +333,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   getNotesFilteredByTag: (tag) => {
     const { notes } = get();
     const activeNotes = notes.filter(n => !n.is_deleted);
-    if (tag === ALL_TAG_ID) return [...activeNotes].sort((a, b) => b.updated_at - a.updated_at);
-    return activeNotes.filter((n) => n.tag === tag).sort((a, b) => b.updated_at - a.updated_at);
+    if (tag === ALL_TAG_ID) return sortNotes(activeNotes);
+    return sortNotes(activeNotes.filter((n) => n.tag === tag));
   },
 
   deleteNote: (id) => {
@@ -240,6 +380,49 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   getUniqueTags: () => {
     const tags = new Set(get().notes.filter(n => !n.is_deleted).map((n) => n.tag).filter(Boolean));
     return Array.from(tags).sort();
+  },
+
+  // ─── New: Folder Organization (Phase 5) ──────────────────────────────
+
+  moveNote: (id, folderName) => {
+    const now = Date.now();
+    const prev = get().notes.find(x => x.id === id);
+    if (!prev) return;
+    if (prev.folder_name === folderName) return; // no-op if same folder
+
+    const merged = { ...prev, folder_name: folderName, updated_at: now, sync_status: 'pending' as SyncStatus };
+
+    set((state) => ({
+      notes: state.notes.map((n) => n.id === id ? merged : n),
+    }));
+
+    db.transaction((tx: any) => {
+      tx.executeSql(
+        `UPDATE notes SET folder_name = ?, updated_at = ?, sync_status = ? WHERE id = ?;`,
+        [folderName, now, 'pending', id]
+      );
+    }, (err: any) => {
+      log.error("Failed to move note", err);
+    });
+  },
+
+  getUniqueFolders: () => {
+    const folders = new Set(
+      get().notes
+        .filter(n => !n.is_deleted && n.folder_name)
+        .map(n => n.folder_name!)
+    );
+    return Array.from(folders).sort();
+  },
+
+  getNotesInFolder: (folder) => {
+    const { notes } = get();
+    const activeNotes = notes.filter(n => !n.is_deleted);
+    if (folder === null) {
+      // Root folder — notes without a folder_name
+      return sortNotes(activeNotes.filter(n => !n.folder_name));
+    }
+    return sortNotes(activeNotes.filter(n => n.folder_name === folder));
   },
 
   resetDB: async () => {

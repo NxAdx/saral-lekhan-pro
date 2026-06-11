@@ -52,6 +52,7 @@ export default function HomeScreen() {
   const type = useTypography();
 
   const [selectedTag, setSelectedTag] = useState<string>(ALL_TAG_ID);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -64,8 +65,14 @@ export default function HomeScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
-  const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
-  const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
+  // Get notes for the selected folder, then filter by tag
+  const allNotesInFolder = useNotesStore((s) => s.getNotesInFolder(selectedFolder));
+  const notes = useMemo(() => {
+    if (selectedTag === ALL_TAG_ID) return allNotesInFolder;
+    return allNotesInFolder.filter(n => n.tag === selectedTag);
+  }, [allNotesInFolder, selectedTag]);
+  
+  const getUniqueFolders = useNotesStore((s) => s.getUniqueFolders);
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
 
@@ -84,7 +91,12 @@ export default function HomeScreen() {
     runUpdateCheck();
   }, [router]);
 
-  const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
+  const uniqueFolders = useMemo(() => getUniqueFolders(), [getUniqueFolders, isLoaded]);
+  const uniqueTags = useMemo(() => {
+    const tags = new Set<string>();
+    allNotesInFolder.forEach(n => { if (n.tag) tags.add(n.tag); });
+    return Array.from(tags).sort();
+  }, [allNotesInFolder]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -182,6 +194,32 @@ export default function HomeScreen() {
     }
   }, [addNote, loc, router]);
 
+  const handleImportKeepZip = useCallback(async () => {
+    setShowImportModal(false);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/zip', 'application/x-zip-compressed'],
+        copyToCacheDirectory: true
+      });
+      if (result.canceled || !result.assets || result.assets.length === 0) return;
+      const file = result.assets[0];
+      
+      setAppAlert({ visible: true, title: "Importing...", subtitle: "Parsing Google Keep Takeout. This might take a moment." });
+      
+      const { importGoogleKeepZip } = await import('../../utils/keepImporter');
+      const importResult = await importGoogleKeepZip(file.uri);
+      
+      if (importResult.error) {
+        setAppAlert({ visible: true, title: "Import Failed", subtitle: importResult.error });
+      } else {
+        setAppAlert({ visible: true, title: "Import Complete", subtitle: `Imported ${importResult.success} notes. Skipped ${importResult.skipped}. Failed ${importResult.failed}.` });
+      }
+    } catch (e) {
+      console.warn("Keep import failed", e);
+      setAppAlert({ visible: true, title: loc.home.importFailedTitle, subtitle: loc.home.importFailedSub });
+    }
+  }, [loc]);
+
   const handleImport = useCallback(() => {
     setShowImportModal(true);
   }, []);
@@ -254,8 +292,8 @@ export default function HomeScreen() {
     },
     searchInput: { flex: 1, fontFamily: font.sans, fontSize: 15 * theme.fontSize, color: colors.ink, padding: 0 },
     clearBtn: { fontSize: 13 * theme.fontSize, color: colors.inkDim, paddingHorizontal: 4 },
-    tagRailOuter: { marginBottom: 12 },
-    tagRail: { paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
+    railOuter: { marginBottom: 12 },
+    rail: { paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
     empty: { paddingTop: 60, alignItems: 'center' },
     emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
     emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
@@ -366,14 +404,37 @@ export default function HomeScreen() {
           </Pressable>
         )}
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tagRail} style={s.tagRailOuter}>
-        <TagPill label={loc.allTag} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
-        {uniqueTags.map((tag) => (
-          <TagPill key={tag} label={tag} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
+        <TagPill 
+          label={loc.home?.allFolders || "All Notes"} 
+          active={selectedFolder === null} 
+          onPress={() => {
+            setSelectedFolder(null);
+            setSelectedTag(ALL_TAG_ID);
+          }} 
+        />
+        {uniqueFolders.map((folder) => (
+          <TagPill 
+            key={folder} 
+            label={folder} 
+            active={selectedFolder === folder} 
+            onPress={() => {
+              setSelectedFolder(folder);
+              setSelectedTag(ALL_TAG_ID);
+            }} 
+          />
         ))}
       </ScrollView>
+      {uniqueTags.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
+          <TagPill label={loc.allTag} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
+          {uniqueTags.map((tag) => (
+            <TagPill key={tag} label={tag} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
+          ))}
+        </ScrollView>
+      )}
     </View >
-  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
+  ), [searchFocused, searchQuery, selectedTag, selectedFolder, uniqueTags, uniqueFolders, s, colors, loc]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
@@ -423,6 +484,7 @@ export default function HomeScreen() {
         onClose={() => setShowImportModal(false)}
         actions={[
           { label: loc.home.importChoose, style: 'default', onPress: handleImportFile },
+          { label: "Import Google Keep (.zip)", style: 'default', onPress: handleImportKeepZip },
           { label: loc.editor.cancel, style: 'cancel', onPress: () => setShowImportModal(false) }
         ]}
       />
