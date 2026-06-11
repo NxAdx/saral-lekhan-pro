@@ -72,7 +72,6 @@ export default function HomeScreen() {
     return allNotes.filter(n => n.tag === selectedTag);
   }, [allNotes, selectedTag]);
   
-  const getUniqueFolders = useNotesStore((s) => s.getUniqueFolders);
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
 
@@ -91,7 +90,6 @@ export default function HomeScreen() {
     runUpdateCheck();
   }, [router]);
 
-  const uniqueFolders = useMemo(() => getUniqueFolders(), [getUniqueFolders, isLoaded]);
   const uniqueTags = useMemo(() => {
     const tags = new Set<string>();
     allNotes.forEach(n => { if (n.tag) tags.add(n.tag); });
