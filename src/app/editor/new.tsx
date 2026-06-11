@@ -156,14 +156,7 @@ export default function NewNoteScreen() {
     return () => { sub1.remove(); sub2.remove(); };
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // @ts-ignore - Pell exposes injectJavascript on the ref.
-      richText.current?.injectJavascript(editorListBreakoutScript);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [editorListBreakoutScript]);
+  
 
   const handleSave = useCallback(async () => {
     let html = '';
@@ -291,7 +284,7 @@ export default function NewNoteScreen() {
       })();
     `;
     // @ts-ignore
-    richText.current?.injectJavascript(script);
+    
     setIsDirty(true);
   }, [findText, replaceText]);
 
@@ -327,7 +320,7 @@ export default function NewNoteScreen() {
       })();
     `;
     // @ts-ignore
-    richText.current?.injectJavascript(script);
+    
     setIsDirty(true);
   }, [findText, replaceText]);
 

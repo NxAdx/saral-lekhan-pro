@@ -157,18 +157,7 @@ export default function EditNoteScreen() {
       true;
     `;
 
-    const timer = setTimeout(() => {
-      if (isMounted.current) {
-        // @ts-ignore - Pell library uses lowercase 's'
-        richText.current?.injectJavascript(script);
-      }
-    }, 800);
-
-    return () => {
-      isMounted.current = false;
-      clearTimeout(timer);
-    };
-  }, [id, note?.id]);
+    return () => { isMounted.current = false; }; }, [id, note?.id]);
 
   useEffect(() => {
     if (!editorReady || !note) return;
@@ -336,7 +325,7 @@ export default function EditNoteScreen() {
       })();
     `;
     // @ts-ignore
-    richText.current?.injectJavascript(script);
+    
     setIsDirty(true);
   }, [findText, replaceText]);
 
@@ -372,7 +361,7 @@ export default function EditNoteScreen() {
       })();
     `;
     // @ts-ignore
-    richText.current?.injectJavascript(script);
+    
     setIsDirty(true);
   }, [findText, replaceText]);
 
