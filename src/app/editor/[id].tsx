@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { NativeMarkdownEditor, NativeMarkdownEditorRef } from '../../components/ui/NativeMarkdownEditor';
+import { NativeMarkdownEditor, NativeMarkdownEditorRef, MarkdownToolbar } from '../../components/ui/NativeMarkdownEditor';
 import { htmlToMarkdown } from '../../utils/htmlToMarkdown';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
@@ -777,6 +777,17 @@ export default function EditNoteScreen() {
               </Pressable>
             </View>
           </View>
+          
+          {/* Markdown Toolbar - Rendered just above the keyboard but outside ScrollView */}
+          {noteType === 'text' && isEditMode && (
+            <MarkdownToolbar
+              theme={theme}
+              onInsert={(prefix, suffix) => {
+                richText.current?.insertMarkdown(prefix, suffix);
+                setIsDirty(true);
+              }}
+            />
+          )}
 
           
 
