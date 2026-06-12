@@ -26,9 +26,6 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     namespace 'com.sarallekhan'
 
-    def buildTarget = System.getenv("SARAL_BUILD_TARGET") ?: "direct"
-    def isFdroid = buildTarget == "fdroid"
-
     defaultConfig {
         applicationId 'com.sarallekhan'
         minSdkVersion rootProject.ext.minSdkVersion
@@ -37,10 +34,6 @@ android {
         versionName appVersionName
 
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
-        buildConfigField "boolean", "IS_FDROID_BUILD", "${isFdroid}"
-        buildConfigField "String", "BUILD_CHANNEL", "\"${buildTarget}\""
-        buildConfigField "String", "UPDATER_MODE", isFdroid ? "\"fdroid\"" : "\"github\""
-        buildConfigField "String", "RUNTIME_FLAGS_URL", isFdroid ? "\"\"" : "\"https://raw.githubusercontent.com/NxAdx/saral-lekhan-pro/main/runtime-flags.json\""
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

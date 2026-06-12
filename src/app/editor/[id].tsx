@@ -27,6 +27,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { log } from '../../utils/Logger';
 import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
+import { ChecklistEditor } from '../../components/ui/ChecklistEditor';
+import { NoteType, ChecklistItem, textToChecklistItems, checklistItemsToText } from '../../types/note';
 
 
 export default function EditNoteScreen() {
@@ -46,7 +48,10 @@ export default function EditNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
+  const [folderName, setFolderName] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
+  const [noteType, setNoteType] = useState<NoteType>('text');
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
   
 
   const [saved, setSaved] = useState(false);
@@ -73,7 +78,7 @@ export default function EditNoteScreen() {
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
   const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
-  const richText = useRef<NativeMarkdownEditorRef>(null);
+  const richText = useRef<RichTextEditorRef>(null);
   const [isEditMode, setIsEditMode] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
   const isMounted = useRef(false);
@@ -657,7 +662,7 @@ export default function EditNoteScreen() {
               />
 
               <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-                <NativeMarkdownEditor
+                <RichTextEditor
                   ref={richText}
                   value={bodyText}
                   onChange={(text) => {
@@ -724,11 +729,10 @@ export default function EditNoteScreen() {
           {/* Markdown Toolbar - Rendered just above the keyboard but outside ScrollView */}
           {isEditMode && (
             <MarkdownToolbar
+              editorRef={richText}
               theme={theme}
-              onInsert={(prefix, suffix) => {
-                richText.current?.insertMarkdown(prefix, suffix);
-                setIsDirty(true);
-              }}
+              onInsertPurnaViram={() => richText.current?.insertText('\u0964')}
+              onInsertDoublePurnaViram={() => richText.current?.insertText('\u0965')}
             />
           )}
 

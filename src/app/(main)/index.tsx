@@ -65,12 +65,8 @@ export default function HomeScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
-  // Get notes for the selected folder, then filter by tag
-  const allNotes = useNotesStore((s) => s.notes.filter(n => !n.is_deleted));
-  const notes = useMemo(() => {
-    if (selectedTag === ALL_TAG_ID) return allNotes;
-    return allNotes.filter(n => n.tag === selectedTag);
-  }, [allNotes, selectedTag]);
+  const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
+  const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
   
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
@@ -90,11 +86,7 @@ export default function HomeScreen() {
     runUpdateCheck();
   }, [router]);
 
-  const uniqueTags = useMemo(() => {
-    const tags = new Set<string>();
-    allNotes.forEach(n => { if (n.tag) tags.add(n.tag); });
-    return Array.from(tags).sort();
-  }, [allNotes]);
+  const uniqueTags = useMemo(() => getUniqueTags(), [notes]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -141,6 +133,24 @@ export default function HomeScreen() {
     setIsSelectionMode(false);
     setSelectedIds(new Set());
   }, []);
+
+  useEffect(() => {
+    if (!isSelectionMode) return;
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      let changed = false;
+      for (const id of next) {
+        if (!filteredNotes.find(n => n.id === id)) {
+          next.delete(id);
+          changed = true;
+        }
+      }
+      if (changed && next.size === 0) {
+        setIsSelectionMode(false);
+      }
+      return changed ? next : prev;
+    });
+  }, [filteredNotes, isSelectionMode]);
 
   const toggleSelectAll = useCallback(() => {
     if (selectedIds.size === filteredNotes.length) {
@@ -298,8 +308,8 @@ export default function HomeScreen() {
     },
     searchInput: { flex: 1, fontFamily: font.sans, fontSize: 15 * theme.fontSize, color: colors.ink, padding: 0 },
     clearBtn: { fontSize: 13 * theme.fontSize, color: colors.inkDim, paddingHorizontal: 4 },
-    railOuter: { marginBottom: 12 },
-    rail: { paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
+    tagRailOuter: { marginBottom: 12 },
+    tagRail: { paddingHorizontal: 20, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
     empty: { paddingTop: 60, alignItems: 'center' },
     emptyTitle: { fontFamily: font.sansSemi, fontSize: 16 * theme.fontSize, color: colors.inkMid, marginBottom: 6 },
     emptySub: { fontFamily: font.mono, fontSize: 12 * theme.fontSize, color: colors.inkDim },
@@ -423,19 +433,10 @@ export default function HomeScreen() {
         )}
       </View>
       {uniqueTags.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rail} style={s.railOuter}>
-          <TagPill 
-            label={loc.allTag || "All Notes"} 
-            active={selectedTag === ALL_TAG_ID} 
-            onPress={() => setSelectedTag(ALL_TAG_ID)} 
-          />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tagRail} style={s.tagRailOuter}>
+          <TagPill label={loc.allTag || "All Notes"} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
           {uniqueTags.map((tag) => (
-            <TagPill 
-              key={`tag-${tag}`} 
-              label={`#${tag}`} 
-              active={selectedTag === tag} 
-              onPress={() => setSelectedTag(selectedTag === tag ? ALL_TAG_ID : tag)} 
-            />
+            <TagPill key={tag} label={`#${tag}`} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
           ))}
         </ScrollView>
       )}
@@ -449,6 +450,7 @@ export default function HomeScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
         data={filteredNotes}
+        extraData={[selectedIds, isSelectionMode, loc]}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}

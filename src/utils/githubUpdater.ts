@@ -2,17 +2,17 @@ import * as FileSystem from 'expo-file-system';
 import { Linking, Platform, NativeModules } from 'react-native';
 import Constants from 'expo-constants';
 import { log } from './Logger';
-import { UPDATER_MODE } from './buildInfo';
 
 const { UpdaterModule } = NativeModules;
-
-export { DISTRIBUTION_CHANNEL, UPDATER_MODE } from './buildInfo';
 
 export const APP_VERSION = (
     Constants.expoConfig?.version ||
     (Constants.manifest as any)?.version ||
     '0.0.0'
 ).replace(/^v/, '');
+export const DISTRIBUTION_CHANNEL = String(Constants.expoConfig?.extra?.distributionChannel || 'direct');
+export const UPDATER_MODE = String(Constants.expoConfig?.extra?.updaterMode || 'github');
+
 const REPO_OWNER = 'NxAdx';
 const REPO_NAME = 'saral-lekhan-pro';
 

@@ -4,7 +4,7 @@ import {
   Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { NativeMarkdownEditor, NativeMarkdownEditorRef, MarkdownToolbar } from '../../components/ui/NativeMarkdownEditor';
+import { RichTextEditor, RichTextEditorRef, MarkdownToolbar } from '../../components/ui/RichTextEditor';
 import { htmlToMarkdown } from '../../utils/htmlToMarkdown';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
@@ -67,7 +67,7 @@ export default function NewNoteScreen() {
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
   const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
-  const richText = useRef<NativeMarkdownEditorRef>(null);
+  const richText = useRef<RichTextEditorRef>(null);
   const [isEditMode, setIsEditMode] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
   const editorListBreakoutScript = useMemo(() => `
@@ -546,11 +546,10 @@ export default function NewNoteScreen() {
           {/* Markdown Toolbar - Rendered just above the keyboard but outside ScrollView */}
           {isEditMode && (
             <MarkdownToolbar
+              editorRef={richText}
               theme={theme}
-              onInsert={(prefix, suffix) => {
-                richText.current?.insertMarkdown(prefix, suffix);
-                setIsDirty(true);
-              }}
+              onInsertPurnaViram={() => richText.current?.insertText('\u0964')}
+              onInsertDoublePurnaViram={() => richText.current?.insertText('\u0965')}
             />
           )}
 
