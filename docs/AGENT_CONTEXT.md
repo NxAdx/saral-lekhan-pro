@@ -33,3 +33,6 @@ All specialized skills are tracked in `skills-lock.json`. Any new skill added to
 
 ---
 *This document ensures that any agent joining the project can immediately leverage the enhanced capabilities and follow the established engineering standards.*
+
+## 4) Recent Context
+For context regarding recent UI/UX and updater fixes, see [PRODUCTION_HANDOVER_2026-06-12.md](./PRODUCTION_HANDOVER_2026-06-12.md).
