@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { View, StyleSheet, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, Keyboard } from 'react-native';
+import { Svg, Path, Rect, Circle } from 'react-native-svg';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useTheme } from '../../store/themeStore';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
@@ -94,9 +95,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     </View>
   );
 });
-
-import { Text, StyleSheet } from 'react-native';
-import { Svg, Path, Rect, Circle } from 'react-native-svg';
 
 export const MarkdownToolbar = ({ editorRef, theme, onInsertPurnaViram, onInsertDoublePurnaViram }: { editorRef: React.RefObject<RichEditor | any>, theme: any, onInsertPurnaViram?: () => void, onInsertDoublePurnaViram?: () => void }) => {
   const { colors, font } = theme;
