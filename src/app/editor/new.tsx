@@ -479,7 +479,7 @@ export default function NewNoteScreen() {
           />
 
           <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-              <NativeMarkdownEditor
+              <RichTextEditor
                     ref={richText}
                     value={bodyText}
                     onChange={(text) => {
