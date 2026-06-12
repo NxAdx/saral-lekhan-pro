@@ -66,7 +66,7 @@ export default function HomeScreen() {
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
   // Get notes for the selected folder, then filter by tag
-  const allNotes = useNotesStore((s) => s.notes);
+  const allNotes = useNotesStore((s) => s.notes.filter(n => !n.is_deleted));
   const notes = useMemo(() => {
     if (selectedTag === ALL_TAG_ID) return allNotes;
     return allNotes.filter(n => n.tag === selectedTag);
@@ -440,7 +440,7 @@ export default function HomeScreen() {
         </ScrollView>
       )}
     </View >
-  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc]);
+  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc, isSelectionMode, selectedIds, filteredNotes, toggleSelectAll, handleBulkDelete, handleBulkExport, clearSelection]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
