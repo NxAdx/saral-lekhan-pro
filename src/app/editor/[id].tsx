@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { NativeMarkdownEditor, NativeMarkdownEditorRef, MarkdownToolbar } from '../../components/ui/NativeMarkdownEditor';
+import { RichTextEditor, RichTextEditorRef, MarkdownToolbar } from '../../components/ui/RichTextEditor';
 import { htmlToMarkdown } from '../../utils/htmlToMarkdown';
 import { useNotesStore } from '../../store/notesStore';
 import { useTheme } from '../../store/themeStore';
