@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { log } from '../utils/Logger';
-import { RUNTIME_FLAGS_URL } from '../utils/buildInfo';
+import Constants from 'expo-constants';
+
+const RUNTIME_FLAGS_URL = String(Constants.expoConfig?.extra?.runtimeFlagsUrl || (Constants.manifest as any)?.extra?.runtimeFlagsUrl || '').trim();
 
 export interface RuntimeUxFlags {
   spark_loading_modal_v1: boolean;
