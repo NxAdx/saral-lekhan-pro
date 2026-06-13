@@ -36,3 +36,18 @@ All specialized skills are tracked in `skills-lock.json`. Any new skill added to
 
 ## 4) Recent Context
 For context regarding recent UI/UX and updater fixes, see [PRODUCTION_HANDOVER_2026-06-12.md](./PRODUCTION_HANDOVER_2026-06-12.md).
+
+## 5) Dual Git Setup (GitHub + GitLab)
+This project uses two remote Git repositories:
+- **GitHub**: `https://github.com/NxAdx/saral-lekhan-pro.git` (tracked as `origin`)
+- **GitLab**: `https://gitlab.com/adx-grp/saral-lekhan-pro.git` (tracked as `gitlab`)
+
+### Developer Workflow
+- The developer uses **GitLab** as the primary platform for active coding and development.
+- A unified remote named `both` is configured to allow pushing updates to both GitHub and GitLab simultaneously.
+- When committing and pushing changes, run:
+  ```bash
+  git push both main
+  ```
+- Before pushing, always pull any incoming updates from GitLab first to avoid conflicts, and keep all three (local workspace, GitHub, GitLab) in sync.
+
