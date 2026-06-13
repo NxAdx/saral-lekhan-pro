@@ -65,7 +65,7 @@ brain/
 *.md
 !README.md
 !CHANGELOG.md
-!docs/**
+docs/
 !fastlane/**
 
 # Fastlane metadata must be tracked for F-Droid
