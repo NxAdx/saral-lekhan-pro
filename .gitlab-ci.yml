@@ -63,7 +63,7 @@ build:direct-release:
   before_script:
     - *node_setup
     - npm install
-    - echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/release.keystore
+    - echo "$ANDROID_KEYSTORE_BASE64" | base64 -d -i > android/app/release.keystore
   script:
     - export MYAPP_UPLOAD_STORE_FILE=release.keystore
     - export MYAPP_UPLOAD_KEY_ALIAS="$ANDROID_KEY_ALIAS"
