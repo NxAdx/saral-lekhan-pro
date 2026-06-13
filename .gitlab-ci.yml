@@ -42,11 +42,11 @@ test:direct-debug-apk:
     - npm ci
   script:
     - cd android
-    - bash gradlew assembleDirectDebug --no-daemon
+    - bash gradlew assembleDebug --no-daemon
   artifacts:
-    name: "saral-lekhan-direct-debug-apk"
+    name: "saral-lekhan-debug-apk"
     paths:
-      - android/app/build/outputs/apk/direct/debug/app-direct-debug.apk
+      - android/app/build/outputs/apk/debug/app-debug.apk
     expire_in: 7 days
 
 # ---------------------------------------------------------------------------
