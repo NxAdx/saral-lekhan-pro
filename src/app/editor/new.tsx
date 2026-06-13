@@ -21,6 +21,9 @@ import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
 import { imageUriToDataUri } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRichEditorViewport } from '../../hooks/useRichEditorViewport';
+import { useFooterMeasurement } from '../../hooks/useFooterMeasurement';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -29,6 +32,7 @@ export default function NewNoteScreen() {
   const { colors, font, radius, shadow } = theme;
   const type = useTypography();
   const loc = strings[settings.language] || strings['En'];
+  const insets = useSafeAreaInsets();
 
   const addNote = useNotesStore((s) => s.addNote);
   const updateNote = useNotesStore((s) => s.updateNote);
@@ -44,7 +48,6 @@ export default function NewNoteScreen() {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationPhase, setGenerationPhase] = useState<SparkGenerationPhase>('idle');
-  const [editorHeight, setEditorHeight] = useState<number>(400);
   const [isDirty, setIsDirty] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFindReplaceModal, setShowFindReplaceModal] = useState(false);
@@ -62,7 +65,15 @@ export default function NewNoteScreen() {
   const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
   const richText = useRef<RichEditor>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const { footerHeight, handleFooterLayout } = useFooterMeasurement();
+  const {
+    editorSurfaceMinHeight,
+    handleCursorPosition,
+    handleEditorHeightChange,
+    handleScroll,
+    handleViewportLayout,
+    scrollRef,
+  } = useRichEditorViewport(260, footerHeight);
   const editorListBreakoutScript = useMemo(() => `
     (function() {
       if (window.__breakoutListenerAdded) return;
@@ -382,18 +393,60 @@ export default function NewNoteScreen() {
     doneBtnActive: { transform: [{ translateY: 2 }], shadowOffset: { width: 0, height: 1 }, elevation: 1 },
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
 
-    scroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24 },
-    titleInput: { fontFamily: font.display, fontSize: 26 * theme.fontSize, fontWeight: '700', color: colors.ink, marginBottom: 16, padding: 0, lineHeight: 34 * theme.fontSize },
+    editorFrame: { flex: 1, paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16, gap: 14 },
+    metaCard: {
+      backgroundColor: colors.bgRaised,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.strokeDim,
+      paddingHorizontal: 18,
+      paddingTop: 18,
+      paddingBottom: 14,
+      gap: 12,
+    },
+    metaDivider: { height: 1, backgroundColor: colors.strokeDim + '88' },
+    titleInput: {
+      fontFamily: font.display,
+      fontSize: 26 * theme.fontSize,
+      fontWeight: '700',
+      color: colors.ink,
+      padding: 0,
+      lineHeight: 34 * theme.fontSize,
+      minHeight: 38,
+    },
+    editorViewport: { flex: 1 },
+    editorScroll: { flex: 1 },
+    editorScrollContent: { paddingTop: 4, paddingBottom: 20 },
+    editorSurface: {
+      flex: 1,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.strokeDim,
+      backgroundColor: colors.bg,
+      paddingHorizontal: 18,
+      paddingTop: 18,
+      paddingBottom: 16,
+      overflow: 'hidden',
+    },
 
-    // Rich Editor specific
-    editorContainer: { minHeight: 400, flex: 1 },
-
-    tagRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.strokeDim + '55' },
+    tagRow: { flexDirection: 'row', alignItems: 'center', minHeight: 36 },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
     tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
 
-    bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
+    bottomControls: {
+      backgroundColor: colors.bg,
+      borderTopWidth: 1,
+      borderTopColor: colors.strokeDim,
+      paddingBottom: Math.max(insets.bottom, 8),
+    },
+    bottomActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim },
     bottomBarText: { ...type.labelMedium, fontFamily: font.mono, color: colors.inkDim },
 
     // Toolbar custom
@@ -415,7 +468,7 @@ export default function NewNoteScreen() {
       marginHorizontal: 2,
       marginVertical: 0,
     },
-  }), [colors, font, radius, shadow]);
+  }), [colors, font, insets.bottom, radius, shadow, theme.fontSize, type.bodyLarge, type.labelMedium]);
 
   const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
   const wc = wordCount(bodyText);
@@ -446,72 +499,84 @@ export default function NewNoteScreen() {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: 100 }]} keyboardShouldPersistTaps="handled">
-          <TextInput
-            style={s.titleInput}
-            placeholder={loc.editor.titlePlaceholder}
-            placeholderTextColor={colors.inkDim}
-            value={title}
-            onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
-            multiline blurOnSubmit returnKeyType="next"
-          />
-
-          <View style={[s.editorContainer, { minHeight: editorHeight }]}>
-            <RichEditor
-              ref={richText}
-              initialContentHTML=""
-              placeholder={loc.editor.bodyPlaceholder}
-              editorStyle={{
-                backgroundColor: colors.bg,
-                color: colors.inkMid,
-                placeholderColor: colors.inkDim,
-                cssText: buildEditorCss({
-                  fontSans: font.sans, fontSansBold: font.sansBold, fontSansSemi: font.sansSemi, fontMono: font.mono,
-                  fontSize: theme.fontSize,
-                  colorBg: colors.bg, colorBgRaised: colors.bgRaised, colorInk: colors.ink,
-                  colorInkMid: colors.inkMid, colorInkDim: colors.inkDim, colorAccent: colors.accent, colorStroke: colors.stroke,
-                }),
-              }}
-              onChange={(html) => {
-                const stripped = html.replace(/<[^>]*>?/gm, ' ');
-                setBodyText(stripped);
-                setIsDirty(true);
-                if (settings.autoSave && (title.trim() || stripped.trim())) {
-                  if (noteId.current) {
-                    useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag });
-                  } else {
-                    const id = addNote({ title, body: html, tag, pinned: false });
-                    noteId.current = id;
-                  }
-                }
-              }}
-              onCursorPosition={(y) => {
-                scrollRef.current?.scrollTo({ y: Math.max(0, y - 60), animated: true });
-              }}
-              onHeightChange={(h) => {
-                setEditorHeight(Math.max(400, h + 100));
-              }}
-              scrollEnabled={false}
-              useContainer={false}
-            />
-          </View>
-
-
-          <View style={s.tagRow}>
-            <Text style={s.tagHash}>#</Text>
+        <View style={s.editorFrame}>
+          <View style={s.metaCard}>
             <TextInput
-              style={s.tagInput}
-              placeholder={loc.editor.tagPlaceholder}
-              placeholderTextColor={colors.inkDim + '88'}
-              value={tag}
-              onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
-              autoCapitalize="none"
-              onFocus={() => { setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+              style={s.titleInput}
+              placeholder={loc.editor.titlePlaceholder}
+              placeholderTextColor={colors.inkDim}
+              value={title}
+              onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
+              multiline
+              blurOnSubmit
+              returnKeyType="next"
             />
-          </View>
-        </ScrollView>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.strokeDim }}>
+            <View style={s.metaDivider} />
+
+            <View style={s.tagRow}>
+              <Text style={s.tagHash}>#</Text>
+              <TextInput
+                style={s.tagInput}
+                placeholder={loc.editor.tagPlaceholder}
+                placeholderTextColor={colors.inkDim + '88'}
+                value={tag}
+                onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          <View style={s.editorViewport} onLayout={handleViewportLayout}>
+            <ScrollView
+              ref={scrollRef}
+              style={s.editorScroll}
+              contentContainerStyle={s.editorScrollContent}
+              keyboardShouldPersistTaps="handled"
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+            >
+              <View style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}>
+                <RichEditor
+                  ref={richText}
+                  initialContentHTML=""
+                  placeholder={loc.editor.bodyPlaceholder}
+                  editorStyle={{
+                    backgroundColor: colors.bg,
+                    color: colors.inkMid,
+                    placeholderColor: colors.inkDim,
+                    cssText: buildEditorCss({
+                      fontSans: font.sans, fontSansBold: font.sansBold, fontSansSemi: font.sansSemi, fontMono: font.mono,
+                      fontSize: theme.fontSize,
+                      colorBg: colors.bg, colorBgRaised: colors.bgRaised, colorInk: colors.ink,
+                      colorInkMid: colors.inkMid, colorInkDim: colors.inkDim, colorAccent: colors.accent, colorStroke: colors.stroke,
+                    }),
+                  }}
+                  onChange={(html) => {
+                    const stripped = html.replace(/<[^>]*>?/gm, ' ');
+                    setBodyText(stripped);
+                    setIsDirty(true);
+                    if (settings.autoSave && (title.trim() || stripped.trim())) {
+                      if (noteId.current) {
+                        useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag });
+                      } else {
+                        const id = addNote({ title, body: html, tag, pinned: false });
+                        noteId.current = id;
+                      }
+                    }
+                  }}
+                  onCursorPosition={handleCursorPosition}
+                  onHeightChange={handleEditorHeightChange}
+                  scrollEnabled={false}
+                  useContainer={false}
+                />
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+
+        <View style={s.bottomControls} onLayout={handleFooterLayout}>
+          <View style={s.bottomActions}>
             <Pressable
               onPress={() => {
                 if (!ai.geminiApiKey) {
@@ -550,78 +615,79 @@ export default function NewNoteScreen() {
             </View>
           </View>
 
-        <RichToolbar
-          editor={richText}
-          style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
-          iconTint={colors.ink}
-          selectedIconTint={colors.accent}
-          disabledIconTint={colors.inkDim}
-          iconSize={18}
-          iconGap={24}
-          itemStyle={s.toolbarItem}
-          flatContainerStyle={{ paddingBottom: 4 }}
-          selectedButtonStyle={{ backgroundColor: 'transparent', borderBottomWidth: 2.5, borderBottomColor: colors.accent }}
-          unselectedButtonStyle={{ backgroundColor: 'transparent' }}
-          actions={[
-            actions.setBold,
-            actions.setItalic,
-            actions.setUnderline,
-            actions.checkboxList,
-            actions.insertBulletsList,
-            actions.insertOrderedList,
-            actions.line,
-            actions.code,
-            actions.heading1,
-            actions.heading2,
-            actions.blockquote,
-            actions.insertLink,
-            actions.insertImage,
-            'insertPurnaViram',
-            'insertDoublePurnaViram'
-          ]}
-          iconMap={{
-            [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
-            [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
-            [actions.insertLink]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-              </Svg>
-            ),
-            [actions.insertImage]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <Circle cx="8.5" cy="8.5" r="1.5" />
-                <Path d="M21 15l-5-5L5 21" />
-              </Svg>
-            ),
-            [actions.checkboxList]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Rect x="4" y="4" width="16" height="16" rx="3" />
-                <Path d="M8 12l3 3l5 -6" />
-              </Svg>
-            ),
-            [actions.line]: ({ tintColor }: any) => (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round">
-                <Path d="M5 12h14" />
-              </Svg>
-            ),
-            [actions.code]: ({ tintColor }: any) => (
-              <Text style={{ color: tintColor, fontFamily: font.mono, fontSize: 13, fontWeight: '700', includeFontPadding: false }}>
-                {'</>'}
-              </Text>
-            ),
-            'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
-            'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
-          }}
-          onInsertLink={() => setShowLinkModal(true)}
-          onPressAddImage={() => setShowImageModal(true)}
-          insertPurnaViram={() => insertHindiPunctuation('\u0964')}
-          insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
-        />
+          <RichToolbar
+            editor={richText}
+            style={[s.toolbarRoot, { borderTopWidth: 0, paddingTop: 4 }]}
+            iconTint={colors.ink}
+            selectedIconTint={colors.accent}
+            disabledIconTint={colors.inkDim}
+            iconSize={18}
+            iconGap={24}
+            itemStyle={s.toolbarItem}
+            flatContainerStyle={{ paddingBottom: 4 }}
+            selectedButtonStyle={{ backgroundColor: 'transparent', borderBottomWidth: 2.5, borderBottomColor: colors.accent }}
+            unselectedButtonStyle={{ backgroundColor: 'transparent' }}
+            actions={[
+              actions.setBold,
+              actions.setItalic,
+              actions.setUnderline,
+              actions.checkboxList,
+              actions.insertBulletsList,
+              actions.insertOrderedList,
+              actions.line,
+              actions.code,
+              actions.heading1,
+              actions.heading2,
+              actions.blockquote,
+              actions.insertLink,
+              actions.insertImage,
+              'insertPurnaViram',
+              'insertDoublePurnaViram'
+            ]}
+            iconMap={{
+              [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
+              [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
+              [actions.insertLink]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </Svg>
+              ),
+              [actions.insertImage]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <Circle cx="8.5" cy="8.5" r="1.5" />
+                  <Path d="M21 15l-5-5L5 21" />
+                </Svg>
+              ),
+              [actions.checkboxList]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="4" y="4" width="16" height="16" rx="3" />
+                  <Path d="M8 12l3 3l5 -6" />
+                </Svg>
+              ),
+              [actions.line]: ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round">
+                  <Path d="M5 12h14" />
+                </Svg>
+              ),
+              [actions.code]: ({ tintColor }: any) => (
+                <Text style={{ color: tintColor, fontFamily: font.mono, fontSize: 13, fontWeight: '700', includeFontPadding: false }}>
+                  {'</>'}
+                </Text>
+              ),
+              'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
+              'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
+            }}
+            onInsertLink={() => setShowLinkModal(true)}
+            onPressAddImage={() => setShowImageModal(true)}
+            insertPurnaViram={() => insertHindiPunctuation('\u0964')}
+            insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
+          />
 
-        <View style={s.bottomBar}>
-          <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
+          <View style={s.bottomBar}>
+            <Text style={s.bottomBarText}>{bodyText.trim().length} {loc.editor.chars} | {wc} {loc.editor.words}</Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
 
