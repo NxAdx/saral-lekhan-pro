@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable,
-  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation,
+  KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -75,7 +75,7 @@ export default function EditNoteScreen() {
   const isApplyingInitialContent = useRef(false);
   const [editorHeight, setEditorHeight] = useState<number>(400);
   const [editorReady, setEditorReady] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
   const finishGeneration = useCallback(
     (nextPhase: SparkGenerationPhase) => {
       setGenerationPhase(nextPhase);
@@ -198,23 +198,7 @@ export default function EditNoteScreen() {
     setTimeout(() => setSaved(false), 1500);
   }, []);
 
-  // Track keyboard height so we can add extra padding to the ScrollView,
-  // ensuring content at the bottom remains visible above the toolbar+keyboard.
-  useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const onShow = (e: any) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setKeyboardHeight(e.endCoordinates.height);
-    };
-    const onHide = () => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setKeyboardHeight(0);
-    };
-    const sub1 = Keyboard.addListener(showEvent, onShow);
-    const sub2 = Keyboard.addListener(hideEvent, onHide);
-    return () => { sub1.remove(); sub2.remove(); };
-  }, []);
+
 
   useEffect(() => {
     const onBackPress = () => {
@@ -559,7 +543,7 @@ export default function EditNoteScreen() {
     },
   }), [colors, font, shadow, radius]);
 
-  if (!note) {
+  if (!note && !isDeleting) {
     return (
       <View style={s.root}>
         <View style={s.notFound}>
@@ -574,7 +558,7 @@ export default function EditNoteScreen() {
     );
   }
 
-  const dateStr = new Date(note.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
+  const dateStr = new Date(note?.updated_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
   const wc = wordCount(bodyText);
 
   return (
@@ -622,8 +606,8 @@ export default function EditNoteScreen() {
         </View>
       </View>
 
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 60 : 160 }]} keyboardShouldPersistTaps="handled">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: 100 }]} keyboardShouldPersistTaps="handled">
             <View style={{ backgroundColor: colors.bg, padding: 8, borderRadius: radius.lg }}>
               <TextInput
                 style={s.titleInput}
@@ -665,7 +649,7 @@ export default function EditNoteScreen() {
                   scrollEnabled={false}
                   useContainer={false}
                   onCursorPosition={(y) => {
-                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 140), animated: true });
+                    scrollRef.current?.scrollTo({ y: Math.max(0, y - 60), animated: true });
                   }}
                   onHeightChange={(h) => {
                     setEditorHeight(Math.max(400, h + 100));
@@ -820,7 +804,14 @@ export default function EditNoteScreen() {
           {
             label: loc.editor.delete,
             style: 'destructive',
-            onPress: () => { if (note) { deleteNote(note.id); router.back(); } }
+            onPress: () => {
+              if (note) {
+                setIsDeleting(true);
+                setShowDeleteModal(false);
+                router.back();
+                setTimeout(() => deleteNote(note.id), 300);
+              }
+            }
           },
           {
             label: loc.editor.cancel,

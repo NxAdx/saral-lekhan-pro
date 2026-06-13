@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
-  Platform, StatusBar, ScrollView, BackHandler, Keyboard, LayoutAnimation
+  Platform, StatusBar, ScrollView, BackHandler, Keyboard
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -56,7 +56,6 @@ export default function NewNoteScreen() {
   const [imageUrl, setImageUrl] = useState('');
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const noteId = useRef<number | null>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const ai = useAiStore();
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
@@ -130,23 +129,7 @@ export default function NewNoteScreen() {
     return () => subscription.remove();
   }, [isDirty, settings.autoSave]);
 
-  // Track keyboard height so we can add extra padding to the ScrollView,
-  // ensuring content at the bottom remains visible above the toolbar+keyboard.
-  useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const onShow = (e: any) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setKeyboardHeight(e.endCoordinates.height);
-    };
-    const onHide = () => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setKeyboardHeight(0);
-    };
-    const sub1 = Keyboard.addListener(showEvent, onShow);
-    const sub2 = Keyboard.addListener(hideEvent, onHide);
-    return () => { sub1.remove(); sub2.remove(); };
-  }, []);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -462,8 +445,8 @@ export default function NewNoteScreen() {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 60 : 160 }]} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={[s.content, { paddingBottom: 100 }]} keyboardShouldPersistTaps="handled">
           <TextInput
             style={s.titleInput}
             placeholder={loc.editor.titlePlaceholder}
@@ -503,7 +486,7 @@ export default function NewNoteScreen() {
                 }
               }}
               onCursorPosition={(y) => {
-                scrollRef.current?.scrollTo({ y: Math.max(0, y - 140), animated: true });
+                scrollRef.current?.scrollTo({ y: Math.max(0, y - 60), animated: true });
               }}
               onHeightChange={(h) => {
                 setEditorHeight(Math.max(400, h + 100));

@@ -5,6 +5,9 @@
 - **Selection Mode Fixes:** Added a "Select All" button and removed bouncy animations during bulk selection for a faster, stable experience.
 - **Checklist Removed:** Completely removed the Checklist feature to keep the app strictly Markdown-first.
 - **Crisp Icons:** Replaced custom toolbar icons with standard vector icons for a premium look.
+- **Editor Stability:** Reverted to a stable WebView container pattern for the Rich Editor to fix crashes and broken scrolling on Android.
+- **Editor Layout:** Removed redundant keyboard height padding that caused text to be obscured behind the toolbar. The editor now relies securely on Android's native window resizing.
+- **Delete UI Fix:** Fixed an ugly "Not Found" flicker that occurred when deleting a note by delaying the deletion until the navigation transition finishes.
 
 ## v2.19.0 - Editor Rewrite & UI Polish
 - **Pure Native Editor:** Replaced the legacy WebView rich text editor with a lightning-fast native Markdown text box. Perfect 60FPS scrolling and instant keyboard responsiveness.
