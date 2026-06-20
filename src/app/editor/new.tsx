@@ -393,43 +393,50 @@ export default function NewNoteScreen() {
     doneBtnActive: { transform: [{ translateY: 2 }], shadowOffset: { width: 0, height: 1 }, elevation: 1 },
     doneBtnText: { fontFamily: font.sansSemi, fontSize: 13, color: colors.white },
 
-    editorFrame: { flex: 1, paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16, gap: 14 },
-    metaCard: {
-      backgroundColor: colors.bgRaised,
-      borderRadius: radius.lg,
+    editorFrame: { flex: 1 },
+    titleBox: {
+      borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.strokeDim,
-      paddingHorizontal: 18,
-      paddingTop: 18,
-      paddingBottom: 14,
-      gap: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.bg,
     },
-    metaDivider: { height: 1, backgroundColor: colors.strokeDim + '88' },
     titleInput: {
       fontFamily: font.display,
-      fontSize: 26 * theme.fontSize,
+      fontSize: 22 * theme.fontSize,
       fontWeight: '700',
       color: colors.ink,
       padding: 0,
-      lineHeight: 34 * theme.fontSize,
-      minHeight: 38,
+      lineHeight: 30 * theme.fontSize,
+      minHeight: 32,
     },
     editorViewport: { flex: 1 },
     editorScroll: { flex: 1 },
-    editorScrollContent: { paddingTop: 4, paddingBottom: 20 },
+    editorScrollContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24, gap: 16 },
     editorSurface: {
       flex: 1,
-      borderRadius: radius.lg,
+      borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.strokeDim,
       backgroundColor: colors.bg,
-      paddingHorizontal: 18,
-      paddingTop: 18,
+      paddingHorizontal: 16,
+      paddingTop: 16,
       paddingBottom: 16,
       overflow: 'hidden',
     },
 
-    tagRow: { flexDirection: 'row', alignItems: 'center', minHeight: 36 },
+    tagBox: { 
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      minHeight: 36,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.strokeDim,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      backgroundColor: colors.bg,
+    },
     tagHash: { fontFamily: font.mono, fontSize: 14, color: colors.accent, marginRight: 4 },
     tagInput: { ...type.bodyLarge, fontFamily: font.sans, color: colors.inkMid, flex: 1, padding: 0 },
 
@@ -500,33 +507,6 @@ export default function NewNoteScreen() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={s.editorFrame}>
-          <View style={s.metaCard}>
-            <TextInput
-              style={s.titleInput}
-              placeholder={loc.editor.titlePlaceholder}
-              placeholderTextColor={colors.inkDim}
-              value={title}
-              onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
-              multiline
-              blurOnSubmit
-              returnKeyType="next"
-            />
-
-            <View style={s.metaDivider} />
-
-            <View style={s.tagRow}>
-              <Text style={s.tagHash}>#</Text>
-              <TextInput
-                style={s.tagInput}
-                placeholder={loc.editor.tagPlaceholder}
-                placeholderTextColor={colors.inkDim + '88'}
-                value={tag}
-                onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
           <View style={s.editorViewport} onLayout={handleViewportLayout}>
             <ScrollView
               ref={scrollRef}
@@ -536,6 +516,31 @@ export default function NewNoteScreen() {
               onScroll={handleScroll}
               scrollEventThrottle={16}
             >
+              <View style={s.titleBox}>
+                <TextInput
+                  style={s.titleInput}
+                  placeholder={loc.editor.titlePlaceholder}
+                  placeholderTextColor={colors.inkDim}
+                  value={title}
+                  onChangeText={(t) => { setTitle(t); setIsDirty(true); }}
+                  multiline
+                  blurOnSubmit
+                  returnKeyType="next"
+                />
+              </View>
+
+              <View style={s.tagBox}>
+                <Text style={s.tagHash}>#</Text>
+                <TextInput
+                  style={s.tagInput}
+                  placeholder={loc.editor.tagPlaceholder}
+                  placeholderTextColor={colors.inkDim + '88'}
+                  value={tag}
+                  onChangeText={(t) => { setTag(t.replace(/\s/g, '')); setIsDirty(true); }}
+                  autoCapitalize="none"
+                />
+              </View>
+
               <View style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}>
                 <RichEditor
                   ref={richText}
