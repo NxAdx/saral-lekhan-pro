@@ -328,6 +328,14 @@ export default function HomeScreen() {
       backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
       ...shadow.gentle, shadowColor: colors.shadow
     },
+    textBtn: {
+      paddingHorizontal: 16, height: 44, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
+      backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
+      ...shadow.gentle, shadowColor: colors.shadow
+    },
+    textBtnLabel: {
+      ...type.labelLarge, fontFamily: font.sansSemi, color: colors.ink
+    },
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
   const ListHeader = useMemo(() => (
@@ -343,17 +351,12 @@ export default function HomeScreen() {
             </Pressable>
             <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
             <View style={{ flex: 1 }} />
-            <Pressable onPress={toggleSelectAll} style={s.circleBtn} hitSlop={12}>
-              {selectedIds.size === filteredNotes.length && filteredNotes.length > 0 ? (
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M9 11l3 3l8 -8" />
-                  <Path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
-                </Svg>
-              ) : (
-                <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <Rect x="4" y="4" width="16" height="16" rx="2" />
-                </Svg>
-              )}
+            <Pressable onPress={toggleSelectAll} style={s.textBtn} hitSlop={12}>
+              <Text style={s.textBtnLabel}>
+                {selectedIds.size === filteredNotes.length && filteredNotes.length > 0
+                  ? loc.home.deselectAll || 'Deselect All'
+                  : loc.home.selectAll || 'Select All'}
+              </Text>
             </Pressable>
             <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
               <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
