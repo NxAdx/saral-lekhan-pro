@@ -72,6 +72,7 @@ interface NotesState {
   addNote: (note: AddNoteInput) => number;
   updateNote: (id: number, updates: Partial<Pick<Note, 'title' | 'body' | 'tag' | 'pinned' | 'folder_name' | 'labels'>>) => void;
   deleteNote: (id: number) => void;
+  bulkDeleteNotes: (ids: number[]) => void;
   restoreNote: (id: number) => void;
   permanentlyDeleteNote: (id: number) => void;
   emptyTrash: () => void;
@@ -79,7 +80,7 @@ interface NotesState {
   getDeletedNotes: () => Note[];
   getUniqueTags: () => string[];
   // ─── New methods (Phase 1 & 5) ────────────────────────────────────
-        resetDB: () => Promise<void>;
+  resetDB: () => Promise<void>;
   bootstrap: (initialNotesJson?: string) => void;
 }
 
@@ -311,6 +312,20 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }));
     db.transaction((tx: any) => {
       tx.executeSql(`UPDATE notes SET is_deleted = 1 WHERE id = ?;`, [id]);
+    });
+  },
+
+  bulkDeleteNotes: (ids) => {
+    if (ids.length === 0) return;
+    set((state) => {
+      const idSet = new Set(ids);
+      return {
+        notes: state.notes.map((n) => idSet.has(n.id) ? { ...n, is_deleted: true } : n)
+      };
+    });
+    db.transaction((tx: any) => {
+      const placeholders = ids.map(() => '?').join(',');
+      tx.executeSql(`UPDATE notes SET is_deleted = 1 WHERE id IN (${placeholders});`, ids);
     });
   },
 

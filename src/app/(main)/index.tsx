@@ -70,6 +70,7 @@ export default function HomeScreen() {
   
   const addNote = useNotesStore((s) => s.addNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
+  const bulkDeleteNotes = useNotesStore((s) => s.bulkDeleteNotes);
 
   useEffect(() => {
     const runUpdateCheck = async () => {
@@ -113,6 +114,12 @@ export default function HomeScreen() {
       .filter(({ haystack }) => haystack.includes(q))
       .map(({ note }) => note);
   }, [notes, searchIndex, debouncedSearchQuery]);
+
+  // FlashList optimizes ListHeaderComponent and won't re-render it if data reference is the same.
+  // We recreate the array reference when selection changes to force FlashList to update the header.
+  const dataToRender = useMemo(() => {
+    return [...filteredNotes];
+  }, [filteredNotes, selectedIds.size, isSelectionMode]);
 
   const toggleSelection = useCallback((id: number) => {
     setSelectedIds(prev => {
@@ -452,7 +459,7 @@ export default function HomeScreen() {
     <Animated.View style={s.root} entering={FadeIn.duration(400)}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
-        data={filteredNotes}
+        data={dataToRender}
         extraData={{ selectedIds, isSelectionMode, loc }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
@@ -513,7 +520,7 @@ export default function HomeScreen() {
             label: loc.editor.delete,
             style: 'destructive',
             onPress: () => {
-              selectedIds.forEach(id => deleteNote(id));
+              bulkDeleteNotes(Array.from(selectedIds));
               clearSelection();
               setShowBulkDeleteModal(false);
             }
