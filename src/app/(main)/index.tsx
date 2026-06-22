@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import {
   ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
 } from 'react-native';
@@ -7,7 +7,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { Svg, Path, Rect } from 'react-native-svg';
+import { Svg, Path } from 'react-native-svg';
 import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
 import { shallow } from 'zustand/shallow';
 import { useTheme } from '../../store/themeStore';
@@ -69,7 +69,7 @@ export default function HomeScreen() {
   const getUniqueTags = useNotesStore((s) => s.getUniqueTags);
   
   const addNote = useNotesStore((s) => s.addNote);
-  const deleteNote = useNotesStore((s) => s.deleteNote);
+
   const bulkDeleteNotes = useNotesStore((s) => s.bulkDeleteNotes);
 
   useEffect(() => {
@@ -114,12 +114,6 @@ export default function HomeScreen() {
       .filter(({ haystack }) => haystack.includes(q))
       .map(({ note }) => note);
   }, [notes, searchIndex, debouncedSearchQuery]);
-
-  // FlashList optimizes ListHeaderComponent and won't re-render it if data reference is the same.
-  // We recreate the array reference when selection changes to force FlashList to update the header.
-  const dataToRender = useMemo(() => {
-    return [...filteredNotes];
-  }, [filteredNotes, selectedIds.size, isSelectionMode]);
 
   const toggleSelection = useCallback((id: number) => {
     setSelectedIds(prev => {
@@ -459,29 +453,26 @@ export default function HomeScreen() {
     <Animated.View style={s.root} entering={FadeIn.duration(400)}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
-        data={dataToRender}
-        extraData={{ selectedIds, isSelectionMode, loc }}
+        data={filteredNotes}
+        extraData={[selectedIds, isSelectionMode, loc]}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
-        renderItem={({ item, extraData }) => {
-          const { selectedIds: eSelectedIds, isSelectionMode: eIsSelectionMode, loc: eLoc } = extraData as { selectedIds: Set<number>, isSelectionMode: boolean, loc: any };
-          return (
-            <View style={s.noteContainer}>
-                <BentoCard
-                note={item}
-                onPress={() => eIsSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
-                onLongPress={() => handleLongPress(item.id)}
-                date={formatDate(item.updated_at, eLoc)}
-                selected={eSelectedIds.has(item.id)}
-                isSelectionMode={eIsSelectionMode}
-                />
-            </View>
-          );
-        }}
+        renderItem={({ item, index }) => (
+          <View style={s.noteContainer}>
+              <BentoCard
+              note={item}
+              onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
+              onLongPress={() => handleLongPress(item.id)}
+              date={formatDate(item.updated_at, loc)}
+              selected={selectedIds.has(item.id)}
+              isSelectionMode={isSelectionMode}
+              />
+          </View>
+        )}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={
           <View style={s.empty}>
