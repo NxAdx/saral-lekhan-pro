@@ -20,7 +20,13 @@ public class InstallReceiver extends BroadcastReceiver {
             switch (status) {
                 case PackageInstaller.STATUS_PENDING_USER_ACTION:
                     // This is where the user sees the "Update?" dialog
-                    Intent confirmIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+                    Intent confirmIntent;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        confirmIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent.class);
+                    } else {
+                        confirmIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+                    }
+                    
                     if (confirmIntent != null) {
                         confirmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(confirmIntent);

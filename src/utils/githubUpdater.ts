@@ -138,16 +138,8 @@ export async function downloadAndInstallApk(
     const normalizedCurrentVersion = String(APP_VERSION || '').replace(/^v/, '');
     const isSameVersionReinstall = normalizedTargetVersion === normalizedCurrentVersion;
 
-    // Same-version reinstalls can silently no-op with PackageInstaller sessions on some devices.
-    // For this case, use the direct release URL so Android's default package installer flow handles it.
-    if (isSameVersionReinstall) {
-        try {
-            await Linking.openURL(downloadUrl);
-            return true;
-        } catch {
-            return false;
-        }
-    }
+    // We no longer force same-version reinstalls into the browser.
+    // The catch block below will safely fallback to the browser if the PackageInstaller intent is ignored.
 
     // Check permission first
     const hasPermission = await checkInstallPermission();

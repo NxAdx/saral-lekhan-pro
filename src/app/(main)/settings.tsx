@@ -93,22 +93,25 @@ export default function SettingsScreen() {
     const handleCheckUpdate = async (isManual = true) => {
         setIsCheckingUpdate(true);
         const info = await checkForUpdate(isManual);
-        if (info && info.hasUpdate) {
-            setUpdateInfo(info);
-            // Show update modal if it's a new version OR if user manually checked for reinstall
-            // NEW: Always show modal on mount if a NEW version is found (not just on manual check)
-            if (isManual || (!info.isReinstall)) {
-                setUpdateModal({
-                    visible: true,
-                    title: info.isReinstall ? "Reinstall Available" : "Update Available",
-                    sub: info.isReinstall
-                        ? `Version ${info.version} is already installed. Do you want to reinstall this build now?`
-                        : `Version ${info.version} is available. Do you want to download it now?`,
-                    info
-                });
+        if (info) {
+            if (info.hasUpdate) {
+                setUpdateInfo(info);
+                // Show update modal if it's a new version OR if user manually checked for reinstall
+                if (isManual || (!info.isReinstall)) {
+                    setUpdateModal({
+                        visible: true,
+                        title: info.isReinstall ? "Reinstall Available" : "Update Available",
+                        sub: info.isReinstall
+                            ? `Version ${info.version} is already installed. Do you want to reinstall this build now?`
+                            : `Version ${info.version} is available. Do you want to download it now?`,
+                        info
+                    });
+                }
+            } else if (isManual) {
+                setSyncAlert({ visible: true, title: "Up to date", sub: "You are already on the latest version." });
             }
         } else if (isManual) {
-            setSyncAlert({ visible: true, title: "Up to date", sub: "You are already on the latest version." });
+            setSyncAlert({ visible: true, title: "Check Failed", sub: "Could not fetch update information. Please check your connection." });
         }
         setIsCheckingUpdate(false);
     };
@@ -149,19 +152,11 @@ export default function SettingsScreen() {
             }
 
             setDownloadProgress(1);
-            if (updateInfo.isReinstall) {
-                setSyncAlert({
-                    visible: true,
-                    title: "Download Started",
-                    sub: "The APK link opened in your browser. Download it and confirm the install from the system prompt."
-                });
-            } else {
-                setSyncAlert({
-                    visible: true,
-                    title: "Installer Started",
-                    sub: "The system update dialog should appear now. If it doesn't, please ensure 'Install unknown apps' is enabled for this app."
-                });
-            }
+            setSyncAlert({
+                visible: true,
+                title: "Installer Started",
+                sub: "The system update dialog should appear now. If it doesn't, please ensure 'Install unknown apps' is enabled for this app."
+            });
         } catch (e: any) {
             setSyncAlert({
                 visible: true,
