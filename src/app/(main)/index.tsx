@@ -453,25 +453,28 @@ export default function HomeScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
         data={filteredNotes}
-        extraData={[selectedIds, isSelectionMode, loc]}
+        extraData={{ selectedIds, isSelectionMode, loc }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
-        renderItem={({ item, index }) => (
-          <View style={s.noteContainer}>
-              <BentoCard
-              note={item}
-              onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
-              onLongPress={() => handleLongPress(item.id)}
-              date={formatDate(item.updated_at, loc)}
-              selected={selectedIds.has(item.id)}
-              isSelectionMode={isSelectionMode}
-              />
-          </View>
-        )}
+        renderItem={({ item, extraData }) => {
+          const { selectedIds: eSelectedIds, isSelectionMode: eIsSelectionMode, loc: eLoc } = extraData as { selectedIds: Set<number>, isSelectionMode: boolean, loc: any };
+          return (
+            <View style={s.noteContainer}>
+                <BentoCard
+                note={item}
+                onPress={() => eIsSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
+                onLongPress={() => handleLongPress(item.id)}
+                date={formatDate(item.updated_at, eLoc)}
+                selected={eSelectedIds.has(item.id)}
+                isSelectionMode={eIsSelectionMode}
+                />
+            </View>
+          );
+        }}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={
           <View style={s.empty}>
