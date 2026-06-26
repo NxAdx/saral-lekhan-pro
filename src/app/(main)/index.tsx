@@ -303,7 +303,7 @@ export default function HomeScreen() {
       ...shadow.gentle, shadowColor: colors.shadow
     },
     deleteBtnLabel: {
-      ...type.labelLarge, fontFamily: font.sansSemi, color: colors.accent
+      ...type.labelMedium, fontFamily: font.sansSemi, color: colors.accent
     },
     exportBtn: {
       height: 44, paddingHorizontal: 16, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
@@ -362,11 +362,11 @@ export default function HomeScreen() {
       ...shadow.gentle, shadowColor: colors.shadow
     },
     textBtnLabel: {
-      ...type.labelLarge, fontFamily: font.sansSemi, color: colors.ink
+      ...type.labelMedium, fontFamily: font.sansSemi, color: colors.ink
     },
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
-  const ListHeader = (
+  const renderHeader = useCallback(() => (
     <View>
       <View style={s.header}>
         {isSelectionMode ? (
@@ -479,7 +479,29 @@ export default function HomeScreen() {
         </ScrollView>
       )}
     </View>
-  );
+  ), [isSelectionMode, selectedIds.size, filteredNotes.length, colors, loc, searchQuery, selectedTag, uniqueTags, s, handleImport, handleBulkDelete, handleBulkExport, toggleSelectAll, clearSelection, router]);
+
+  const renderItem = useCallback(({ item }: { item: any }) => {
+    const isSelected = selectedIds.has(item.id);
+    return (
+      <View style={s.noteContainer}>
+        <BentoCard
+          note={item}
+          onPress={() => {
+            if (isSelectionMode) {
+              toggleSelection(item.id);
+            } else {
+              onNotePress(item.id);
+            }
+          }}
+          onLongPress={() => handleLongPress(item.id)}
+          date={formatDate(item.updated_at, loc)}
+          selected={isSelected}
+          isSelectionMode={isSelectionMode}
+        />
+      </View>
+    );
+  }, [isSelectionMode, selectedIds, loc, onNotePress, handleLongPress, toggleSelection, s]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
@@ -487,35 +509,15 @@ export default function HomeScreen() {
     <Animated.View style={s.root} entering={FadeIn.duration(400)}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
-        data={filteredNotes}
-        extraData={`${isSelectionMode}-${selectedIds.size}-${Array.from(selectedIds).join(',')}`}
+        data={[...filteredNotes]}
+        extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size, selectedIdsString: Array.from(selectedIds).join(',') }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={ListHeader}
-        renderItem={({ item }) => {
-          const isSelected = selectedIds.has(item.id);
-          return (
-            <View style={s.noteContainer}>
-              <BentoCard
-                note={item}
-                onPress={() => {
-                  if (isSelectionMode) {
-                    toggleSelection(item.id);
-                  } else {
-                    onNotePress(item.id);
-                  }
-                }}
-                onLongPress={() => handleLongPress(item.id)}
-                date={formatDate(item.updated_at, loc)}
-                selected={isSelected}
-                isSelectionMode={isSelectionMode}
-              />
-            </View>
-          );
-        }}
+        ListHeaderComponent={renderHeader}
+        renderItem={renderItem}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={
           <View style={s.empty}>

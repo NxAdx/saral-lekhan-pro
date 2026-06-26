@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.19.9 - FlashList Stale Render Resolution
+- **Memoized Callbacks Fix**: Converted static `ListHeader` JSX element and inline `renderItem` into memoized functional callbacks (`renderHeader`, `renderItem`) utilizing `useCallback` with explicit dependency tracking.
+- **Selection State Sync**: Configured a custom `extraData` dependency object that forces Shopify's `FlashList` to reliably re-evaluate cell renderers and header components on selection mode transitions, resolving stale closure bugs where selecting a note didn't update the header or tap behaviors on other notes.
+
+## v2.19.8 - FlashList Refresh Enforcement
+- **FlashList Stale Updates Fix**: Enforced array reference changes for the `data` prop of `FlashList` during selection transitions, forcing the list diffing engine to reliably re-render all visible cards and the list header.
+
 ## v2.19.7 - Selection Mode Lifecycle Polish
 - **Pruning Effect Fix**: Removed the background `useEffect` prune watcher which was prematurely resetting the active selection states due to asynchronous list filter recalculation timing. Added event-driven clear triggers when tags or search queries change.
 - **Robust Item Rendering**: Simplified `extraData` tracking on the note container list so cell view updates are forced on all mode transitions.

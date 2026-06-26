@@ -535,4 +535,17 @@ Notes
   2. Replaced it with a target event-based clear effect that runs only when the user explicitly changes `selectedTag` or typing in search (`debouncedSearchQuery`).
   3. Updated `extraData` to fully encompass all selection properties so FlashList cells always re-render correctly.
 
+50) FlashList skipping cell/header updates due to cached data array reference (resolved 2026-06-26 in v2.19.9)
+- Symptom:
+  1. Long pressing a card shows a checkmark (tick), indicating it is selected, but the top selection actions bar does not appear.
+  2. Tapping other cards does not select them and instead navigates to open them.
+- Cause:
+  1. Shopify's `FlashList` uses aggressive performance optimizations and skips executing `renderItem` or updating the layout elements of the `ListHeaderComponent` if it is passed as a static element reference or if `renderItem` is defined as a simple inline function closure that doesn't explicitly link its rendering context to dynamic state changes.
+  2. Because only the long-pressed note cell registered a touch event, it forced a redraw of its own component. The rest of the list items and the header remained stale, using old onPress closures capturing `isSelectionMode = false`.
+- Resolution:
+  1. Converted `ListHeader` into a `useCallback`-memoized component function `renderHeader` to force FlashList to refresh the header layout when selection states change.
+  2. Wrapped `renderItem` in a `useCallback` hook to capture current state parameters dynamically.
+  3. Configured a structured object for `extraData` (`extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size, ... }}`) to notify FlashList's diffing engine to trigger updates on all visible items.
+
+
 
