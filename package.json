@@ -1,8 +1,8 @@
 {
   "name": "saral-lekhan",
-  "version": "2.19.4",
+  "version": "2.19.5",
   "private": true,
-  "androidVersionCode": 105,
+  "androidVersionCode": 106,
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
@@ -77,6 +77,5 @@
         "@shopify/flash-list"
       ]
     }
-  },
-  "version": "2.19.1"
+  }
 }

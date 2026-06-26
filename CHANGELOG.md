@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.5 - Duplicate Key Resolution
+- **Duplicate Key Fix**: Resolved a critical duplicate `version` key issue at the bottom of `package.json` that was overriding the target build version and keeping it hardcoded at `2.19.1` in production builds. The app will now properly build and publish as `2.19.5`.
+
 ## v2.19.4 - Version Sync Fixes
 - **Version Configuration Fix**: Fixed an issue where the Expo configuration (`app.config.js`) was trying to read an undefined version field from `package.json`, causing the app to silently fall back to an older cached version during builds. The app will now correctly compile with the latest version number (`2.19.4`) and apply all recent UI fixes.
 
