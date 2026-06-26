@@ -80,9 +80,10 @@ Next actions (Future Roadmap):
 
 # Current Tasks and Next Actions (v3.0 Era)
 
-## Completed (v2.19.5 / v2.19.x Stabilization)
-- **Duplicate Key Versioning Bug Fix**: Removed a duplicate key in `package.json` that locked the compiled version name to `2.19.1` and blocked the OTA updater.
-- **Selection Mode Overhaul**: Redesigned selection mode to avoid state update deadlocks (infinite rendering loop), added empty circle indicators to cards, and restructured header layout into a responsive two-row configuration.
+## Completed (v2.19.6 / v2.19.x Header Optimization)
+- **Selection Header De-caching**: Removed the React `useMemo` block from the `ListHeader` layout on the main screen to prevent state lag inside the FlatList/FlashList container.
+- **Duplicate Key Versioning Bug Fix (v2.19.5)**: Removed a duplicate key in `package.json` that locked the compiled version name to `2.19.1` and blocked the OTA updater.
+- **Selection Mode Overhaul (v2.19.5)**: Redesigned selection mode to avoid state update deadlocks (infinite rendering loop), added empty circle indicators to cards, and restructured header layout into a responsive two-row configuration.
 
 ## Completed (v2.17.31 / v3.0 F-Droid Release)
 - **FOSS Conversion (Google Decoupling)**: 

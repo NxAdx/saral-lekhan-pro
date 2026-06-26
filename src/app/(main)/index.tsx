@@ -376,7 +376,7 @@ export default function HomeScreen() {
     },
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
-  const ListHeader = useMemo(() => (
+  const ListHeader = (
     <View>
       <View style={s.header}>
         {isSelectionMode ? (
@@ -488,8 +488,8 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
       )}
-    </View >
-  ), [searchFocused, searchQuery, selectedTag, uniqueTags, s, colors, loc, isSelectionMode, selectedIds, filteredNotes, toggleSelectAll, handleBulkDelete, handleBulkExport, clearSelection]);
+    </View>
+  );
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 

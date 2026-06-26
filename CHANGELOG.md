@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.6 - Selection Header Updates
+- **Selection Header Fix**: Removed `useMemo` caching from the home page `ListHeader` layout to ensure selection actions and active note selection states update instantly without relying on FlatList/FlashList internal cache triggers.
+
 ## v2.19.5 - Duplicate Key Resolution
 - **Duplicate Key Fix**: Resolved a critical duplicate `version` key issue at the bottom of `package.json` that was overriding the target build version and keeping it hardcoded at `2.19.1` in production builds. The app will now properly build and publish as `2.19.5`.
 
