@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.19.2 - Selection UI & Logic Fixes
+- **Selection Layout Fix**: Redesigned the selection mode header into a two-row layout so the Delete and Export buttons are prominently visible on narrow mobile screens.
+- **Visual Selection Indicators**: Added a clear empty circular ring to unselected cards when in selection mode, making it visually obvious that they can be selected.
+- **Selection Mode Freezing Fix**: Fixed a critical logic bug (React Hook infinite loop) that caused the app to completely freeze when tapping buttons during selection mode.
+- **Tap Responsiveness**: Rewrote the underlying FlashList state rendering logic so tapping cards instantly updates their visual selection state without stale cache issues.
+- **Updater Diagnostics**: Added detailed version comparison logging for the in-app updater to assist with remote debugging.
+
 ## v2.19.1 - Stability & UX Polish
 - **Live Preview:** Added an Edit/Preview toggle in the markdown editor for instant rich-text visualization.
 - **Selection Mode Fixes:** Added a "Select All" button and removed bouncy animations during bulk selection for a faster, stable experience.
