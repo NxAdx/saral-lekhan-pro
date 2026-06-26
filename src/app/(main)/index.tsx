@@ -122,7 +122,6 @@ export default function HomeScreen() {
       if (next.has(id)) next.delete(id);
       else next.add(id);
       console.log('[Selection] after toggle, selectedIds size:', next.size);
-      if (next.size === 0) setIsSelectionMode(false);
       return next;
     });
   }, []);
@@ -138,6 +137,7 @@ export default function HomeScreen() {
     setSelectedIds(new Set());
   }, []);
 
+  // Prune deleted/filtered items from selection
   useEffect(() => {
     if (!isSelectionMode) return;
     setSelectedIds(prev => {
@@ -149,12 +149,17 @@ export default function HomeScreen() {
           changed = true;
         }
       }
-      if (changed && next.size === 0) {
-        setIsSelectionMode(false);
-      }
       return changed ? next : prev;
     });
   }, [filteredNotes, isSelectionMode]);
+
+  // Safely exit selection mode when all items are deselected
+  useEffect(() => {
+    if (isSelectionMode && selectedIds.size === 0) {
+      console.log('[Selection] Auto-exiting selection mode (0 items)');
+      setIsSelectionMode(false);
+    }
+  }, [isSelectionMode, selectedIds.size]);
 
   const toggleSelectAll = useCallback(() => {
     console.log('[Selection] toggleSelectAll called, selected:', selectedIds.size, 'total:', filteredNotes.length);
