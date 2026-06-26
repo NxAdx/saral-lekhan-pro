@@ -294,6 +294,31 @@ export default function HomeScreen() {
       fontSize: 24,
       lineHeight: 30,
     },
+    selectionActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingBottom: 12,
+      gap: 10,
+    },
+    deleteBtn: {
+      flex: 1, height: 44, borderRadius: 99, borderWidth: 1.5, borderColor: colors.accent,
+      backgroundColor: colors.accentBg, justifyContent: 'center', alignItems: 'center',
+      flexDirection: 'row', gap: 8,
+      ...shadow.gentle, shadowColor: colors.shadow
+    },
+    deleteBtnLabel: {
+      ...type.labelLarge, fontFamily: font.sansSemi, color: colors.accent
+    },
+    exportBtn: {
+      height: 44, paddingHorizontal: 16, borderRadius: 99, borderWidth: 1.5, borderColor: colors.stroke,
+      backgroundColor: colors.bgRaised, justifyContent: 'center', alignItems: 'center',
+      flexDirection: 'row', gap: 6,
+      ...shadow.gentle, shadowColor: colors.shadow
+    },
+    exportBtnLabel: {
+      ...type.labelMedium, fontFamily: font.sansSemi, color: colors.inkMid
+    },
     chip: {
       paddingHorizontal: 16,
       paddingVertical: 8,
@@ -350,11 +375,11 @@ export default function HomeScreen() {
     <View>
       <View style={s.header}>
         {isSelectionMode ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
             <Pressable onPress={clearSelection} style={s.circleBtn} hitSlop={12}>
               <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                <Path d="M10 10l4 4m0 -4l-4 4" />
+                <Path d="M18 6l-12 12" />
+                <Path d="M6 6l12 12" />
               </Svg>
             </Pressable>
             <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
@@ -365,22 +390,6 @@ export default function HomeScreen() {
                   ? loc.home.deselectAll || 'Deselect All'
                   : loc.home.selectAll || 'Select All'}
               </Text>
-            </Pressable>
-            <Pressable onPress={handleBulkExport} style={s.circleBtn} hitSlop={12}>
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                <Path d="M7 11l5 5l5 -5" />
-                <Path d="M12 4l0 12" />
-              </Svg>
-            </Pressable>
-            <Pressable onPress={handleBulkDelete} style={[s.circleBtn, { borderColor: colors.accent }]} hitSlop={12}>
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M4 7l16 0" />
-                <Path d="M10 11l0 6" />
-                <Path d="M14 11l0 6" />
-                <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-              </Svg>
             </Pressable>
           </View>
         ) : (
@@ -421,6 +430,29 @@ export default function HomeScreen() {
           </>
         )}
       </View>
+      {/* Selection action bar: Delete + Export buttons below the header */}
+      {isSelectionMode && selectedIds.size > 0 && (
+        <View style={s.selectionActions}>
+          <Pressable onPress={handleBulkDelete} style={s.deleteBtn} hitSlop={8}>
+            <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M4 7l16 0" />
+              <Path d="M10 11l0 6" />
+              <Path d="M14 11l0 6" />
+              <Path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+              <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+            </Svg>
+            <Text style={s.deleteBtnLabel}>{loc.editor.delete || 'Delete'} ({selectedIds.size})</Text>
+          </Pressable>
+          <Pressable onPress={handleBulkExport} style={s.exportBtn} hitSlop={8}>
+            <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+              <Path d="M7 11l5 5l5 -5" />
+              <Path d="M12 4l0 12" />
+            </Svg>
+            <Text style={s.exportBtnLabel}>{loc.home.export || 'Export'}</Text>
+          </Pressable>
+        </View>
+      )}
       <View style={s.searchWrap}>
         <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <Path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
@@ -461,25 +493,34 @@ export default function HomeScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
         data={filteredNotes}
-        extraData={[selectedIds, isSelectionMode, loc]}
+        extraData={isSelectionMode ? `sel-${selectedIds.size}-${[...selectedIds].join(',')}` : 'none'}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={ListHeader}
-        renderItem={({ item, index }) => (
-          <View style={s.noteContainer}>
+        renderItem={({ item }) => {
+          const isSelected = selectedIds.has(item.id);
+          return (
+            <View style={s.noteContainer}>
               <BentoCard
-              note={item}
-              onPress={() => isSelectionMode ? toggleSelection(item.id) : onNotePress(item.id)}
-              onLongPress={() => handleLongPress(item.id)}
-              date={formatDate(item.updated_at, loc)}
-              selected={selectedIds.has(item.id)}
-              isSelectionMode={isSelectionMode}
+                note={item}
+                onPress={() => {
+                  if (isSelectionMode) {
+                    toggleSelection(item.id);
+                  } else {
+                    onNotePress(item.id);
+                  }
+                }}
+                onLongPress={() => handleLongPress(item.id)}
+                date={formatDate(item.updated_at, loc)}
+                selected={isSelected}
+                isSelectionMode={isSelectionMode}
               />
-          </View>
-        )}
+            </View>
+          );
+        }}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={
           <View style={s.empty}>

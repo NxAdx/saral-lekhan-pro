@@ -94,12 +94,24 @@ export const BentoCard = React.memo(({
             position: 'absolute',
             top: 12,
             right: 12,
-            width: 20,
-            height: 20,
-            borderRadius: 10,
+            width: 22,
+            height: 22,
+            borderRadius: 11,
             backgroundColor: colors.accent,
             justifyContent: 'center',
             alignItems: 'center',
+            zIndex: 10,
+        },
+        unselectedIcon: {
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            width: 22,
+            height: 22,
+            borderRadius: 11,
+            borderWidth: 1.5,
+            borderColor: colors.strokeDim,
+            backgroundColor: 'transparent',
             zIndex: 10,
         }
     }), [colors, radius, shadow, font, pinned, type, selected]);
@@ -123,11 +135,13 @@ export const BentoCard = React.memo(({
             delayLongPress={300}
             testID={`note-card-${note.id}`}
         >
-            {selected && (
+            {selected ? (
                 <View style={s.selectionIcon}>
-                    <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold' }}>✓</Text>
+                    <Text style={{ color: colors.white, fontSize: 13, fontWeight: 'bold' }}>✓</Text>
                 </View>
-            )}
+            ) : isSelectionMode ? (
+                <View style={s.unselectedIcon} />
+            ) : null}
             <View style={s.content}>
                 <Text style={s.title} numberOfLines={1}>
                     {pinned ? '★ ' : ''}
