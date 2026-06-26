@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.19.7 - Selection Mode Lifecycle Polish
+- **Pruning Effect Fix**: Removed the background `useEffect` prune watcher which was prematurely resetting the active selection states due to asynchronous list filter recalculation timing. Added event-driven clear triggers when tags or search queries change.
+- **Robust Item Rendering**: Simplified `extraData` tracking on the note container list so cell view updates are forced on all mode transitions.
+
 ## v2.19.6 - Selection Header Updates
 - **Selection Header Fix**: Removed `useMemo` caching from the home page `ListHeader` layout to ensure selection actions and active note selection states update instantly without relying on FlatList/FlashList internal cache triggers.
 

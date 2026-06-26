@@ -137,26 +137,16 @@ export default function HomeScreen() {
     setSelectedIds(new Set());
   }, []);
 
-  // Prune deleted/filtered items from selection
+  // Clear selection when filters or search change
   useEffect(() => {
-    if (!isSelectionMode) return;
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      let changed = false;
-      for (const id of next) {
-        if (!filteredNotes.find(n => n.id === id)) {
-          next.delete(id);
-          changed = true;
-        }
-      }
-      return changed ? next : prev;
-    });
-  }, [filteredNotes, isSelectionMode]);
+    if (isSelectionMode) {
+      clearSelection();
+    }
+  }, [selectedTag, debouncedSearchQuery]);
 
   // Safely exit selection mode when all items are deselected
   useEffect(() => {
     if (isSelectionMode && selectedIds.size === 0) {
-      console.log('[Selection] Auto-exiting selection mode (0 items)');
       setIsSelectionMode(false);
     }
   }, [isSelectionMode, selectedIds.size]);
@@ -498,7 +488,7 @@ export default function HomeScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
         data={filteredNotes}
-        extraData={isSelectionMode ? `sel-${selectedIds.size}-${[...selectedIds].join(',')}` : 'none'}
+        extraData={`${isSelectionMode}-${selectedIds.size}-${Array.from(selectedIds).join(',')}`}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}

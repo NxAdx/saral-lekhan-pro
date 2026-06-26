@@ -523,3 +523,16 @@ Notes
   2. Bumped the primary version to `2.19.5` and the `androidVersionCode` to `106`.
   3. Bumped the version in `app.json` to `2.19.5`.
 
+49) Asynchronous note pruning resetting active selection mode variables (resolved 2026-06-26 in v2.19.7)
+- Symptom:
+  1. Long pressing a card shows a checkmark (tick), indicating it is selected, but the top selection actions bar does not appear.
+  2. Tapping other cards does not select them and instead navigates to open them.
+- Cause:
+  1. A background `useEffect` watcher was checking selected note IDs against `filteredNotes` to prune deleted/filtered notes.
+  2. During intermediate render steps (such as entering selection mode which toggles layout states), `filteredNotes` could temporarily evaluate as empty or be recalculated, causing the prune effect to prematurely empty `selectedIds` and trigger the auto-exit effect to set `isSelectionMode = false`, leaving the note container in a mismatched half-selected state.
+- Resolution:
+  1. Discarded the background prune effect entirely.
+  2. Replaced it with a target event-based clear effect that runs only when the user explicitly changes `selectedTag` or typing in search (`debouncedSearchQuery`).
+  3. Updated `extraData` to fully encompass all selection properties so FlashList cells always re-render correctly.
+
+

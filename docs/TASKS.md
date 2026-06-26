@@ -80,8 +80,9 @@ Next actions (Future Roadmap):
 
 # Current Tasks and Next Actions (v3.0 Era)
 
-## Completed (v2.19.6 / v2.19.x Header Optimization)
-- **Selection Header De-caching**: Removed the React `useMemo` block from the `ListHeader` layout on the main screen to prevent state lag inside the FlatList/FlashList container.
+## Completed (v2.19.7 / v2.19.x Selection Lifecycle Polish)
+- **Selection Lifecycle De-caching**: Discarded background prune effect to resolve asynchronous list rendering race conditions resetting active selection mode variables prematurely.
+- **Selection Header De-caching (v2.19.6)**: Removed the React `useMemo` block from the `ListHeader` layout on the main screen to prevent state lag inside the FlatList/FlashList container.
 - **Duplicate Key Versioning Bug Fix (v2.19.5)**: Removed a duplicate key in `package.json` that locked the compiled version name to `2.19.1` and blocked the OTA updater.
 - **Selection Mode Overhaul (v2.19.5)**: Redesigned selection mode to avoid state update deadlocks (infinite rendering loop), added empty circle indicators to cards, and restructured header layout into a responsive two-row configuration.
 
