@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.3 - Updater Testing Release
+- **Version Bump**: Bumped version specifically to test the in-app OTA GitHub release updater workflow.
+
 ## v2.19.2 - Selection UI & Logic Fixes
 - **Selection Layout Fix**: Redesigned the selection mode header into a two-row layout so the Delete and Export buttons are prominently visible on narrow mobile screens.
 - **Visual Selection Indicators**: Added a clear empty circular ring to unselected cards when in selection mode, making it visually obvious that they can be selected.
