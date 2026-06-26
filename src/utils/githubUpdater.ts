@@ -41,16 +41,26 @@ export interface UpdateInfo {
  * Checks the public GitHub repository for the latest release.
  */
 export async function checkForUpdate(allowSameVersion = false): Promise<UpdateInfo | null> {
-    if (UPDATER_MODE !== 'github') return null;
+    if (UPDATER_MODE !== 'github') {
+        log.info('[Updater] Skipped: UPDATER_MODE is not "github", got: ' + UPDATER_MODE);
+        return null;
+    }
     try {
+        log.info(`[Updater] Checking for updates... APP_VERSION=${APP_VERSION}, allowSameVersion=${allowSameVersion}`);
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            log.warn(`[Updater] GitHub API returned ${response.status} ${response.statusText}`);
+            return null;
+        }
 
         const releases = await response.json();
-        if (!Array.isArray(releases) || releases.length === 0) return null;
+        if (!Array.isArray(releases) || releases.length === 0) {
+            log.warn('[Updater] No releases found or invalid response');
+            return null;
+        }
 
         let latestRelease = null;
         let apkAsset = null;
@@ -67,7 +77,10 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
             }
         }
 
-        if (!latestRelease || !apkAsset) return null;
+        if (!latestRelease || !apkAsset) {
+            log.warn('[Updater] No release with APK asset found');
+            return null;
+        }
 
         const latestVersion = latestRelease.tag_name.replace(/^v/, '');
         const currentVersion = APP_VERSION.replace(/^v/, '');
@@ -75,11 +88,11 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         const latestNum = getVersionNumber(latestVersion);
         const currentNum = getVersionNumber(currentVersion);
 
-        log.info(`Updater Debug: Latest=${latestNum} (${latestVersion}), Current=${currentNum}`);
-
         const isNewVersion = latestNum > currentNum;
         const isReinstall = latestNum === currentNum && allowSameVersion;
         const hasUpdate = isNewVersion || isReinstall;
+
+        log.info(`[Updater] RESULT: current=${currentVersion}(${currentNum}) vs latest=${latestVersion}(${latestNum}) → isNew=${isNewVersion}, isReinstall=${isReinstall}, hasUpdate=${hasUpdate}`);
 
         return {
             hasUpdate,
@@ -91,7 +104,7 @@ export async function checkForUpdate(allowSameVersion = false): Promise<UpdateIn
         };
 
     } catch (error) {
-        log.error('Update Check Error:', error as any);
+        log.error('[Updater] Check failed with error:', error as any);
         return null;
     }
 }

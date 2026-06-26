@@ -116,16 +116,19 @@ export default function HomeScreen() {
   }, [notes, searchIndex, debouncedSearchQuery]);
 
   const toggleSelection = useCallback((id: number) => {
+    console.log('[Selection] toggleSelection called, id:', id);
     setSelectedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      console.log('[Selection] after toggle, selectedIds size:', next.size);
       if (next.size === 0) setIsSelectionMode(false);
       return next;
     });
   }, []);
 
   const handleLongPress = useCallback((id: number) => {
+    console.log('[Selection] handleLongPress called, id:', id, '→ entering selection mode');
     setIsSelectionMode(true);
     setSelectedIds(new Set([id]));
   }, []);
@@ -154,16 +157,20 @@ export default function HomeScreen() {
   }, [filteredNotes, isSelectionMode]);
 
   const toggleSelectAll = useCallback(() => {
+    console.log('[Selection] toggleSelectAll called, selected:', selectedIds.size, 'total:', filteredNotes.length);
     if (selectedIds.size === filteredNotes.length) {
+      console.log('[Selection] → deselecting all');
       clearSelection();
     } else {
+      console.log('[Selection] → selecting all', filteredNotes.length, 'notes');
       setSelectedIds(new Set(filteredNotes.map(n => n.id)));
     }
   }, [filteredNotes, selectedIds.size, clearSelection]);
 
   const handleBulkDelete = useCallback(() => {
+    console.log('[Selection] handleBulkDelete called, selectedIds:', Array.from(selectedIds));
     setShowBulkDeleteModal(true);
-  }, []);
+  }, [selectedIds]);
 
   const handleBulkExport = useCallback(async () => {
     const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
@@ -511,7 +518,9 @@ export default function HomeScreen() {
             label: loc.editor.delete,
             style: 'destructive',
             onPress: () => {
-              bulkDeleteNotes(Array.from(selectedIds));
+              const ids = Array.from(selectedIds);
+              console.log('[Selection] CONFIRMED bulk delete, ids:', ids);
+              bulkDeleteNotes(ids);
               clearSelection();
               setShowBulkDeleteModal(false);
             }
