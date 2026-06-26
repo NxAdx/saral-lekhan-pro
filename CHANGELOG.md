@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.4 - Version Sync Fixes
+- **Version Configuration Fix**: Fixed an issue where the Expo configuration (`app.config.js`) was trying to read an undefined version field from `package.json`, causing the app to silently fall back to an older cached version during builds. The app will now correctly compile with the latest version number (`2.19.4`) and apply all recent UI fixes.
+
 ## v2.19.3 - Updater Testing Release
 - **Version Bump**: Bumped version specifically to test the in-app OTA GitHub release updater workflow.
 
