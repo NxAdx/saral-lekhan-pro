@@ -60,8 +60,8 @@ export default function HomeScreen() {
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const [updateModal, setUpdateModal] = useState<{ visible: boolean; title: string; subtitle: string; version: string }>({ visible: false, title: '', subtitle: '', version: '' });
 
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const isSelectionMode = selectedIds.size > 0;
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
   const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
@@ -128,28 +128,19 @@ export default function HomeScreen() {
 
   const handleLongPress = useCallback((id: number) => {
     console.log('[Selection] handleLongPress called, id:', id, '→ entering selection mode');
-    setIsSelectionMode(true);
     setSelectedIds(new Set([id]));
   }, []);
 
   const clearSelection = useCallback(() => {
-    setIsSelectionMode(false);
     setSelectedIds(new Set());
   }, []);
 
   // Clear selection when filters or search change
   useEffect(() => {
-    if (isSelectionMode) {
+    if (selectedIds.size > 0) {
       clearSelection();
     }
-  }, [selectedTag, debouncedSearchQuery]);
-
-  // Safely exit selection mode when all items are deselected
-  useEffect(() => {
-    if (isSelectionMode && selectedIds.size === 0) {
-      setIsSelectionMode(false);
-    }
-  }, [isSelectionMode, selectedIds.size]);
+  }, [selectedTag, debouncedSearchQuery, clearSelection]);
 
   const toggleSelectAll = useCallback(() => {
     console.log('[Selection] toggleSelectAll called, selected:', selectedIds.size, 'total:', filteredNotes.length);

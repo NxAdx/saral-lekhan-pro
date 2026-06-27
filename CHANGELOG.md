@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.13 - Eliminate State Desync in Selection Mode
+- **Architectural Fix for Selection State**: Completely eliminated the root cause of the "first note doesn't select" bug. Previously, the selection UI mode (`isSelectionMode`) and the underlying selected items list (`selectedIds`) were two separate React state variables synchronized via `useEffect`. Under certain race conditions, one would update without the other. This has been refactored so that `isSelectionMode` is purely derived from `selectedIds.size > 0`. This makes it mathematically impossible for the UI to be desynced from the actual selection state.
+
 ## v2.19.12 - Tag Visibility and Selection Reliability Fix
 - **Fix Tag Visibility**: Added fallback values for `fontSize` calculations in `themeStore` and `TagPill`. If local storage evaluates to `NaN` or `undefined` (which shrinks tags to invisible dots), it now safely defaults to `1.0`.
 - **Fix Selection Race Condition**: Refactored the `FlatList` component to determine selection status (`selectedIds.has(item.id)`) *inside* the `renderItem` closure instead of relying on a `.map()` copy array (`dataToRender`). Added `isSelectionMode` and `selectedIds` directly to the `useCallback` dependency array. This guarantees that `FlatList` sees a new component reference when state changes and accurately re-renders all cells in place without caching stale items (which previously caused the first long-press to malfunction).
