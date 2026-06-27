@@ -12,7 +12,7 @@ interface TagPillProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function TagPill({ label, active, onPress }: TagPillProps) {
-  const { colors, font, radius } = useTheme();
+  const { colors, font, radius, fontSize } = useTheme();
   const pressed = useSharedValue(0);
 
   const animStyle = useAnimatedStyle(() => ({

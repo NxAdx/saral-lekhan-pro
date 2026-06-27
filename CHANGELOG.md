@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.16 - Fix Missing Variable in TagPill
+- **Tag Rendering Fixed**: Fixed a TypeScript compilation error in `TagPill.tsx` that prevented the previous tag UI fix from being built successfully into an APK. The dynamic `fontSize` variable is now properly extracted from `useTheme()`.
+
 ## v2.19.15 - Perfect TagPill UI Restoration
 - **Reverted TagPill to Stable Layout**: Reverted the underlying flexbox layout of `TagPill` to exactly match the stable version from `v2.19.10` (before the UI regressions occurred), while preserving the safe dynamic font scaling fix. This guarantees the tags render perfectly as they used to.
 
