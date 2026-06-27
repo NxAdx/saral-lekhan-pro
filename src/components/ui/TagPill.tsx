@@ -43,8 +43,7 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
           {
             color: active ? colors.white : colors.inkMid,
             fontFamily: font.sansSemi,
-            fontSize: 11 * (fontSize || 1),
-            includeFontPadding: false,
+            fontSize: Math.max(11 * (fontSize || 1), 10),
           },
         ]}
         numberOfLines={1}
