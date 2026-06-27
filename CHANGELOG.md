@@ -1,6 +1,8 @@
 # Changelog
 
-## v2.19.11 - Replace FlashList with FlatList & Extract Header from List
+## v2.19.12 - Tag Visibility and Selection Reliability Fix
+- **Fix Tag Visibility**: Added fallback values for `fontSize` calculations in `themeStore` and `TagPill`. If local storage evaluates to `NaN` or `undefined` (which shrinks tags to invisible dots), it now safely defaults to `1.0`.
+- **Fix Selection Race Condition**: Refactored the `FlatList` component to determine selection status (`selectedIds.has(item.id)`) *inside* the `renderItem` closure instead of relying on a `.map()` copy array (`dataToRender`). Added `isSelectionMode` and `selectedIds` directly to the `useCallback` dependency array. This guarantees that `FlatList` sees a new component reference when state changes and accurately re-renders all cells in place without caching stale items (which previously caused the first long-press to malfunction).
 - **Root Cause Confirmed**: Shopify's `FlashList` caches `ListHeaderComponent` and does NOT re-render it when state changes (confirmed via Shopify docs and GitHub issues). This is why the selection header never appeared despite `isSelectionMode` being `true`.
 - **FlashList → FlatList**: Replaced `@shopify/flash-list` with React Native's standard `FlatList`. `FlatList` correctly re-renders all cells and respects `extraData` without recycler caching interference.
 - **Header Extracted from List**: Moved the selection header, search bar, and tag rail completely outside the `FlatList` and into the parent component's render tree. This guarantees React always re-renders the header instantly on state transitions — no list component caching can interfere.

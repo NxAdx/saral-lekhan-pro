@@ -114,13 +114,6 @@ export default function HomeScreen() {
       .map(({ note }) => note);
   }, [notes, searchIndex, debouncedSearchQuery]);
 
-  const dataToRender = useMemo(() => {
-    return filteredNotes.map((note) => ({
-      ...note,
-      isSelected: selectedIds.has(note.id),
-      isSelectionMode,
-    }));
-  }, [filteredNotes, selectedIds, isSelectionMode]);
 
   const toggleSelection = useCallback((id: number) => {
     console.log('[Selection] toggleSelection called, id:', id);
@@ -374,12 +367,13 @@ export default function HomeScreen() {
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
   const renderItem = useCallback(({ item }: { item: any }) => {
+    const isItemSelected = selectedIds.has(item.id);
     return (
       <View style={s.noteContainer}>
         <BentoCard
           note={item}
           onPress={() => {
-            if (item.isSelectionMode) {
+            if (isSelectionMode) {
               toggleSelection(item.id);
             } else {
               onNotePress(item.id);
@@ -387,12 +381,12 @@ export default function HomeScreen() {
           }}
           onLongPress={() => handleLongPress(item.id)}
           date={formatDate(item.updated_at, loc)}
-          selected={item.isSelected}
-          isSelectionMode={item.isSelectionMode}
+          selected={isItemSelected}
+          isSelectionMode={isSelectionMode}
         />
       </View>
     );
-  }, [toggleSelection, onNotePress, handleLongPress, loc, s]);
+  }, [toggleSelection, onNotePress, handleLongPress, loc, s, isSelectionMode, selectedIds]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
@@ -513,7 +507,7 @@ export default function HomeScreen() {
       )}
       {/* ── Note List (FlatList — no recycler caching bugs) ── */}
       <FlatList
-        data={dataToRender}
+        data={filteredNotes}
         extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}

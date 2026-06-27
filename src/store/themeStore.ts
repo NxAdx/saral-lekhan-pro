@@ -100,6 +100,6 @@ export const useTheme = () => {
         ...sharedTokens,
         font: customFont,
         isDark,
-        fontSize: fontSize * fontScale,
+        fontSize: (fontSize || 1.0) * fontScale,
     }), [colors, customFont, isDark, fontSize, fontScale]);
 };
