@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.14 - Definitively Fix TagPill Text Clipping
+- **Tag Rendering Fixed**: On certain Android devices, `includeFontPadding: false` causes complete vertical text clipping if the device font metrics have zero height. Removed this property. Also enforced a strict `Math.max` for tag font size so it can never shrink below `10px` regardless of the user's base multiplier.
+
 ## v2.19.13 - Eliminate State Desync in Selection Mode
 - **Architectural Fix for Selection State**: Completely eliminated the root cause of the "first note doesn't select" bug. Previously, the selection UI mode (`isSelectionMode`) and the underlying selected items list (`selectedIds`) were two separate React state variables synchronized via `useEffect`. Under certain race conditions, one would update without the other. This has been refactored so that `isSelectionMode` is purely derived from `selectedIds.size > 0`. This makes it mathematically impossible for the UI to be desynced from the actual selection state.
 
