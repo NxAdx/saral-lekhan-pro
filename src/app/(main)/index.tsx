@@ -115,6 +115,14 @@ export default function HomeScreen() {
       .map(({ note }) => note);
   }, [notes, searchIndex, debouncedSearchQuery]);
 
+  const dataToRender = useMemo(() => {
+    return filteredNotes.map((note) => ({
+      ...note,
+      isSelected: selectedIds.has(note.id),
+      isSelectionMode,
+    }));
+  }, [filteredNotes, selectedIds, isSelectionMode]);
+
   const toggleSelection = useCallback((id: number) => {
     console.log('[Selection] toggleSelection called, id:', id);
     setSelectedIds(prev => {
@@ -366,7 +374,7 @@ export default function HomeScreen() {
     },
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
-  const renderHeader = useCallback(() => (
+  const ListHeader = (
     <View>
       <View style={s.header}>
         {isSelectionMode ? (
@@ -479,16 +487,15 @@ export default function HomeScreen() {
         </ScrollView>
       )}
     </View>
-  ), [isSelectionMode, selectedIds.size, filteredNotes.length, colors, loc, searchQuery, selectedTag, uniqueTags, s, handleImport, handleBulkDelete, handleBulkExport, toggleSelectAll, clearSelection, router]);
+  );
 
   const renderItem = useCallback(({ item }: { item: any }) => {
-    const isSelected = selectedIds.has(item.id);
     return (
       <View style={s.noteContainer}>
         <BentoCard
           note={item}
           onPress={() => {
-            if (isSelectionMode) {
+            if (item.isSelectionMode) {
               toggleSelection(item.id);
             } else {
               onNotePress(item.id);
@@ -496,12 +503,12 @@ export default function HomeScreen() {
           }}
           onLongPress={() => handleLongPress(item.id)}
           date={formatDate(item.updated_at, loc)}
-          selected={isSelected}
-          isSelectionMode={isSelectionMode}
+          selected={item.isSelected}
+          isSelectionMode={item.isSelectionMode}
         />
       </View>
     );
-  }, [isSelectionMode, selectedIds, loc, onNotePress, handleLongPress, toggleSelection, s]);
+  }, [toggleSelection, onNotePress, handleLongPress, loc, s]);
 
   if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
 
@@ -509,14 +516,14 @@ export default function HomeScreen() {
     <Animated.View style={s.root} entering={FadeIn.duration(400)}>
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
       <FlashList
-        data={[...filteredNotes]}
+        data={dataToRender}
         extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size, selectedIdsString: Array.from(selectedIds).join(',') }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
         estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={ListHeader}
         renderItem={renderItem}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={

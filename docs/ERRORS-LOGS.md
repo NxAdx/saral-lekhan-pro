@@ -535,17 +535,18 @@ Notes
   2. Replaced it with a target event-based clear effect that runs only when the user explicitly changes `selectedTag` or typing in search (`debouncedSearchQuery`).
   3. Updated `extraData` to fully encompass all selection properties so FlashList cells always re-render correctly.
 
-50) FlashList skipping cell/header updates due to cached data array reference (resolved 2026-06-26 in v2.19.9)
+50) FlashList skipping cell/header updates & invisible selection circles (resolved 2026-06-27 in v2.19.10)
 - Symptom:
   1. Long pressing a card shows a checkmark (tick), indicating it is selected, but the top selection actions bar does not appear.
   2. Tapping other cards does not select them and instead navigates to open them.
+  3. No empty selection circle outlines appear on the other cards in dark mode.
 - Cause:
-  1. Shopify's `FlashList` uses aggressive performance optimizations and skips executing `renderItem` or updating the layout elements of the `ListHeaderComponent` if it is passed as a static element reference or if `renderItem` is defined as a simple inline function closure that doesn't explicitly link its rendering context to dynamic state changes.
-  2. Because only the long-pressed note cell registered a touch event, it forced a redraw of its own component. The rest of the list items and the header remained stale, using old onPress closures capturing `isSelectionMode = false`.
+  1. Shopify's `FlashList` skips running `renderItem` for visible cells if the cell data objects inside the `data` array maintain the same reference, even if `extraData` changes. Memoizing render handlers does not bypass this optimization, leading cells to retain stale `onPress` closures capturing `isSelectionMode = false`.
+  2. The `unselectedIcon` in `BentoCard` used `colors.strokeDim` for its border. In almost all dark themes, `strokeDim` carries the exact same color value as the card background `bgRaised` (e.g. `#2B2926` in classic dark), making the selection circles completely invisible.
 - Resolution:
-  1. Converted `ListHeader` into a `useCallback`-memoized component function `renderHeader` to force FlashList to refresh the header layout when selection states change.
-  2. Wrapped `renderItem` in a `useCallback` hook to capture current state parameters dynamically.
-  3. Configured a structured object for `extraData` (`extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size, ... }}`) to notify FlashList's diffing engine to trigger updates on all visible items.
+  1. Mapped the selection state (`isSelected`, `isSelectionMode`) directly onto each note object inside a computed `dataToRender` array passed as the `data` prop of `FlashList`. This forces the list diffing engine to redraw all items on transitions.
+  2. Rewrote `renderItem` to extract selection properties directly from the `item` data parameter rather than the parent scope, eliminating stale closures.
+  3. Changed the border color of `unselectedIcon` to `colors.stroke` to ensure high contrast and visibility across all themes.
 
 
 

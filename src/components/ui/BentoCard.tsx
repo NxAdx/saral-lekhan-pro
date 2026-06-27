@@ -110,7 +110,7 @@ export const BentoCard = React.memo(({
             height: 22,
             borderRadius: 11,
             borderWidth: 1.5,
-            borderColor: colors.strokeDim,
+            borderColor: colors.stroke,
             backgroundColor: 'transparent',
             zIndex: 10,
         }

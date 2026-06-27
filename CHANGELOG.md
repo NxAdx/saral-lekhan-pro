@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.19.10 - Selection State Mapped Rendering & Visibility Fixes
+- **State-to-Data Mapping**: Mapped `isSelected` and `isSelectionMode` directly onto each note object in a computed `dataToRender` array passed to `FlashList`. This forces FlashList's diffing engine to reliably redraw all visible items and the header component on selection state transitions, completely bypassing closure-stretching and recycling lags.
+- **Unselected Outline Visibility**: Changed the border color of `unselectedIcon` in `BentoCard` from `strokeDim` to `stroke`. In almost all dark themes, `strokeDim` matches the card background color, rendering the empty selection rings invisible. The new `stroke` color provides high contrast and full visibility.
+
 ## v2.19.9 - FlashList Stale Render Resolution
 - **Memoized Callbacks Fix**: Converted static `ListHeader` JSX element and inline `renderItem` into memoized functional callbacks (`renderHeader`, `renderItem`) utilizing `useCallback` with explicit dependency tracking.
 - **Selection State Sync**: Configured a custom `extraData` dependency object that forces Shopify's `FlashList` to reliably re-evaluate cell renderers and header components on selection mode transitions, resolving stale closure bugs where selecting a note didn't update the header or tap behaviors on other notes.
