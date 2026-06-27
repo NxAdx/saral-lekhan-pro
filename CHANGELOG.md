@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.19.17 - Total Tag UI Layout Fix
+- **Tag Rendering Fixed**: Completely restored `TagPill.tsx` layout styles back to how it was in your older, perfectly working builds (`flexDirection: row`, `alignItems: center`, and `includeFontPadding: false`). This finally resolves the issue where tags inside the top rail were rendering as tiny truncated dots instead of readable tags.
+- **Icon Support Restored**: Restored icon prop support to the TagPill for compatibility.
+
 ## v2.19.16 - Fix Missing Variable in TagPill
 - **Tag Rendering Fixed**: Fixed a TypeScript compilation error in `TagPill.tsx` that prevented the previous tag UI fix from being built successfully into an APK. The dynamic `fontSize` variable is now properly extracted from `useTheme()`.
 
