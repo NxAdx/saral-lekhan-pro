@@ -6,14 +6,13 @@ import { useTheme } from '../../store/themeStore';
 interface TagPillProps {
   label: string;
   active?: boolean;
-  icon?: React.ReactNode;
   onPress?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function TagPill({ label, active, icon, onPress }: TagPillProps) {
-  const { colors, font, radius, fontSize } = useTheme();
+export function TagPill({ label, active, onPress }: TagPillProps) {
+  const { colors, font, radius } = useTheme();
   const pressed = useSharedValue(0);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -36,18 +35,11 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
       ]}
       hitSlop={8}
     >
-      {icon}
-      <Text
-        style={[
-          styles.label,
-          {
-            color: active ? colors.white : colors.inkMid,
-            fontFamily: font.sansSemi,
-            fontSize: Math.max(11 * (fontSize || 1), 10),
-          },
-        ]}
-        numberOfLines={1}
-      >
+      <Text style={[styles.label, { 
+        color: active ? colors.white : colors.inkMid, 
+        fontFamily: font.sansSemi,
+        fontSize: (typeof fontSize === 'number' && !isNaN(fontSize)) ? Math.max(11 * fontSize, 10) : 11
+      }]} numberOfLines={1}>
         {label}
       </Text>
     </AnimatedPressable>
@@ -56,13 +48,12 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
 
 const styles = StyleSheet.create({
   pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,
   },
   label: {
+    fontSize: 11,
     fontWeight: '600',
   },
 });

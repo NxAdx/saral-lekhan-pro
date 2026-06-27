@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.15 - Perfect TagPill UI Restoration
+- **Reverted TagPill to Stable Layout**: Reverted the underlying flexbox layout of `TagPill` to exactly match the stable version from `v2.19.10` (before the UI regressions occurred), while preserving the safe dynamic font scaling fix. This guarantees the tags render perfectly as they used to.
+
 ## v2.19.14 - Definitively Fix TagPill Text Clipping
 - **Tag Rendering Fixed**: On certain Android devices, `includeFontPadding: false` causes complete vertical text clipping if the device font metrics have zero height. Removed this property. Also enforced a strict `Math.max` for tag font size so it can never shrink below `10px` regardless of the user's base multiplier.
 
