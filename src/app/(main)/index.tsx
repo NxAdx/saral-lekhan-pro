@@ -1,9 +1,8 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import {
-  ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet
+  ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet, FlatList
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -374,8 +373,33 @@ export default function HomeScreen() {
     },
   }), [colors, font, radius, shadow, searchFocused, spacing, theme.fontSize]);
 
-  const ListHeader = (
-    <View>
+  const renderItem = useCallback(({ item }: { item: any }) => {
+    return (
+      <View style={s.noteContainer}>
+        <BentoCard
+          note={item}
+          onPress={() => {
+            if (item.isSelectionMode) {
+              toggleSelection(item.id);
+            } else {
+              onNotePress(item.id);
+            }
+          }}
+          onLongPress={() => handleLongPress(item.id)}
+          date={formatDate(item.updated_at, loc)}
+          selected={item.isSelected}
+          isSelectionMode={item.isSelectionMode}
+        />
+      </View>
+    );
+  }, [toggleSelection, onNotePress, handleLongPress, loc, s]);
+
+  if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
+
+  return (
+    <Animated.View style={s.root} entering={FadeIn.duration(400)}>
+      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
+      {/* ── Header rendered OUTSIDE the list so React always re-renders it ── */}
       <View style={s.header}>
         {isSelectionMode ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
@@ -433,7 +457,7 @@ export default function HomeScreen() {
           </>
         )}
       </View>
-      {/* Selection action bar: Delete + Export buttons below the header */}
+      {/* Selection action bar */}
       {isSelectionMode && selectedIds.size > 0 && (
         <View style={s.selectionActions}>
           <Pressable onPress={handleBulkDelete} style={s.deleteBtn} hitSlop={8}>
@@ -456,6 +480,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       )}
+      {/* Search + Tags */}
       <View style={s.searchWrap}>
         <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <Path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
@@ -486,44 +511,14 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
       )}
-    </View>
-  );
-
-  const renderItem = useCallback(({ item }: { item: any }) => {
-    return (
-      <View style={s.noteContainer}>
-        <BentoCard
-          note={item}
-          onPress={() => {
-            if (item.isSelectionMode) {
-              toggleSelection(item.id);
-            } else {
-              onNotePress(item.id);
-            }
-          }}
-          onLongPress={() => handleLongPress(item.id)}
-          date={formatDate(item.updated_at, loc)}
-          selected={item.isSelected}
-          isSelectionMode={item.isSelectionMode}
-        />
-      </View>
-    );
-  }, [toggleSelection, onNotePress, handleLongPress, loc, s]);
-
-  if (!isLoaded) return <SmoothLanding themeId={themeId} isDark={isDark} />;
-
-  return (
-    <Animated.View style={s.root} entering={FadeIn.duration(400)}>
-      <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
-      <FlashList
+      {/* ── Note List (FlatList — no recycler caching bugs) ── */}
+      <FlatList
         data={dataToRender}
-        extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size, selectedIdsString: Array.from(selectedIds).join(',') }}
+        extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size }}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.listContent}
-        estimatedItemSize={140}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={ListHeader}
         renderItem={renderItem}
         ItemSeparatorComponent={NoteSeparator}
         ListEmptyComponent={

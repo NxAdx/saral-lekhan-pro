@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.19.11 - Replace FlashList with FlatList & Extract Header from List
+- **Root Cause Confirmed**: Shopify's `FlashList` caches `ListHeaderComponent` and does NOT re-render it when state changes (confirmed via Shopify docs and GitHub issues). This is why the selection header never appeared despite `isSelectionMode` being `true`.
+- **FlashList → FlatList**: Replaced `@shopify/flash-list` with React Native's standard `FlatList`. `FlatList` correctly re-renders all cells and respects `extraData` without recycler caching interference.
+- **Header Extracted from List**: Moved the selection header, search bar, and tag rail completely outside the `FlatList` and into the parent component's render tree. This guarantees React always re-renders the header instantly on state transitions — no list component caching can interfere.
+
 ## v2.19.10 - Selection State Mapped Rendering & Visibility Fixes
 - **State-to-Data Mapping**: Mapped `isSelected` and `isSelectionMode` directly onto each note object in a computed `dataToRender` array passed to `FlashList`. This forces FlashList's diffing engine to reliably redraw all visible items and the header component on selection state transitions, completely bypassing closure-stretching and recycling lags.
 - **Unselected Outline Visibility**: Changed the border color of `unselectedIcon` in `BentoCard` from `strokeDim` to `stroke`. In almost all dark themes, `strokeDim` matches the card background color, rendering the empty selection rings invisible. The new `stroke` color provides high contrast and full visibility.

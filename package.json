@@ -1,8 +1,8 @@
 {
   "name": "saral-lekhan",
-  "version": "2.19.10",
+  "version": "2.19.11",
   "private": true,
-  "androidVersionCode": 111,
+  "androidVersionCode": 112,
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
