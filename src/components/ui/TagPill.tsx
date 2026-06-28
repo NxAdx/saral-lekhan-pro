@@ -27,6 +27,7 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
       onPressOut={() => { pressed.value = 0; }}
       style={[
         styles.pill,
+        icon ? styles.rowPill : null,
         {
           backgroundColor: active ? colors.accent : colors.bg,
           borderColor: active ? colors.accentDark : colors.stroke,
@@ -42,7 +43,7 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
         fontFamily: font.sansSemi,
         fontSize: (typeof fontSize === 'number' && !isNaN(fontSize)) ? Math.max(11 * fontSize, 10) : 11,
         includeFontPadding: false,
-      }]} numberOfLines={1}>
+      }]}>
         {label}
       </Text>
     </AnimatedPressable>
@@ -51,11 +52,13 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
 
 const styles = StyleSheet.create({
   pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,
+  },
+  rowPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   label: {
     fontSize: 11,

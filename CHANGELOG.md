@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.18 - Resolve Row Flexbox Text Truncation Bug in TagPill
+- **Tag Rendering Fixed**: Conditionalized the layout style of `TagPill` component so `flexDirection: 'row'` is only applied when an `icon` is provided. When no icon is present, it falls back to standard block/column layout. Also removed `numberOfLines={1}` from the tag pill label text, eliminating the React Native / Yoga engine layout bug that caused the tags inside horizontal rails to collapse or render as empty dots.
+
 ## v2.19.17 - Total Tag UI Layout Fix
 - **Tag Rendering Fixed**: Completely restored `TagPill.tsx` layout styles back to how it was in your older, perfectly working builds (`flexDirection: row`, `alignItems: center`, and `includeFontPadding: false`). This finally resolves the issue where tags inside the top rail were rendering as tiny truncated dots instead of readable tags.
 - **Icon Support Restored**: Restored icon prop support to the TagPill for compatibility.
