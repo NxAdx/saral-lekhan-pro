@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Text, Pressable, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../store/themeStore';
 
@@ -38,19 +38,20 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
       hitSlop={8}
     >
       {icon}
-      <View style={{ flexShrink: 1, justifyContent: 'center' }}>
-        <Text 
-          style={[styles.label, { 
-            color: active ? colors.white : colors.inkMid, 
+      <Text
+        style={[
+          styles.label,
+          {
+            color: active ? colors.white : colors.inkMid,
             fontFamily: font.sansSemi,
-            fontSize: (typeof fontSize === 'number' && !isNaN(fontSize)) ? Math.max(11 * fontSize, 10) : 11,
-          }]}
-          textBreakStrategy="simple"
-          numberOfLines={1}
-        >
-          {label + " "}
-        </Text>
-      </View>
+            fontSize: 11 * fontSize,
+            includeFontPadding: false,
+          },
+        ]}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
     </AnimatedPressable>
   );
 }

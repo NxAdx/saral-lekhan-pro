@@ -1,6 +1,8 @@
 # Changelog
 
-## v2.19.20 - Fix Android ScrollView Zero-Width Text Initial Render Bug
+## v2.19.21 - Revert TagPill to v2.17.56 Native Behavior
+- **Tag Rendering Fixed (Final)**: Completely reverted the TagPill component's text logic to precisely match the battle-tested code from v2.17.56. All recent hacks (`View` wrapping, `numberOfLines` removal, flexbox changes) that inadvertently broke Android text layout measurement on the home screen have been stripped out.
+- **Selection Mode Fix**: Restored native selection mode behavior. In selection mode, tapping a note will correctly select/deselect it rather than unintentionally opening the editor.
 - **Tag Rendering Fixed**: Discovered and resolved the root cause of tags appearing blank or dotted on the initial screen load. React Native's Android layout engine struggles to calculate the width of root `<Text>` nodes inside horizontal `<ScrollView>`s. Explicitly wrapped the tag label `<Text>` inside a `<View>` container with `flexShrink: 1` and re-enabled `numberOfLines={1}`. This forces the Android UI engine to calculate the bounds accurately on the very first mount, eliminating the bug where tags were invisible until a user tapped one.
 
 ## v2.19.19 - Fix Devanagari & English Tag Layout Text Clipping on Android
