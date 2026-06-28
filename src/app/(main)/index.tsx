@@ -489,12 +489,21 @@ export default function HomeScreen() {
         )}
       </View>
       {uniqueTags.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tagRail} style={s.tagRailOuter}>
-          <TagPill label={loc.allTag || "All Notes"} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />
-          {uniqueTags.map((tag) => (
-            <TagPill key={tag} label={`#${tag}`} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />
-          ))}
-        </ScrollView>
+        <View style={s.tagRailOuter}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.tagRail}
+            data={['ALL_TAG_ID', ...uniqueTags]}
+            keyExtractor={(item) => item}
+            renderItem={({ item: tag }) => {
+              if (tag === 'ALL_TAG_ID') {
+                return <TagPill label={loc.allTag || "All Notes"} active={selectedTag === ALL_TAG_ID} onPress={() => setSelectedTag(ALL_TAG_ID)} />;
+              }
+              return <TagPill label={`#${tag}`} active={selectedTag === tag} onPress={() => setSelectedTag(tag)} />;
+            }}
+          />
+        </View>
       )}
       {/* ── Note List (FlatList — no recycler caching bugs) ── */}
       <FlatList

@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.22 - Final Fix for Android Horizontal Layout Text Measurement Bug
+- **Tag Rail Converted to FlatList**: Replaced the horizontal `ScrollView` used for the tag rail on the Home Screen with a horizontal `FlatList`. In React Native Android, raw root `<Text>` components inside a `ScrollView` that sits as a sibling to another `FlatList` frequently fail layout measurement boundaries (calculating 0-width) until a state update occurs. Converting the tag rail to `FlatList` ensures standard `CellRenderer` bindings are used for robust and fully visible text rendering on mount.
+
 ## v2.19.21 - Revert TagPill to v2.17.56 Native Behavior
 - **Tag Rendering Fixed (Final)**: Completely reverted the TagPill component's text logic to precisely match the battle-tested code from v2.17.56. All recent hacks (`View` wrapping, `numberOfLines` removal, flexbox changes) that inadvertently broke Android text layout measurement on the home screen have been stripped out.
 - **Selection Mode Fix**: Restored native selection mode behavior. In selection mode, tapping a note will correctly select/deselect it rather than unintentionally opening the editor.
