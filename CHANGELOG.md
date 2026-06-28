@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.20 - Fix Android ScrollView Zero-Width Text Initial Render Bug
+- **Tag Rendering Fixed**: Discovered and resolved the root cause of tags appearing blank or dotted on the initial screen load. React Native's Android layout engine struggles to calculate the width of root `<Text>` nodes inside horizontal `<ScrollView>`s. Explicitly wrapped the tag label `<Text>` inside a `<View>` container with `flexShrink: 1` and re-enabled `numberOfLines={1}`. This forces the Android UI engine to calculate the bounds accurately on the very first mount, eliminating the bug where tags were invisible until a user tapped one.
+
 ## v2.19.19 - Fix Devanagari & English Tag Layout Text Clipping on Android
 - **Tag Rendering Fixed**: Completely removed `includeFontPadding: false` from the `TagPill` text styling, which was causing the text to collapse to ellipses/dots on certain Android devices. Also added `textBreakStrategy="simple"` and a trailing space character to the text rendering to ensure clean, unclipped tag text rendering across all screen sizes.
 
