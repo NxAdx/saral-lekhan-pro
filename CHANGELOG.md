@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.19 - Fix Devanagari & English Tag Layout Text Clipping on Android
+- **Tag Rendering Fixed**: Completely removed `includeFontPadding: false` from the `TagPill` text styling, which was causing the text to collapse to ellipses/dots on certain Android devices. Also added `textBreakStrategy="simple"` and a trailing space character to the text rendering to ensure clean, unclipped tag text rendering across all screen sizes.
+
 ## v2.19.18 - Resolve Row Flexbox Text Truncation Bug in TagPill
 - **Tag Rendering Fixed**: Conditionalized the layout style of `TagPill` component so `flexDirection: 'row'` is only applied when an `icon` is provided. When no icon is present, it falls back to standard block/column layout. Also removed `numberOfLines={1}` from the tag pill label text, eliminating the React Native / Yoga engine layout bug that caused the tags inside horizontal rails to collapse or render as empty dots.
 

@@ -38,13 +38,15 @@ export function TagPill({ label, active, icon, onPress }: TagPillProps) {
       hitSlop={8}
     >
       {icon}
-      <Text style={[styles.label, { 
-        color: active ? colors.white : colors.inkMid, 
-        fontFamily: font.sansSemi,
-        fontSize: (typeof fontSize === 'number' && !isNaN(fontSize)) ? Math.max(11 * fontSize, 10) : 11,
-        includeFontPadding: false,
-      }]}>
-        {label}
+      <Text 
+        style={[styles.label, { 
+          color: active ? colors.white : colors.inkMid, 
+          fontFamily: font.sansSemi,
+          fontSize: (typeof fontSize === 'number' && !isNaN(fontSize)) ? Math.max(11 * fontSize, 10) : 11,
+        }]}
+        textBreakStrategy="simple"
+      >
+        {label + " "}
       </Text>
     </AnimatedPressable>
   );
