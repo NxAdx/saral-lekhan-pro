@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.19.23 - Pinning UI and Bulk Export Fixes
+- **Pinning Restored**: Added a visible pin/unpin toggle button to the editor header, allowing users to actively pin important notes to the top of their home screen. 
+- **Bulk Export Fix**: Resolved an issue where exporting multiple notes would concatenate them into a single Markdown file. Bulk Export now correctly generates a standardized `.zip` archive containing individual `.md` files for each selected note, preserving folder structure and making it much easier to import into other markdown editors.
+
 ## v2.19.22 - Final Fix for Android Horizontal Layout Text Measurement Bug
 - **Tag Rail Converted to FlatList**: Replaced the horizontal `ScrollView` used for the tag rail on the Home Screen with a horizontal `FlatList`. In React Native Android, raw root `<Text>` components inside a `ScrollView` that sits as a sibling to another `FlatList` frequently fail layout measurement boundaries (calculating 0-width) until a state update occurs. Converting the tag rail to `FlatList` ensures standard `CellRenderer` bindings are used for robust and fully visible text rendering on mount.
 

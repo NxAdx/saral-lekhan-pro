@@ -39,6 +39,7 @@ export default function NewNoteScreen() {
 
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
+  const [isPinned, setIsPinned] = useState(false);
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
 
   const [showAiModal, setShowAiModal] = useState(false);
@@ -157,7 +158,7 @@ export default function NewNoteScreen() {
       if (noteId.current) {
         updateNote(noteId.current, { title: title.trim(), body: html || '', tag: tag.trim() });
       } else {
-        const id = addNote({ title: title.trim(), body: html || '', tag: tag.trim(), pinned: false });
+        const id = addNote({ title: title.trim(), body: html || '', tag: tag.trim(), pinned: isPinned });
         noteId.current = id;
       }
       setIsDirty(false);
@@ -499,6 +500,24 @@ export default function NewNoteScreen() {
           )}
         </View>
         <View style={s.headerRight}>
+          <Pressable 
+            onPress={() => {
+              const newPinned = !isPinned;
+              setIsPinned(newPinned);
+              setIsDirty(true);
+              if (noteId.current) {
+                useNotesStore.getState().updateNote(noteId.current, { pinned: newPinned });
+              }
+            }} 
+            style={[s.circleBtn, isPinned && { borderColor: colors.accent, backgroundColor: colors.accent + '22' }]} 
+            hitSlop={12}
+          >
+            <Svg viewBox="0 0 24 24" width={18} height={18} fill={isPinned ? colors.accent : "none"} stroke={isPinned ? colors.accent : colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
+              <Path d="M9 15l-4.5 4.5" />
+              <Path d="M14.5 4l5.5 5.5" />
+            </Svg>
+          </Pressable>
           <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
@@ -565,7 +584,7 @@ export default function NewNoteScreen() {
                       if (noteId.current) {
                         useNotesStore.getState().updateNote(noteId.current, { title, body: html, tag });
                       } else {
-                        const id = addNote({ title, body: html, tag, pinned: false });
+                        const id = addNote({ title, body: html, tag, pinned: isPinned });
                         noteId.current = id;
                       }
                     }

@@ -644,6 +644,13 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
+          <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accent + '22' }]} hitSlop={12}>
+            <Svg viewBox="0 0 24 24" width={18} height={18} fill={note?.pinned ? colors.accent : "none"} stroke={note?.pinned ? colors.accent : colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
+              <Path d="M9 15l-4.5 4.5" />
+              <Path d="M14.5 4l5.5 5.5" />
+            </Svg>
+          </Pressable>
           <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
             <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />

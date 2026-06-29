@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import JSZip from 'jszip';
 import { Svg, Path } from 'react-native-svg';
 import { useNotesStore, ALL_TAG_ID } from '../../store/notesStore';
 import { shallow } from 'zustand/shallow';
@@ -162,12 +163,20 @@ export default function HomeScreen() {
     const selectedNotes = filteredNotes.filter(n => selectedIds.has(n.id));
     if (selectedNotes.length === 0) return;
     try {
-      const content = selectedNotes.map(n => `## ${n.title}\n\n${n.body}`).join('\n\n---\n\n');
-      const filename = `saral_export_${Date.now()}.md`;
+      const zip = new JSZip();
+      
+      selectedNotes.forEach(n => {
+        const safeTitle = (n.title || `note_${n.id}`).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        zip.file(`${safeTitle}.md`, `# ${n.title}\n\n${n.body}`);
+      });
+
+      const base64Content = await zip.generateAsync({ type: 'base64' });
+      const filename = `saral_export_${Date.now()}.zip`;
       const uri = `${FileSystem.cacheDirectory}${filename}`;
-      await FileSystem.writeAsStringAsync(uri, content);
+      await FileSystem.writeAsStringAsync(uri, base64Content, { encoding: FileSystem.EncodingType.Base64 });
+      
       const { shareAsync } = await import('expo-sharing');
-      await shareAsync(uri, { dialogTitle: 'Bulk Export' });
+      await shareAsync(uri, { dialogTitle: 'Bulk Export (ZIP)', UTI: 'public.zip-archive', mimeType: 'application/zip' });
       clearSelection();
     } catch (e) {
       console.warn(e);
