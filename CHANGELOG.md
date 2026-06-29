@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.24 - Rich Editor Auto-Scroll Offset Fix
+- **Auto-Scroll Behavior Fixed**: Resolved a bug where the editor would abruptly scroll up to the top of the screen when typing on the first few lines of a note. The layout measurement now accurately accounts for the vertical offset introduced by the Title and Tag inputs sitting above the editor surface inside the ScrollView.
+
 ## v2.19.23 - Pinning UI and Bulk Export Fixes
 - **Pinning Restored**: Added a visible pin/unpin toggle button to the editor header, allowing users to actively pin important notes to the top of their home screen. 
 - **Bulk Export Fix**: Resolved an issue where exporting multiple notes would concatenate them into a single Markdown file. Bulk Export now correctly generates a standardized `.zip` archive containing individual `.md` files for each selected note, preserving folder structure and making it much easier to import into other markdown editors.

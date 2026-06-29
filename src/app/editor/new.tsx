@@ -41,6 +41,7 @@ export default function NewNoteScreen() {
   const [tag, setTag] = useState('');
   const [isPinned, setIsPinned] = useState(false);
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
+  const [editorOffset, setEditorOffset] = useState(0);
 
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
@@ -560,7 +561,10 @@ export default function NewNoteScreen() {
                 />
               </View>
 
-              <View style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}>
+              <View 
+                style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}
+                onLayout={(e) => setEditorOffset(e.nativeEvent.layout.y)}
+              >
                 <RichEditor
                   ref={richText}
                   initialContentHTML=""
@@ -589,7 +593,7 @@ export default function NewNoteScreen() {
                       }
                     }
                   }}
-                  onCursorPosition={handleCursorPosition}
+                  onCursorPosition={(y) => handleCursorPosition(y + editorOffset)}
                   onHeightChange={handleEditorHeightChange}
                   scrollEnabled={false}
                   useContainer={false}

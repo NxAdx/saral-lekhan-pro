@@ -47,6 +47,7 @@ export default function EditNoteScreen() {
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
   const [bodyText, setBodyText] = useState(''); // Text representation for word count
+  const [editorOffset, setEditorOffset] = useState(0);
 
   const [saved, setSaved] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -709,7 +710,10 @@ export default function EditNoteScreen() {
                   />
                 </View>
 
-                <View style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}>
+                <View 
+                  style={[s.editorSurface, { minHeight: editorSurfaceMinHeight }]}
+                  onLayout={(e) => setEditorOffset(e.nativeEvent.layout.y)}
+                >
                   <RichEditor
                     key={id}
                     ref={richText}
@@ -738,7 +742,7 @@ export default function EditNoteScreen() {
                     }}
                     scrollEnabled={false}
                     useContainer={false}
-                    onCursorPosition={handleCursorPosition}
+                    onCursorPosition={(y) => handleCursorPosition(y + editorOffset)}
                     onHeightChange={handleEditorHeightChange}
                   />
                 </View>
