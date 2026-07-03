@@ -48,7 +48,7 @@ export function FAB({ onPress, testID }: FABProps) {
         animStyle
       ]}
     >
-      <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.white} strokeWidth={theme.strokeWidth?.sw ?? 2} strokeLinecap="round" strokeLinejoin="round">
         <Path d="M12 5l0 14" />
         <Path d="M5 12l14 0" />
       </Svg>

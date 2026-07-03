@@ -95,7 +95,7 @@ export function LockScreen() {
                     justifyContent: 'center', alignItems: 'center', marginBottom: 24,
                     borderWidth: 1.5, borderColor: colors.stroke
                 }}>
-                    <Svg viewBox="0 0 24 24" width={32} height={32} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <Svg viewBox="0 0 24 24" width={32} height={32} fill="none" stroke={colors.accent} strokeWidth={theme.strokeWidth?.sw ?? 2} strokeLinecap="round" strokeLinejoin="round">
                         <Rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <Path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </Svg>

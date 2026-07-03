@@ -92,7 +92,7 @@ export default function TrashScreen() {
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                         <Path d="M5 12l14 0" />
                         <Path d="M5 12l6 6" />
                         <Path d="M5 12l6 -6" />
@@ -101,7 +101,7 @@ export default function TrashScreen() {
                 <Text style={s.title}>{loc.trash}</Text>
                 {deletedNotes.length > 0 && (
                     <Pressable onPress={() => setShowEmptyTrashModal(true)} style={s.emptyAllBtn} hitSlop={8}>
-                        <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.accent} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                             <Path d="M4 7l16 0" />
                             <Path d="M10 11l0 6" />
                             <Path d="M14 11l0 6" />

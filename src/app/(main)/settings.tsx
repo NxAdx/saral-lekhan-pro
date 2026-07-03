@@ -362,7 +362,7 @@ export default function SettingsScreen() {
 
             <View style={s.header}>
                 <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
-                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                         <Path d="M5 12l14 0" />
                         <Path d="M5 12l6 6" />
                         <Path d="M5 12l6 -6" />
@@ -383,7 +383,7 @@ export default function SettingsScreen() {
                             ...theme.shadow.gentle
                         })}
                     >
-                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                             <Path d="M9 9v-1a3 3 0 0 1 6 0v1" />
                             <Path d="M8 9h8a6 6 0 0 1 1 3v3a5 5 0 0 1 -10 0v-3a6 6 0 0 1 1 -3" />
                             <Path d="M3 13l4 0" />
@@ -407,7 +407,7 @@ export default function SettingsScreen() {
                             ...theme.shadow.gentle
                         })}
                     >
-                        <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                             <Path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                             <Path d="M12 9v4" />
                             <Path d="M12 16v.01" />

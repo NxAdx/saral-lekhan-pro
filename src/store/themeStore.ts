@@ -10,6 +10,7 @@ type ThemeValue = {
     spacing: typeof sharedTokens.spacing;
     radius: typeof sharedTokens.radius;
     shadow: typeof sharedTokens.shadow;
+    strokeWidth: typeof sharedTokens.strokeWidth;
     typography: typeof sharedTokens.typography;
     font: {
         sans: string;

@@ -646,7 +646,7 @@ export default function EditNoteScreen() {
 
       <View style={s.header}>
         <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
             <Path d="M5 12l14 0" />
             <Path d="M5 12l6 6" />
             <Path d="M5 12l6 -6" />
@@ -665,20 +665,20 @@ export default function EditNoteScreen() {
 
         <View style={s.headerRight}>
           <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accent + '22' }]} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={18} height={18} fill={note?.pinned ? colors.accent : "none"} stroke={note?.pinned ? colors.accent : colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <Svg viewBox="0 0 24 24" width={24} height={24} fill={note?.pinned ? colors.accent : "none"} stroke={note?.pinned ? colors.accent : colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
               <Path d="M9 15l-4.5 4.5" />
               <Path d="M14.5 4l5.5 5.5" />
             </Svg>
           </Pressable>
           <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
               <Path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v5m-5 6h7m-3 -3l3 3l-3 3" />
             </Svg>
           </Pressable>
           <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M4 7l16 0" />
               <Path d="M10 11l0 6" />
               <Path d="M14 11l0 6" />
@@ -844,29 +844,29 @@ export default function EditNoteScreen() {
                 'insertDoublePurnaViram'
               ]}
               iconMap={{
-                [actions.heading1]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H1</Text>,
-                [actions.heading2]: () => <Text style={{ color: colors.ink, fontWeight: 'bold' }}>H2</Text>,
+                [actions.heading1]: ({ tintColor }: any) => <Text style={{ color: tintColor, fontWeight: 'bold' }}>H1</Text>,
+                [actions.heading2]: ({ tintColor }: any) => <Text style={{ color: tintColor, fontWeight: 'bold' }}>H2</Text>,
                 [actions.insertLink]: ({ tintColor }: any) => (
-                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                     <Path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                     <Path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </Svg>
                 ),
                 [actions.insertImage]: ({ tintColor }: any) => (
-                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                     <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                     <Circle cx="8.5" cy="8.5" r="1.5" />
                     <Path d="M21 15l-5-5L5 21" />
                   </Svg>
                 ),
                 [actions.checkboxList]: ({ tintColor }: any) => (
-                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                     <Rect x="4" y="4" width="16" height="16" rx="3" />
                     <Path d="M8 12l3 3l5 -6" />
                   </Svg>
                 ),
                 [actions.line]: ({ tintColor }: any) => (
-                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={tintColor} strokeWidth={2} strokeLinecap="round">
+                  <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round">
                     <Path d="M5 12h14" />
                   </Svg>
                 ),
@@ -875,8 +875,8 @@ export default function EditNoteScreen() {
                     {'</>'}
                   </Text>
                 ),
-                'insertPurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0964'}</Text>,
-                'insertDoublePurnaViram': () => <Text style={{ color: colors.accent, fontWeight: 'bold' }}>{'\u0965'}</Text>,
+                'insertPurnaViram': ({ tintColor }: any) => <Text style={{ color: tintColor, fontWeight: 'bold' }}>{'\u0964'}</Text>,
+                'insertDoublePurnaViram': ({ tintColor }: any) => <Text style={{ color: tintColor, fontWeight: 'bold' }}>{'\u0965'}</Text>,
               }}
               onInsertLink={() => setShowLinkModal(true)}
               onPressAddImage={() => setShowImageModal(true)}
