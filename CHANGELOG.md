@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.19.27 - UI/UX Styling Toolbar Improvements
+- **Toolbar Rearrangement**: Reorganized the markdown editor's styling toolbar into a logical, standard UX flow. Grouped text formatting together, moved structural elements (headings, blockquotes, code) together, and placed lists and dividers sequentially to match how users naturally structure documents.
+
 ## v2.19.26 - Auto-Scroll: Bypass Library Bug
 - **Root Cause Fixed**: Discovered an operator-precedence bug in `react-native-pell-rich-editor` (line 213 of RichEditor.js) that silently converts ALL cursor Y values to `0` when `useContainer={false}`. The expression `parseInt(data + layout.y || 0)` evaluates to `parseInt(NaN || 0)` = `0` when `layout.y` is undefined, which it always is without the View wrapper.
 - **Custom Message Channel**: Bypassed the library's broken `OFFSET_Y` handler entirely. The injected JavaScript now sends cursor coordinates via a custom `CURSOR_Y` message type, which the library passes through its `default:` case to our `onMessage` prop — completely avoiding the buggy arithmetic.
