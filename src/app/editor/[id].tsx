@@ -170,7 +170,7 @@ export default function EditNoteScreen() {
               y += el.offsetTop;
               el = el.offsetParent;
           }
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'OFFSET_Y', data: y }));
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CURSOR_Y', data: y }));
         });
       })();
       true;
@@ -761,7 +761,12 @@ export default function EditNoteScreen() {
                     }}
                     scrollEnabled={false}
                     useContainer={false}
-                    onCursorPosition={(y) => handleCursorPosition(y + editorOffset)}
+                    onCursorPosition={() => {}}
+                    onMessage={(msg) => {
+                      if (msg.type === 'CURSOR_Y') {
+                        handleCursorPosition(Number(msg.data) + editorOffset);
+                      }
+                    }}
                     onHeightChange={handleEditorHeightChange}
                   />
                 </View>

@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.19.26 - Auto-Scroll: Bypass Library Bug
+- **Root Cause Fixed**: Discovered an operator-precedence bug in `react-native-pell-rich-editor` (line 213 of RichEditor.js) that silently converts ALL cursor Y values to `0` when `useContainer={false}`. The expression `parseInt(data + layout.y || 0)` evaluates to `parseInt(NaN || 0)` = `0` when `layout.y` is undefined, which it always is without the View wrapper.
+- **Custom Message Channel**: Bypassed the library's broken `OFFSET_Y` handler entirely. The injected JavaScript now sends cursor coordinates via a custom `CURSOR_Y` message type, which the library passes through its `default:` case to our `onMessage` prop — completely avoiding the buggy arithmetic.
+- **Result**: `handleCursorPosition` is now actually called (it was never being called before despite three prior fix attempts).
+
 ## v2.19.25 - Deep Auto-Scroll & WebView Fix
 - **Absolute Cursor Tracking**: Completely overhauled how the editor tracks the cursor position. Fixed a core bug in the underlying editor library where cursor tracking inside nested elements (like lists or blockquotes) would return a false `Y` coordinate, causing the screen to violently scroll up.
 - **WebView Scroll Lock**: Prevented the Android WebView from fighting with the React Native ScrollView. The WebView's internal scroll is now locked, ensuring the smooth React Native autoscroll takes full control without visual glitching or jumping when the keyboard opens.
