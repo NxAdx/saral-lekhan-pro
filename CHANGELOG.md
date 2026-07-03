@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.19.25 - Deep Auto-Scroll & WebView Fix
+- **Absolute Cursor Tracking**: Completely overhauled how the editor tracks the cursor position. Fixed a core bug in the underlying editor library where cursor tracking inside nested elements (like lists or blockquotes) would return a false `Y` coordinate, causing the screen to violently scroll up.
+- **WebView Scroll Lock**: Prevented the Android WebView from fighting with the React Native ScrollView. The WebView's internal scroll is now locked, ensuring the smooth React Native autoscroll takes full control without visual glitching or jumping when the keyboard opens.
+
 ## v2.19.24 - Rich Editor Auto-Scroll Offset Fix
 - **Auto-Scroll Behavior Fixed**: Resolved a bug where the editor would abruptly scroll up to the top of the screen when typing on the first few lines of a note. The layout measurement now accurately accounts for the vertical offset introduced by the Title and Tag inputs sitting above the editor surface inside the ScrollView.
 

@@ -153,6 +153,25 @@ export default function EditNoteScreen() {
             document.execCommand('outdent', false, null);
           }
         });
+
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        window.addEventListener('scroll', function() { window.scrollTo(0,0); });
+
+        document.addEventListener('selectionchange', function() {
+          var sel = window.getSelection();
+          if (!sel || sel.rangeCount === 0) return;
+          var node = sel.anchorNode;
+          if (!node) return;
+          if (node.nodeType === 3) node = node.parentNode;
+          var y = 0;
+          var el = node;
+          while(el && !isNaN(el.offsetTop)) {
+              y += el.offsetTop;
+              el = el.offsetParent;
+          }
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'OFFSET_Y', data: y }));
+        });
       })();
       true;
     `;
