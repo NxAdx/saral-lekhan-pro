@@ -13,7 +13,8 @@ interface FABProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function FAB({ onPress, testID }: FABProps) {
-  const { colors, shadow } = useTheme();
+  const theme = useTheme();
+  const { colors, shadow, strokeWidth } = theme;
 
   // simple mount animation
   const scale = useSharedValue(0);
