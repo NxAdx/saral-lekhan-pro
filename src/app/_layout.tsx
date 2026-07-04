@@ -7,6 +7,7 @@ import * as SystemUI from 'expo-system-ui';
 import * as SplashScreen from 'expo-splash-screen';
 import { LockScreen } from '../components/ui/LockScreen';
 import { StaticSplash } from '../components/ui/StaticSplash';
+import { ToastPill } from '../components/ui/ToastPill';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { themes } from '../tokens';
@@ -163,6 +164,7 @@ export function RootLayout(props: any) {
           <Stack.Screen name="settings" options={{ presentation: 'modal', animation: 'slide_from_right' }} />
         </Stack>
         <LockScreen />
+        <ToastPill />
         {showSplashOverlay && (
           <StaticSplash 
             themeId={themeId} 

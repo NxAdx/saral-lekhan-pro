@@ -27,6 +27,7 @@ interface SettingsState {
     appFont: AppFontType;
     autoSave: boolean;
     ttsLanguage: string;
+    highContrast: boolean;
 
     setLanguage: (l: AppLanguage) => void;
     setNightMode: (m: NightMode) => void;
@@ -35,6 +36,7 @@ interface SettingsState {
     setAppFont: (f: AppFontType) => void;
     setAutoSave: (b: boolean) => void;
     setTtsLanguage: (l: string) => void;
+    setHighContrast: (b: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -47,6 +49,7 @@ export const useSettingsStore = create<SettingsState>()(
             appFont: 'hind',
             autoSave: true,
             ttsLanguage: 'auto',
+            highContrast: false,
 
             setLanguage: (l) => set({ language: l }),
             setNightMode: (m) => set({ nightMode: m }),
@@ -59,6 +62,7 @@ export const useSettingsStore = create<SettingsState>()(
             setAppFont: (f) => set({ appFont: normalizeAppFont(f) }),
             setAutoSave: (b) => set({ autoSave: b }),
             setTtsLanguage: (l) => set({ ttsLanguage: l }),
+            setHighContrast: (b) => set({ highContrast: b }),
         }),
         {
             name: 'saral-lekhan-settings-storage',

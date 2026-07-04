@@ -24,12 +24,14 @@ import { AiService } from '../../services/aiService';
 import * as Speech from 'expo-speech';
 import { SparkGenerationPhase } from '../../types/spark';
 import * as ImagePicker from 'expo-image-picker';
+import * as Haptics from 'expo-haptics';
 import { log } from '../../utils/Logger';
 import { imageUriToDataUri, normalizeEditorHtmlImages } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRichEditorViewport } from '../../hooks/useRichEditorViewport';
 import { useFooterMeasurement } from '../../hooks/useFooterMeasurement';
+import { useToastStore } from '../../store/toastStore';
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -275,8 +277,10 @@ export default function EditNoteScreen() {
 
   const showSaved = useCallback(() => {
     setSaved(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    useToastStore.getState().showToast(loc.editor?.savedSubtitle || 'Note saved', 'success');
     setTimeout(() => setSaved(false), 1500);
-  }, []);
+  }, [loc]);
 
 
 
@@ -1151,6 +1155,7 @@ export default function EditNoteScreen() {
             label: loc.plusFeatures.aiSummaryInsert,
             style: 'cancel',
             onPress: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               richText.current?.insertHTML(`<br><br><blockquote><b>${loc.plusFeatures.aiSummaryPrefix}</b><br>${markdownToHtml(summaryText)}</blockquote><br>`);
               setShowSummaryModal(false);
             }

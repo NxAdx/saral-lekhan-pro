@@ -61,13 +61,14 @@ const getFontSet = (type: AppFontType) => {
 
 export const useTheme = () => {
     const systemColorScheme = useColorScheme();
-    const { nightMode, themeId, language, appFont, fontSize } = useSettingsStore(
+    const { nightMode, themeId, language, appFont, fontSize, highContrast } = useSettingsStore(
         (s) => ({
             nightMode: s.nightMode,
             themeId: s.themeId,
             language: s.language,
             appFont: s.appFont,
             fontSize: s.fontSize,
+            highContrast: s.highContrast,
         }),
         shallow
     );
@@ -80,8 +81,18 @@ export const useTheme = () => {
     // Drive colors
     const colors = useMemo(() => {
         const themeEntry = themes[themeId] || themes.classic;
-        return { ...(isDark ? themeEntry.dark : themeEntry.light) };
-    }, [themeId, isDark]);
+        const c = { ...(isDark ? themeEntry.dark : themeEntry.light) };
+        
+        if (highContrast) {
+            c.inkDim = isDark ? '#F5F5F5' : '#111111';
+            c.inkMid = isDark ? '#FAFAFA' : '#0A0A0A';
+            c.ink = isDark ? '#FFFFFF' : '#000000';
+            c.stroke = isDark ? '#888888' : '#777777';
+            c.strokeDim = isDark ? '#666666' : '#999999';
+        }
+        
+        return c;
+    }, [themeId, isDark, highContrast]);
 
     const normalizedFont = normalizeAppFont(appFont);
     const effectiveFont = resolveEffectiveAppFont(normalizedFont, language);

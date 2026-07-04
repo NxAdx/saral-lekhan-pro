@@ -21,11 +21,13 @@ import * as Speech from 'expo-speech';
 import { SparkGenerationPhase } from '../../types/spark';
 import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import * as ImagePicker from 'expo-image-picker';
+import * as Haptics from 'expo-haptics';
 import { imageUriToDataUri } from '../../utils/editorMedia';
 import { buildEditorCss } from '../../utils/editorCssTemplate';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRichEditorViewport } from '../../hooks/useRichEditorViewport';
 import { useFooterMeasurement } from '../../hooks/useFooterMeasurement';
+import { useToastStore } from '../../store/toastStore';
 
 export default function NewNoteScreen() {
   const router = useRouter();
@@ -233,7 +235,8 @@ export default function NewNoteScreen() {
       }
       setIsDirty(false);
     }
-    setAppAlert({ visible: true, title: loc.common?.success || 'Saved', subtitle: loc.editor?.savedSubtitle || 'Note saved' });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    useToastStore.getState().showToast(loc.editor?.savedSubtitle || 'Note saved', 'success');
   }, [title, tag, bodyText, updateNote, addNote, loc]);
 
   const handleDone = useCallback(async () => {
@@ -941,6 +944,7 @@ export default function NewNoteScreen() {
             label: loc.plusFeatures.aiSummaryInsert,
             style: 'cancel',
             onPress: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               richText.current?.insertHTML(`<br><br><blockquote><b>${loc.plusFeatures.aiSummaryPrefix}</b><br>${markdownToHtml(summaryText)}</blockquote><br>`);
               setShowSummaryModal(false);
             }

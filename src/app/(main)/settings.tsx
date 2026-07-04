@@ -21,6 +21,8 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { APP_VERSION, checkForUpdate, downloadAndInstallApk, UpdateInfo, UPDATER_MODE } from '../../utils/githubUpdater';
+import * as Haptics from 'expo-haptics';
+import { useToastStore } from '../../store/toastStore';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -210,6 +212,23 @@ export default function SettingsScreen() {
             log.error("handleBackup", e);
             setSyncAlert({ visible: true, title: "Export Failed", sub: e.message || "An error occurred during export." });
         }
+    };
+
+    const handleSaveKey = () => {
+        if (!tempKey.trim()) {
+            setSyncAlert({ visible: true, title: "Spark AI Error", sub: "Please enter a valid API key." });
+            return;
+        }
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        ai.setGeminiApiKey(tempKey.trim());
+        useToastStore.getState().showToast("API Key saved successfully!", "success");
+    };
+
+    const handleRemoveKey = () => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        ai.setGeminiApiKey('');
+        setTempKey('');
+        useToastStore.getState().showToast("API Key removed", "success");
     };
 
     const handleRestore = async () => {
@@ -523,7 +542,27 @@ export default function SettingsScreen() {
                         </View>
                         <Switch
                             value={settings.autoSave}
-                            onValueChange={settings.setAutoSave}
+                            onValueChange={(v) => {
+                                Haptics.selectionAsync();
+                                settings.setAutoSave(v);
+                            }}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
+                    
+                    {/* High Contrast Toggle */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>High Contrast Mode</Text>
+                            <Text style={s.listSub}>Increases contrast for text and lines to improve readability.</Text>
+                        </View>
+                        <Switch
+                            value={settings.highContrast}
+                            onValueChange={(v) => {
+                                Haptics.selectionAsync();
+                                settings.setHighContrast(v);
+                            }}
                             trackColor={{ false: colors.stroke, true: colors.accent }}
                             thumbColor={colors.white}
                         />
@@ -543,7 +582,7 @@ export default function SettingsScreen() {
                     </View>
                     <View style={[s.pillRow, { paddingTop: 20, paddingBottom: 24 }]}>
                         {FONT_OPTIONS.map(f => (
-                            <TagPill key={f.id} label={f.label} active={settings.appFont === f.id} onPress={() => settings.setAppFont(f.id)} />
+                            <TagPill key={f.id} label={f.label} active={settings.appFont === f.id} onPress={() => { Haptics.selectionAsync(); settings.setAppFont(f.id); }} />
                         ))}
                     </View>
                 </View>
@@ -558,7 +597,7 @@ export default function SettingsScreen() {
                     </View>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[s.pillRow, { paddingTop: 20, paddingBottom: 24, flexWrap: 'nowrap' }]}>
                         {TTS_OPTIONS.map(opt => (
-                            <TagPill key={opt.id} label={opt.label} active={settings.ttsLanguage === opt.id} onPress={() => settings.setTtsLanguage(opt.id)} />
+                            <TagPill key={opt.id} label={opt.label} active={settings.ttsLanguage === opt.id} onPress={() => { Haptics.selectionAsync(); settings.setTtsLanguage(opt.id); }} />
                         ))}
                     </ScrollView>
                 </View>
@@ -578,7 +617,7 @@ export default function SettingsScreen() {
                         return (
                             <Pressable
                                 key={opt.id}
-                                onPress={() => settings.setThemeId(opt.id)}
+                                onPress={() => { Haptics.selectionAsync(); settings.setThemeId(opt.id); }}
                                 style={[
                                     s.themeCard,
                                     isSelected ? s.themeCardActive : s.themeCardInactive
