@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
   Platform, StatusBar, ScrollView, BackHandler, Keyboard
 } from 'react-native';
-import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useNotesStore } from '../../store/notesStore';
@@ -113,14 +113,19 @@ export default function NewNoteScreen() {
     isToolbarHidden,
   } = useRichEditorViewport(260, footerHeight);
 
+  const isToolbarHiddenShared = useSharedValue(false);
+  useEffect(() => {
+    isToolbarHiddenShared.value = isToolbarHidden;
+  }, [isToolbarHidden]);
+
   const toolbarAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateY: withTiming(isToolbarHidden ? 150 : 0, { duration: 250 }) }
+        { translateY: withTiming(isToolbarHiddenShared.value ? 150 : 0, { duration: 250 }) }
       ],
-      opacity: withTiming(isToolbarHidden ? 0 : 1, { duration: 250 }),
+      opacity: withTiming(isToolbarHiddenShared.value ? 0 : 1, { duration: 250 }),
     };
-  }, [isToolbarHidden]);
+  });
   const editorListBreakoutScript = useMemo(() => `
     (function() {
       if (window.__breakoutListenerAdded) return;
