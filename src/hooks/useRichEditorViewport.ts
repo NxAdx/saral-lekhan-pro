@@ -5,6 +5,7 @@ import type {
   NativeSyntheticEvent,
   ScrollView,
 } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 const MIN_EDITOR_BODY_HEIGHT = 220;
 const EDITOR_VIEWPORT_PADDING = 8;
@@ -13,7 +14,11 @@ const CARET_BOTTOM_BUFFER = 88;
 const CARET_BOTTOM_BUFFER_VISUAL_PADDING = 20;
 const HEIGHT_EPSILON = 2;
 
-export function useRichEditorViewport(initialContentHeight = 260, measuredFooterHeight = 0) {
+export function useRichEditorViewport(
+  initialContentHeight = 260, 
+  measuredFooterHeight = 0,
+  scrollProgress?: SharedValue<number>
+) {
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
   const [editorContentHeight, setEditorContentHeight] = useState(initialContentHeight);
@@ -30,6 +35,16 @@ export function useRichEditorViewport(initialContentHeight = 260, measuredFooter
     const offsetY = event.nativeEvent.contentOffset.y;
     const dy = offsetY - scrollYRef.current;
     scrollYRef.current = offsetY;
+
+    if (scrollProgress) {
+      const contentHeight = event.nativeEvent.contentSize.height;
+      const viewHeight = event.nativeEvent.layoutMeasurement.height;
+      if (contentHeight > viewHeight) {
+        scrollProgress.value = Math.max(0, Math.min(1, offsetY / (contentHeight - viewHeight)));
+      } else {
+        scrollProgress.value = 0;
+      }
+    }
 
     setShowBackToTop(offsetY > 150);
 
