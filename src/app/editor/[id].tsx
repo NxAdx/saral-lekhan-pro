@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, StyleSheet, Pressable,
   KeyboardAvoidingView, Platform, StatusBar, ScrollView, BackHandler, Keyboard,
 } from 'react-native';
-import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useNotesStore } from '../../store/notesStore';
@@ -84,13 +84,23 @@ export default function EditNoteScreen() {
     handleScroll,
     handleViewportLayout,
     scrollRef,
-    showBackToTop
+    showBackToTop,
+    isToolbarHidden
   } = useRichEditorViewport(260, footerHeight);
   const isMounted = useRef(false);
   const isApplyingInitialContent = useRef(false);
   const [editorReady, setEditorReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const toolbarAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateY: withTiming(isToolbarHidden ? 150 : 0, { duration: 250 }) }
+      ],
+      opacity: withTiming(isToolbarHidden ? 0 : 1, { duration: 250 }),
+    };
+  }, [isToolbarHidden]);
 
   useEffect(() => {
     return () => {
@@ -828,7 +838,7 @@ export default function EditNoteScreen() {
             </View>
           </View>
 
-          <View style={s.bottomControls} onLayout={handleFooterLayout}>
+          <Animated.View style={[s.bottomControls, toolbarAnimatedStyle]} onLayout={handleFooterLayout}>
             <View style={s.bottomActions}>
             <Pressable 
               onPress={() => {
@@ -960,7 +970,7 @@ export default function EditNoteScreen() {
                 </Text>
               </Pressable>
             </View>
-          </View>
+          </Animated.View>
         </KeyboardAvoidingView>
 
       <SparkLoadingModal
