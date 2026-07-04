@@ -568,7 +568,22 @@ export default function SettingsScreen() {
                         />
                     </View>
 
-
+                    {/* Large Touch Toggle */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>Large Touch Targets</Text>
+                            <Text style={s.listSub}>Increases the tappable area of buttons for easier navigation.</Text>
+                        </View>
+                        <Switch
+                            value={settings.largeTouch}
+                            onValueChange={(v) => {
+                                Haptics.selectionAsync();
+                                settings.setLargeTouch(v);
+                            }}
+                            trackColor={{ false: colors.stroke, true: colors.accent }}
+                            thumbColor={colors.white}
+                        />
+                    </View>
 
                 </View>
 

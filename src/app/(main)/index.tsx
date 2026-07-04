@@ -409,7 +409,7 @@ export default function HomeScreen() {
       <View style={s.header}>
         {isSelectionMode ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
-            <Pressable onPress={clearSelection} style={s.circleBtn} hitSlop={12} accessibilityLabel="Close selection">
+            <Pressable onPress={clearSelection} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Close selection">
               <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M18 6l-12 12" />
                 <Path d="M6 6l12 12" />
@@ -417,7 +417,7 @@ export default function HomeScreen() {
             </Pressable>
             <Text style={s.selectionTitle}>{selectedIds.size} {loc.home.selected || 'Selected'}</Text>
             <View style={{ flex: 1 }} />
-            <Pressable onPress={toggleSelectAll} style={s.textBtn} hitSlop={12}>
+            <Pressable onPress={toggleSelectAll} style={s.textBtn} hitSlop={theme.hitSlop}>
               <Text style={s.textBtnLabel}>
                 {selectedIds.size === filteredNotes.length && filteredNotes.length > 0
                   ? loc.home.deselectAll || 'Deselect All'
@@ -435,7 +435,7 @@ export default function HomeScreen() {
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>
-              <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={12} accessibilityLabel="Import notes">
+              <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Import notes">
                 <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                   <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
                   <Path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
@@ -444,7 +444,7 @@ export default function HomeScreen() {
                   <Path d="M20 18v1a2 2 0 0 1 -2 2h-1" />
                 </Svg>
               </Pressable>
-              <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={12} accessibilityLabel="Trash">
+              <Pressable onPress={() => router.push('/trash')} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Trash">
                 <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                   <Path d="M4 7l16 0" />
                   <Path d="M10 11l0 6" />
@@ -453,7 +453,7 @@ export default function HomeScreen() {
                   <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                 </Svg>
               </Pressable>
-              <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={12} testID="settings-button" accessibilityLabel="Settings">
+              <Pressable onPress={() => router.push('/settings')} style={s.circleBtn} hitSlop={theme.hitSlop} testID="settings-button" accessibilityLabel="Settings">
                 <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                   <Path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37a1.724 1.724 0 0 0 2.572 -1.065z" />
                   <Path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />

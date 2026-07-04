@@ -16,6 +16,8 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { ThemedModal } from '../../components/ui/ThemedModal';
+import { SmoothLanding } from '../../components/ui/SmoothLanding';
+import { TableBuilderModal } from '../../components/ui/TableBuilderModal';
 import { SparkLoadingModal } from '../../components/ui/SparkLoadingModal';
 import { useAiStore } from '../../store/aiStore';
 import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
@@ -58,6 +60,7 @@ export default function EditNoteScreen() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
+  const [showTableModal, setShowTableModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [summaryText, setSummaryText] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
@@ -720,20 +723,20 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
-          <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accentBg }]} hitSlop={12} accessibilityLabel={note?.pinned ? 'Unpin note' : 'Pin note'}>
+          <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accentBg }]} hitSlop={theme.hitSlop} accessibilityLabel={note?.pinned ? 'Unpin note' : 'Pin note'}>
             <Svg viewBox="0 0 24 24" width={24} height={24} fill={note?.pinned ? colors.accent : "none"} stroke={note?.pinned ? colors.accent : colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
               <Path d="M9 15l-4.5 4.5" />
               <Path d="M14.5 4l5.5 5.5" />
             </Svg>
           </Pressable>
-          <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12} accessibilityLabel="Export note">
+          <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Export note">
             <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
               <Path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v5m-5 6h7m-3 -3l3 3l-3 3" />
             </Svg>
           </Pressable>
-          <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={12} accessibilityLabel="Delete note">
+          <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Delete note">
             <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M4 7l16 0" />
               <Path d="M10 11l0 6" />
@@ -742,7 +745,7 @@ export default function EditNoteScreen() {
               <Path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
             </Svg>
           </Pressable>
-          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8} testID="editor-done-button">
+          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={theme.hitSlop} testID="editor-done-button">
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
         </View>
@@ -912,6 +915,7 @@ export default function EditNoteScreen() {
                 actions.code,
                 actions.insertLink,
                 actions.insertImage,
+                'insertTable',
                 actions.line,
                 'insertPurnaViram',
                 'insertDoublePurnaViram'
@@ -930,6 +934,12 @@ export default function EditNoteScreen() {
                     <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                     <Circle cx="8.5" cy="8.5" r="1.5" />
                     <Path d="M21 15l-5-5L5 21" />
+                  </Svg>
+                ),
+                'insertTable': ({ tintColor }: any) => (
+                  <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                    <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <Path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
                   </Svg>
                 ),
                 [actions.checkboxList]: ({ tintColor }: any) => (
@@ -955,6 +965,7 @@ export default function EditNoteScreen() {
               onPressAddImage={() => setShowImageModal(true)}
               insertPurnaViram={() => insertHindiPunctuation('\u0964')}
               insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
+              insertTable={() => setShowTableModal(true)}
             />
 
             <View style={s.bottomBar}>
@@ -1305,6 +1316,15 @@ export default function EditNoteScreen() {
             onPress: () => setAppAlert(prev => ({ ...prev, visible: false }))
           }
         ]}
+      />
+      <TableBuilderModal 
+        visible={showTableModal} 
+        onClose={() => setShowTableModal(false)} 
+        onInsert={(html) => {
+          richText.current?.insertHTML(html);
+          setShowTableModal(false);
+          setIsDirty(true);
+        }}
       />
     </View>
   );

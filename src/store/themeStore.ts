@@ -23,6 +23,7 @@ type ThemeValue = {
     };
     isDark: boolean;
     fontSize: number;
+    hitSlop: number;
 };
 
 const getFontSet = (type: AppFontType) => {
@@ -61,7 +62,7 @@ const getFontSet = (type: AppFontType) => {
 
 export const useTheme = () => {
     const systemColorScheme = useColorScheme();
-    const { nightMode, themeId, language, appFont, fontSize, highContrast } = useSettingsStore(
+    const { nightMode, themeId, language, appFont, fontSize, highContrast, largeTouch } = useSettingsStore(
         (s) => ({
             nightMode: s.nightMode,
             themeId: s.themeId,
@@ -69,6 +70,7 @@ export const useTheme = () => {
             appFont: s.appFont,
             fontSize: s.fontSize,
             highContrast: s.highContrast,
+            largeTouch: s.largeTouch,
         }),
         shallow
     );
@@ -113,5 +115,6 @@ export const useTheme = () => {
         font: customFont,
         isDark,
         fontSize: (fontSize || 1.0) * fontScale,
-    }), [colors, customFont, isDark, fontSize, fontScale]);
+        hitSlop: largeTouch ? 24 : 10,
+    }), [colors, customFont, isDark, fontSize, fontScale, largeTouch]);
 };

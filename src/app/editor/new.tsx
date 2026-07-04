@@ -16,6 +16,7 @@ import { useAiStore } from '../../store/aiStore';
 import { AiService } from '../../services/aiService';
 import { ThemedModal } from '../../components/ui/ThemedModal';
 import { SparkLoadingModal } from '../../components/ui/SparkLoadingModal';
+import { TableBuilderModal } from '../../components/ui/TableBuilderModal';
 import { useTypography } from '../../store/typographyStore';
 import * as Speech from 'expo-speech';
 import { SparkGenerationPhase } from '../../types/spark';
@@ -57,6 +58,7 @@ export default function NewNoteScreen() {
   const [isDirty, setIsDirty] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFindReplaceModal, setShowFindReplaceModal] = useState(false);
+  const [showTableModal, setShowTableModal] = useState(false);
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -559,7 +561,7 @@ export default function NewNoteScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
-        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12} accessibilityLabel="Back">
+        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Back">
           <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
             <Path d="M5 12l14 0" />
             <Path d="M5 12l6 6" />
@@ -585,7 +587,7 @@ export default function NewNoteScreen() {
               }
             }} 
             style={[s.circleBtn, isPinned && { borderColor: colors.accent, backgroundColor: colors.accentBg }]} 
-            hitSlop={12}
+            hitSlop={theme.hitSlop}
             accessibilityLabel={isPinned ? 'Unpin note' : 'Pin note'}
           >
             <Svg viewBox="0 0 24 24" width={24} height={24} fill={isPinned ? colors.accent : "none"} stroke={isPinned ? colors.accent : colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
@@ -594,7 +596,7 @@ export default function NewNoteScreen() {
               <Path d="M14.5 4l5.5 5.5" />
             </Svg>
           </Pressable>
-          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={8}>
+          <Pressable onPress={handleDone} style={({ pressed }) => [s.doneBtn, pressed && s.doneBtnActive]} hitSlop={theme.hitSlop}>
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
         </View>
@@ -719,19 +721,19 @@ export default function NewNoteScreen() {
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12} accessibilityLabel="Undo">
+              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={theme.hitSlop} accessibilityLabel="Undo">
                   <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M9 14l-4 -4l4 -4" />
                       <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12} accessibilityLabel="Redo">
+              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={theme.hitSlop} accessibilityLabel="Redo">
                   <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M15 14l4 -4l-4 -4" />
                       <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12} accessibilityLabel="Find and replace">
+              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={theme.hitSlop} accessibilityLabel="Find and replace">
                   <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Circle cx="10" cy="10" r="7" />
                       <Path d="M21 21l-6-6" />
@@ -765,6 +767,7 @@ export default function NewNoteScreen() {
               actions.code,
               actions.insertLink,
               actions.insertImage,
+              'insertTable',
               actions.line,
               'insertPurnaViram',
               'insertDoublePurnaViram'
@@ -783,6 +786,12 @@ export default function NewNoteScreen() {
                   <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                   <Circle cx="8.5" cy="8.5" r="1.5" />
                   <Path d="M21 15l-5-5L5 21" />
+                </Svg>
+              ),
+              'insertTable': ({ tintColor }: any) => (
+                <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={tintColor} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                  <Rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <Path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
                 </Svg>
               ),
               [actions.checkboxList]: ({ tintColor }: any) => (
@@ -808,6 +817,7 @@ export default function NewNoteScreen() {
             onPressAddImage={() => setShowImageModal(true)}
             insertPurnaViram={() => insertHindiPunctuation('\u0964')}
             insertDoublePurnaViram={() => insertHindiPunctuation('\u0965')}
+            insertTable={() => setShowTableModal(true)}
           />
 
           <View style={s.bottomBar}>
@@ -1094,7 +1104,15 @@ export default function NewNoteScreen() {
           }
         ]}
       />
-
+      <TableBuilderModal 
+        visible={showTableModal} 
+        onClose={() => setShowTableModal(false)} 
+        onInsert={(html) => {
+          richText.current?.insertHTML(html);
+          setShowTableModal(false);
+          setIsDirty(true);
+        }}
+      />
     </View>
   );
 }
