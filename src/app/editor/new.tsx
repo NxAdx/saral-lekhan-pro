@@ -632,7 +632,7 @@ export default function NewNoteScreen() {
             
             {/* Back to top button inside notes */}
             {showBackToTop && (
-              <View style={{ position: 'absolute', bottom: 16, right: 16 }} pointerEvents="box-none">
+              <View style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 10, elevation: 10 }} pointerEvents="box-none">
                 <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
                   <Pressable
                     onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })}

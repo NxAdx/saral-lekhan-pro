@@ -31,7 +31,7 @@ export function useRichEditorViewport(initialContentHeight = 260, measuredFooter
     const dy = offsetY - scrollYRef.current;
     scrollYRef.current = offsetY;
 
-    setShowBackToTop(offsetY > 400);
+    setShowBackToTop(offsetY > 150);
 
     // Auto-hide toolbar when scrolling down quickly, show when scrolling up
     if (dy > 15 && offsetY > 150) {
