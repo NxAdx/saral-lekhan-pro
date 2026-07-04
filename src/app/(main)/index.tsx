@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import Animated, { FadeIn, FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import {
   ScrollView, StatusBar, Pressable, Platform, TextInput, View, Text, StyleSheet, FlatList
 } from 'react-native';
@@ -63,6 +63,9 @@ export default function HomeScreen() {
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const isSelectionMode = selectedIds.size > 0;
+
+  const listRef = useRef<FlatList>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const isLoaded = useNotesStore((s) => s.isLoaded);
   const notes = useNotesStore((s) => s.getNotesFilteredByTag(selectedTag));
@@ -182,6 +185,15 @@ export default function HomeScreen() {
       console.warn(e);
     }
   }, [selectedIds, filteredNotes, clearSelection]);
+
+  const handleScroll = useCallback((event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY > 400 && !showBackToTop) {
+      setShowBackToTop(true);
+    } else if (offsetY <= 400 && showBackToTop) {
+      setShowBackToTop(false);
+    }
+  }, [showBackToTop]);
 
   const onNewNote = useCallback(() => router.push('/editor/new'), [router]);
   const onNotePress = useCallback((id: number) => router.push(`/editor/${id}`), [router]);
@@ -519,6 +531,9 @@ export default function HomeScreen() {
       )}
       {/* ── Note List (FlatList — no recycler caching bugs) ── */}
       <FlatList
+        ref={listRef}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         data={filteredNotes}
         extraData={{ isSelectionMode, selectedIdsCount: selectedIds.size }}
         keyExtractor={(item) => String(item.id)}
@@ -541,6 +556,19 @@ export default function HomeScreen() {
         }
       />
       <View style={s.fabWrap} pointerEvents="box-none">
+        {showBackToTop && (
+          <Animated.View entering={FadeInDown} exiting={FadeOutDown} style={{ marginBottom: 16 }}>
+            <Pressable
+              onPress={() => listRef.current?.scrollToOffset({ offset: 0, animated: true })}
+              style={[s.circleBtn, { backgroundColor: colors.bgRaised, alignSelf: 'flex-end', width: 40, height: 40 }]}
+              accessibilityLabel="Back to top"
+            >
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M12 19V5M5 12l7-7 7 7" />
+              </Svg>
+            </Pressable>
+          </Animated.View>
+        )}
         <FAB onPress={onNewNote} testID="fab-add-note" />
       </View>
       <ThemedModal
