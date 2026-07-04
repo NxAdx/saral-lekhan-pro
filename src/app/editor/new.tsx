@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
   Platform, StatusBar, ScrollView, BackHandler, Keyboard
 } from 'react-native';
-import Animated, { FadeInDown, FadeOutDown, useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useNotesStore } from '../../store/notesStore';
@@ -67,7 +67,6 @@ export default function NewNoteScreen() {
   const sparkLoadingModalEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_modal_v1);
   const sparkLoadingAnimationEnabled = useRuntimeUxFlagsStore((s) => s.flags.spark_loading_animation_v1);
 
-  const scrollProgress = useSharedValue(0);
   const richText = useRef<RichEditor>(null);
   const { footerHeight, handleFooterLayout } = useFooterMeasurement();
   const {
@@ -78,11 +77,7 @@ export default function NewNoteScreen() {
     handleViewportLayout,
     scrollRef,
     showBackToTop,
-  } = useRichEditorViewport(260, footerHeight, scrollProgress);
-
-  const progressStyle = useAnimatedStyle(() => ({
-    width: `${scrollProgress.value * 100}%`
-  }));
+  } = useRichEditorViewport(260, footerHeight);
   const editorListBreakoutScript = useMemo(() => `
     (function() {
       if (window.__breakoutListenerAdded) return;
@@ -552,10 +547,6 @@ export default function NewNoteScreen() {
             <Text style={s.doneBtnText}>{loc.editor.done}</Text>
           </Pressable>
         </View>
-      </View>
-
-      <View style={{ height: 2, backgroundColor: 'transparent' }}>
-        <Animated.View style={[{ height: '100%', backgroundColor: colors.accent }, progressStyle]} />
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
