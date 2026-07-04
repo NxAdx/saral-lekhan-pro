@@ -50,7 +50,7 @@ export class AiService {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: modelName });
 
-        const prompt = `Summarize the following notes in 3 concise bullet points. Be extremely brief and direct:\n\n${text}`;
+        const prompt = `Summarize the following notes in 3 concise bullet points. Be extremely brief and direct. CRITICAL RULE: You MUST output the summary in the EXACT SAME LANGUAGE as the input text. Do not translate it to English unless the input is in English:\n\n${text}`;
 
         try {
             const result = await model.generateContent(prompt);
@@ -70,7 +70,7 @@ export class AiService {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: modelName });
 
-        const prompt = `Generate a very short, catchy, 3 to 5 word title for the following text. Respond ONLY with the title itself, no quotes, no markdown, no other text:\n\n${text}`;
+        const prompt = `Generate a very short, catchy, 3 to 5 word title for the following text. Respond ONLY with the title itself, no quotes, no markdown, no other text. CRITICAL RULE: The title MUST be in the EXACT SAME LANGUAGE as the input text. Do not translate it:\n\n${text}`;
 
         try {
             const result = await model.generateContent(prompt);
@@ -108,7 +108,7 @@ export class AiService {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: modelName });
 
-        const prompt = `Rewrite the following text with excellent grammar, spelling, and professional formatting. Organize it into logical paragraphs with headings or bullet points if necessary. Respond ONLY with the formatted text, no other commentary:\n\n${text}`;
+        const prompt = `Rewrite the following text with excellent grammar, spelling, and professional formatting. Organize it into logical paragraphs with headings or bullet points if necessary. Respond ONLY with the formatted text, no other commentary. CRITICAL RULE: You MUST preserve the original language of the text. Do NOT translate it to English. If the text is in Hindi, output in Hindi. If it is in Spanish, output in Spanish, etc:\n\n${text}`;
 
         try {
             const result = await model.generateContent(prompt);
