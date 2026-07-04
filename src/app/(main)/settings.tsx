@@ -56,6 +56,17 @@ const LANG_OPTIONS: { id: AppLanguage; label: string }[] = [
     { id: 'Ta', label: 'தமிழ்' },
 ];
 
+const TTS_OPTIONS: { id: string; label: string }[] = [
+    { id: 'auto', label: 'Auto (Smart)' },
+    { id: 'system', label: 'System Default' },
+    { id: 'en-US', label: 'English (US)' },
+    { id: 'hi-IN', label: 'Hindi (India)' },
+    { id: 'bn-IN', label: 'Bengali (India)' },
+    { id: 'te-IN', label: 'Telugu (India)' },
+    { id: 'mr-IN', label: 'Marathi (India)' },
+    { id: 'ta-IN', label: 'Tamil (India)' },
+];
+
 const FONT_SIZE_STEPS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
 
 export default function SettingsScreen() {
@@ -535,6 +546,21 @@ export default function SettingsScreen() {
                             <TagPill key={f.id} label={f.label} active={settings.appFont === f.id} onPress={() => settings.setAppFont(f.id)} />
                         ))}
                     </View>
+                </View>
+
+                {/* TTS Customization */}
+                <View style={s.listBlock}>
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>Text-to-Speech Voice</Text>
+                            <Text style={s.listSub}>Choose the voice language used when reading your notes. 'Auto' will dynamically switch based on the note's text.</Text>
+                        </View>
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[s.pillRow, { paddingTop: 20, paddingBottom: 24, flexWrap: 'nowrap' }]}>
+                        {TTS_OPTIONS.map(opt => (
+                            <TagPill key={opt.id} label={opt.label} active={settings.ttsLanguage === opt.id} onPress={() => settings.setTtsLanguage(opt.id)} />
+                        ))}
+                    </ScrollView>
                 </View>
 
                 {/* THEME PALETTES */}

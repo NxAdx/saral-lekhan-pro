@@ -104,8 +104,18 @@ export default function EditNoteScreen() {
       setIsSpeaking(false);
     } else {
       const textToSpeak = stripMarkdown(bodyText).trim() || loc.editor.titlePlaceholder;
+      
+      let langToUse: string | undefined = undefined;
+      if (settings.ttsLanguage === 'auto') {
+        const hasHindi = /[\u0900-\u097F]/.test(textToSpeak);
+        langToUse = hasHindi ? 'hi-IN' : 'en-US';
+      } else if (settings.ttsLanguage !== 'system') {
+        langToUse = settings.ttsLanguage;
+      }
+
       setIsSpeaking(true);
       Speech.speak(textToSpeak, {
+        language: langToUse,
         onDone: () => setIsSpeaking(false),
         onStopped: () => setIsSpeaking(false),
         onError: () => setIsSpeaking(false),
