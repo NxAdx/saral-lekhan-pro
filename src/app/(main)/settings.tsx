@@ -447,11 +447,11 @@ export default function SettingsScreen() {
                             <Pressable
                                 onPress={handleDownloadUpdate}
                                 disabled={isDownloadingUpdate}
-                                style={{ backgroundColor: colors.accent, minWidth: 140, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm, alignItems: 'center' }}
+                                style={{ backgroundColor: colors.accent, minWidth: 160, paddingHorizontal: 16, paddingVertical: 8, borderRadius: theme.radius.sm, alignItems: 'center' }}
                             >
-                                <Text style={{ color: colors.white, fontFamily: font.sansBold }}>
+                                <Text style={{ color: colors.white, fontFamily: font.sansBold, fontVariant: ['tabular-nums'] }}>
                                     {isDownloadingUpdate
-                                        ? `${Math.round(downloadProgress * 100)}% ${loc.settingsScreen.downloading}`
+                                        ? `${String(Math.round(downloadProgress * 100)).padStart(3, ' ')}% ${loc.settingsScreen.downloading}`
                                         : (updateInfo?.isReinstall ? loc.settingsScreen.reinstall : loc.settingsScreen.updateNow)}
                                 </Text>
                             </Pressable>
