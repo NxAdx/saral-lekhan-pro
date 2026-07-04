@@ -18,6 +18,8 @@ export function useRichEditorViewport(initialContentHeight = 260, measuredFooter
   const scrollYRef = useRef(0);
   const [editorContentHeight, setEditorContentHeight] = useState(initialContentHeight);
   const [viewportHeight, setViewportHeight] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isToolbarHidden, setIsToolbarHidden] = useState(false);
 
   const handleViewportLayout = useCallback((event: LayoutChangeEvent) => {
     const nextHeight = event.nativeEvent.layout.height;
@@ -25,7 +27,18 @@ export function useRichEditorViewport(initialContentHeight = 260, measuredFooter
   }, []);
 
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    scrollYRef.current = event.nativeEvent.contentOffset.y;
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const dy = offsetY - scrollYRef.current;
+    scrollYRef.current = offsetY;
+
+    setShowBackToTop(offsetY > 400);
+
+    // Auto-hide toolbar when scrolling down quickly, show when scrolling up
+    if (dy > 15 && offsetY > 150) {
+      setIsToolbarHidden(true);
+    } else if (dy < -15 || offsetY <= 150) {
+      setIsToolbarHidden(false);
+    }
   }, []);
 
   const handleCursorPosition = useCallback(
@@ -78,5 +91,7 @@ export function useRichEditorViewport(initialContentHeight = 260, measuredFooter
     handleScroll,
     handleViewportLayout,
     scrollRef,
+    showBackToTop,
+    isToolbarHidden,
   };
 }

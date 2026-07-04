@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView,
   Platform, StatusBar, ScrollView, BackHandler, Keyboard
 } from 'react-native';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { useNotesStore } from '../../store/notesStore';
@@ -75,6 +76,7 @@ export default function NewNoteScreen() {
     handleScroll,
     handleViewportLayout,
     scrollRef,
+    showBackToTop,
   } = useRichEditorViewport(260, footerHeight);
   const editorListBreakoutScript = useMemo(() => `
     (function() {
@@ -627,6 +629,23 @@ export default function NewNoteScreen() {
                 />
               </View>
             </ScrollView>
+            
+            {/* Back to top button inside notes */}
+            {showBackToTop && (
+              <View style={{ position: 'absolute', bottom: 16, right: 16 }} pointerEvents="box-none">
+                <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
+                  <Pressable
+                    onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })}
+                    style={[s.circleBtn, { backgroundColor: colors.bgRaised, width: 40, height: 40 }]}
+                    accessibilityLabel="Back to top"
+                  >
+                    <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M12 19V5M5 12l7-7 7 7" />
+                    </Svg>
+                  </Pressable>
+                </Animated.View>
+              </View>
+            )}
           </View>
         </View>
 
