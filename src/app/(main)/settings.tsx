@@ -361,7 +361,7 @@ export default function SettingsScreen() {
             <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} translucent={false} />
 
             <View style={s.header}>
-                <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10}>
+                <Pressable onPress={() => router.back()} style={s.backBtn} hitSlop={10} accessibilityLabel="Back">
                     <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                         <Path d="M5 12l14 0" />
                         <Path d="M5 12l6 6" />

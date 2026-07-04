@@ -506,7 +506,7 @@ export default function NewNoteScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
-        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
+        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12} accessibilityLabel="Back">
           <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
             <Path d="M5 12l14 0" />
             <Path d="M5 12l6 6" />
@@ -531,8 +531,9 @@ export default function NewNoteScreen() {
                 useNotesStore.getState().updateNote(noteId.current, { pinned: newPinned });
               }
             }} 
-            style={[s.circleBtn, isPinned && { borderColor: colors.accent, backgroundColor: colors.accent + '22' }]} 
+            style={[s.circleBtn, isPinned && { borderColor: colors.accent, backgroundColor: colors.accentBg }]} 
             hitSlop={12}
+            accessibilityLabel={isPinned ? 'Unpin note' : 'Pin note'}
           >
             <Svg viewBox="0 0 24 24" width={24} height={24} fill={isPinned ? colors.accent : "none"} stroke={isPinned ? colors.accent : colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
@@ -641,27 +642,27 @@ export default function NewNoteScreen() {
               }}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}
             >
-              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
               </Svg>
               <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12} accessibilityLabel="Undo">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M9 14l-4 -4l4 -4" />
                       <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12} accessibilityLabel="Redo">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M15 14l4 -4l-4 -4" />
                       <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12} accessibilityLabel="Find and replace">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Circle cx="10" cy="10" r="7" />
                       <Path d="M21 21l-6-6" />
                   </Svg>
@@ -916,7 +917,7 @@ export default function NewNoteScreen() {
         actions={[
           {
             label: loc.editor.pickGallery, style: 'default', onPress: handlePickImage, icon: (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2}>
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Rect x="3" y="3" width="18" height="18" rx="2" />
                 <Circle cx="8.5" cy="8.5" r="1.5" />
                 <Path d="M21 15l-5-5L5 21" />

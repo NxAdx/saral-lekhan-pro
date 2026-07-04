@@ -528,8 +528,8 @@ export default function EditNoteScreen() {
     },
     circleBtnActive: { backgroundColor: colors.accent, borderColor: colors.accentDark },
     headerMid: { flex: 1, alignItems: 'center' },
-    headerDate: { fontFamily: font.mono, fontSize: 11, color: colors.inkDim },
-    savedBadge: { fontFamily: font.mono, fontSize: 9, color: colors.accent, marginTop: 2 },
+    headerDate: { fontFamily: font.mono, fontSize: 11 * theme.fontSize, color: colors.inkDim },
+    savedBadge: { fontFamily: font.mono, fontSize: 9 * theme.fontSize, color: colors.accent, marginTop: 2 },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     doneBtn: { backgroundColor: colors.accent, paddingVertical: 8, paddingHorizontal: 14, borderRadius: radius.pill, ...shadow.gentle, shadowColor: colors.accentDark },
     doneBtnActive: { transform: [{ translateY: 2 }], shadowOffset: { width: 0, height: 1 }, elevation: 1 },
@@ -626,9 +626,11 @@ export default function EditNoteScreen() {
     return (
       <View style={s.root}>
         <View style={s.notFound}>
-          <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12}>
-            <Svg viewBox="0 0 20 20" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round">
-              <Path d="M15 10H5M10 5l-5 5 5 5" />
+          <Pressable onPress={() => router.back()} style={s.circleBtn} hitSlop={12} accessibilityLabel="Back">
+            <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+              <Path d="M5 12l14 0" />
+              <Path d="M5 12l6 6" />
+              <Path d="M5 12l6 -6" />
             </Svg>
           </Pressable>
           <Text style={s.notFoundText}>{loc.editor.notFound}</Text>
@@ -645,7 +647,7 @@ export default function EditNoteScreen() {
       <StatusBar barStyle={theme.isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       <View style={s.header}>
-        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12}>
+        <Pressable onPress={handleBack} style={s.circleBtn} hitSlop={12} accessibilityLabel="Back">
           <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
             <Path d="M5 12l14 0" />
             <Path d="M5 12l6 6" />
@@ -664,20 +666,20 @@ export default function EditNoteScreen() {
         </View>
 
         <View style={s.headerRight}>
-          <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accent + '22' }]} hitSlop={12}>
+          <Pressable onPress={() => { if (note) updateNote(note.id, { pinned: !note.pinned }) }} style={[s.circleBtn, note?.pinned && { borderColor: colors.accent, backgroundColor: colors.accentBg }]} hitSlop={12} accessibilityLabel={note?.pinned ? 'Unpin note' : 'Pin note'}>
             <Svg viewBox="0 0 24 24" width={24} height={24} fill={note?.pinned ? colors.accent : "none"} stroke={note?.pinned ? colors.accent : colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
               <Path d="M9 15l-4.5 4.5" />
               <Path d="M14.5 4l5.5 5.5" />
             </Svg>
           </Pressable>
-          <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12}>
+          <Pressable onPress={() => setShowExportModal(true)} style={s.circleBtn} hitSlop={12} accessibilityLabel="Export note">
             <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
               <Path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v5m-5 6h7m-3 -3l3 3l-3 3" />
             </Svg>
           </Pressable>
-          <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={12}>
+          <Pressable onPress={handleDelete} style={s.circleBtn} hitSlop={12} accessibilityLabel="Delete note">
             <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
               <Path d="M4 7l16 0" />
               <Path d="M10 11l0 6" />
@@ -786,27 +788,27 @@ export default function EditNoteScreen() {
               }}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Boolean(ai.geminiApiKey) ? colors.accentBg : 'transparent', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Boolean(ai.geminiApiKey) ? colors.accent : colors.strokeDim }}
             >
-              <Svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
               </Svg>
               <Text style={{ fontFamily: font.sansSemi, fontSize: 13, color: Boolean(ai.geminiApiKey) ? colors.accent : colors.inkDim, includeFontPadding: false }}>Spark AI</Text>
             </Pressable>
 
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => richText.current?.sendAction(actions.undo, 'result')} hitSlop={12} accessibilityLabel="Undo">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M9 14l-4 -4l4 -4" />
                       <Path d="M5 10h11a4 4 0 1 1 0 8h-1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => richText.current?.sendAction(actions.redo, 'result')} hitSlop={12} accessibilityLabel="Redo">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Path d="M15 14l4 -4l-4 -4" />
                       <Path d="M19 10h-11a4 4 0 1 0 0 8h1" />
                   </Svg>
               </Pressable>
-              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12}>
-                  <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.inkMid} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Pressable onPress={() => setShowFindReplaceModal(true)} hitSlop={12} accessibilityLabel="Find and replace">
+                  <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.inkMid} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                       <Circle cx="10" cy="10" r="7" />
                       <Path d="M21 21l-6-6" />
                   </Svg>
@@ -934,7 +936,7 @@ export default function EditNoteScreen() {
             label: (loc as any).print || "Print",
             style: 'default',
             icon: (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M7 8V4h10v4" />
                 <Path d="M7 16h10v4H7z" />
                 <Path d="M6 12h.01" />
@@ -947,7 +949,7 @@ export default function EditNoteScreen() {
             label: loc.exportMd || "Save as MD",
             style: 'default',
             icon: (
-              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
                 <Path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
                 <Path d="M10 12l4 4m0 -4l-4 4" />
@@ -1125,7 +1127,7 @@ export default function EditNoteScreen() {
         actions={[
           {
             label: loc.editor.pickGallery, style: 'default', onPress: handlePickImage, icon: (
-              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <Svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M15 8h.01" />
                 <Path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
                 <Path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />

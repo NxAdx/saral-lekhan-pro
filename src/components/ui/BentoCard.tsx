@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Svg, Path } from 'react-native-svg';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../store/themeStore';
 import { useTypography } from '../../store/typographyStore';
@@ -138,14 +139,23 @@ export const BentoCard = React.memo(({
         >
             {selected ? (
                 <View style={s.selectionIcon}>
-                    <Text style={{ color: colors.white, fontSize: 13, fontWeight: 'bold' }}>✓</Text>
+                    <Svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={colors.white} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                        <Path d="M5 12l5 5l10 -10" />
+                    </Svg>
                 </View>
             ) : isSelectionMode ? (
                 <View style={s.unselectedIcon} />
             ) : null}
             <View style={s.content}>
                 <Text style={s.title} numberOfLines={1}>
-                    {pinned ? '★ ' : ''}
+                    {pinned ? (
+                        <Svg viewBox="0 0 24 24" width={14} height={14} fill={colors.accent} stroke={colors.accent} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
+                            <Path d="M9 15l-4.5 4.5" />
+                            <Path d="M14.5 4l5.5 5.5" />
+                        </Svg>
+                    ) : null}
+                    {pinned ? ' ' : ''}
                     {title || 'Untitled'}
                 </Text>
 
