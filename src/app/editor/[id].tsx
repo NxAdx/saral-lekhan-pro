@@ -96,6 +96,7 @@ export default function EditNoteScreen() {
   const [editorReady, setEditorReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [selectionRect, setSelectionRect] = useState<{top: number, left: number, width: number, height: number} | null>(null);
 
   useEffect(() => {
     return () => {
@@ -202,6 +203,14 @@ export default function EditNoteScreen() {
           var sel = window.getSelection();
           if (!sel || sel.rangeCount === 0) return;
           var node = sel.anchorNode;
+          
+          var hasSelection = !sel.isCollapsed && sel.toString().trim().length > 0;
+          var rect = null;
+          if (hasSelection) {
+            var range = sel.getRangeAt(0);
+            rect = range.getBoundingClientRect();
+          }
+
           if (!node) return;
           if (node.nodeType === 3) node = node.parentNode;
           var y = 0;
@@ -210,7 +219,17 @@ export default function EditNoteScreen() {
               y += el.offsetTop;
               el = el.offsetParent;
           }
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CURSOR_Y', data: y }));
+          window.ReactNativeWebView.postMessage(JSON.stringify({ 
+             type: 'CURSOR_Y', 
+             data: y,
+             selection: hasSelection ? {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+                text: sel.toString().trim()
+             } : null
+          }));
         });
       })();
       true;
@@ -809,10 +828,53 @@ export default function EditNoteScreen() {
                     onMessage={(msg) => {
                       if (msg.type === 'CURSOR_Y') {
                         handleCursorPosition(Number(msg.data) + editorOffset);
+                        const customMsg = msg as any;
+                        if (customMsg.selection) {
+                          setSelectionRect(customMsg.selection);
+                        } else {
+                          setSelectionRect(null);
+                        }
                       }
                     }}
                     onHeightChange={handleEditorHeightChange}
                   />
+                  {selectionRect && (
+                    <Animated.View 
+                      entering={FadeInDown.duration(200)} 
+                      exiting={FadeOutDown.duration(200)}
+                      style={{
+                        position: 'absolute',
+                        top: selectionRect.top - 54 > 0 ? selectionRect.top - 54 : selectionRect.top + selectionRect.height + 10,
+                        left: Math.max(16, Math.min(selectionRect.left + (selectionRect.width / 2) - 60, 300)),
+                        flexDirection: 'row',
+                        backgroundColor: colors.bgRaised,
+                        borderRadius: 8,
+                        padding: 4,
+                        gap: 8,
+                        elevation: 5,
+                        shadowColor: colors.shadow,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 8,
+                        borderWidth: 1,
+                        borderColor: colors.strokeDim,
+                        zIndex: 50,
+                      }}
+                    >
+                      <Pressable style={{ padding: 8, minWidth: 32, alignItems: 'center' }} onPress={() => richText.current?.sendAction(actions.setBold, 'result')}>
+                         <Text style={{ fontFamily: font.sansBold, fontSize: 16, color: colors.ink }}>B</Text>
+                      </Pressable>
+                      <Pressable style={{ padding: 8, minWidth: 32, alignItems: 'center' }} onPress={() => richText.current?.sendAction(actions.setItalic, 'result')}>
+                         <Text style={{ fontFamily: font.sans, fontStyle: 'italic', fontSize: 16, color: colors.ink }}>I</Text>
+                      </Pressable>
+                      <Pressable style={{ padding: 8, minWidth: 32, alignItems: 'center' }} onPress={() => richText.current?.sendAction(actions.setUnderline, 'result')}>
+                         <Text style={{ fontFamily: font.sans, textDecorationLine: 'underline', fontSize: 16, color: colors.ink }}>U</Text>
+                      </Pressable>
+                      <Pressable style={{ padding: 8, minWidth: 32, alignItems: 'center' }} onPress={() => richText.current?.sendAction(actions.setStrikethrough, 'result')}>
+                         <Text style={{ fontFamily: font.sans, textDecorationLine: 'line-through', fontSize: 16, color: colors.ink }}>S</Text>
+                      </Pressable>
+                    </Animated.View>
+                  )}
                 </View>
               </ScrollView>
               
