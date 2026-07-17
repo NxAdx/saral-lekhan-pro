@@ -90,27 +90,12 @@ export default function EditNoteScreen() {
     handleViewportLayout,
     scrollRef,
     showBackToTop,
-    isToolbarHidden
-  } = useRichEditorViewport(260, footerHeight);
+  } = useRichEditorViewport(260, Math.max(footerHeight, 140));
   const isMounted = useRef(false);
   const isApplyingInitialContent = useRef(false);
   const [editorReady, setEditorReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  const isToolbarHiddenShared = useSharedValue(false);
-  useEffect(() => {
-    isToolbarHiddenShared.value = isToolbarHidden;
-  }, [isToolbarHidden]);
-
-  const toolbarAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateY: withTiming(isToolbarHiddenShared.value ? 150 : 0, { duration: 250 }) }
-      ],
-      opacity: withTiming(isToolbarHiddenShared.value ? 0 : 1, { duration: 250 }),
-    };
-  });
 
   useEffect(() => {
     return () => {
@@ -850,7 +835,7 @@ export default function EditNoteScreen() {
             </View>
           </View>
 
-          <Animated.View style={[s.bottomControls, toolbarAnimatedStyle]} onLayout={handleFooterLayout}>
+          <View style={s.bottomControls} onLayout={handleFooterLayout}>
             <View style={s.bottomActions}>
             <Pressable 
               onPress={() => {
@@ -990,7 +975,7 @@ export default function EditNoteScreen() {
                 </Text>
               </Pressable>
             </View>
-          </Animated.View>
+          </View>
         </KeyboardAvoidingView>
 
       <SparkLoadingModal

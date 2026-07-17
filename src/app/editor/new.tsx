@@ -114,22 +114,7 @@ export default function NewNoteScreen() {
     handleViewportLayout,
     scrollRef,
     showBackToTop,
-    isToolbarHidden,
-  } = useRichEditorViewport(260, footerHeight);
-
-  const isToolbarHiddenShared = useSharedValue(false);
-  useEffect(() => {
-    isToolbarHiddenShared.value = isToolbarHidden;
-  }, [isToolbarHidden]);
-
-  const toolbarAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateY: withTiming(isToolbarHiddenShared.value ? 150 : 0, { duration: 250 }) }
-      ],
-      opacity: withTiming(isToolbarHiddenShared.value ? 0 : 1, { duration: 250 }),
-    };
-  });
+  } = useRichEditorViewport(260, Math.max(footerHeight, 140));
   const editorListBreakoutScript = useMemo(() => `
     (function() {
       if (window.__breakoutListenerAdded) return;
@@ -702,7 +687,7 @@ export default function NewNoteScreen() {
           </View>
         </View>
 
-        <Animated.View style={[s.bottomControls, toolbarAnimatedStyle]} onLayout={handleFooterLayout}>
+        <View style={s.bottomControls} onLayout={handleFooterLayout}>
           <View style={s.bottomActions}>
             <Pressable
               onPress={() => {
@@ -842,8 +827,8 @@ export default function NewNoteScreen() {
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
-      </KeyboardAvoidingView>
+        </View>
+        </KeyboardAvoidingView>
 
       <SparkLoadingModal
         visible={sparkLoadingModalEnabled && isGenerating}
