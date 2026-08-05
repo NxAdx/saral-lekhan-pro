@@ -14,6 +14,7 @@ public class UpdaterPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new UpdaterModule(reactContext));
+        modules.add(new WebServerModule(reactContext));
         return modules;
     }
 

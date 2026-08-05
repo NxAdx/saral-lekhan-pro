@@ -74,30 +74,31 @@ export function SparkLoadingModal({
       cancelAnimation(dotOne);
       cancelAnimation(dotTwo);
       cancelAnimation(dotThree);
-      dotOne.value = 1;
-      dotTwo.value = 1;
-      dotThree.value = 1;
+      dotOne.value = 0;
+      dotTwo.value = 0;
+      dotThree.value = 0;
       return;
     }
 
-    const pulse = withRepeat(
-      withSequence(
-        withTiming(motionScales.pulseMax, {
-          duration: motionDurations.base,
-          easing: motionEasing.emphasized,
-        }),
-        withTiming(motionScales.pulseMin, {
-          duration: motionDurations.base,
-          easing: motionEasing.emphasized,
-        })
-      ),
-      -1,
-      false
-    );
+    const createPulse = () =>
+      withRepeat(
+        withSequence(
+          withTiming(1, {
+            duration: 350,
+            easing: motionEasing.emphasized,
+          }),
+          withTiming(0, {
+            duration: 350,
+            easing: motionEasing.emphasized,
+          })
+        ),
+        -1,
+        false
+      );
 
-    dotOne.value = pulse;
-    dotTwo.value = withDelay(motionDurations.fast, pulse);
-    dotThree.value = withDelay(motionDurations.fast * 2, pulse);
+    dotOne.value = createPulse();
+    dotTwo.value = withDelay(150, createPulse());
+    dotThree.value = withDelay(300, createPulse());
 
     return () => {
       cancelAnimation(dotOne);
@@ -121,15 +122,15 @@ export function SparkLoadingModal({
 
   const dotStyleOne = useAnimatedStyle(() => ({
     opacity: 0.35 + 0.65 * dotOne.value,
-    transform: [{ scale: dotOne.value }],
+    transform: [{ scale: 0.75 + 0.55 * dotOne.value }, { translateY: -4 * dotOne.value }],
   }));
   const dotStyleTwo = useAnimatedStyle(() => ({
     opacity: 0.35 + 0.65 * dotTwo.value,
-    transform: [{ scale: dotTwo.value }],
+    transform: [{ scale: 0.75 + 0.55 * dotTwo.value }, { translateY: -4 * dotTwo.value }],
   }));
   const dotStyleThree = useAnimatedStyle(() => ({
     opacity: 0.35 + 0.65 * dotThree.value,
-    transform: [{ scale: dotThree.value }],
+    transform: [{ scale: 0.75 + 0.55 * dotThree.value }, { translateY: -4 * dotThree.value }],
   }));
 
   const s = useMemo(
