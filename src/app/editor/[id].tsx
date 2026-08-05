@@ -19,6 +19,7 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 import { SmoothLanding } from '../../components/ui/SmoothLanding';
 import { TableBuilderModal } from '../../components/ui/TableBuilderModal';
 import { SparkLoadingModal } from '../../components/ui/SparkLoadingModal';
+import { WebShareModal } from '../../components/ui/WebShareModal';
 import { useAiStore } from '../../store/aiStore';
 import { useRuntimeUxFlagsStore } from '../../store/runtimeUxFlagsStore';
 import { useTypography } from '../../store/typographyStore';
@@ -58,6 +59,7 @@ export default function EditNoteScreen() {
   const [saved, setSaved] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showWebShareModal, setShowWebShareModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
@@ -1106,6 +1108,22 @@ export default function EditNoteScreen() {
             onPress: () => handleExportTextFile('md')
           },
           {
+            label: "Web Share Studio (PC)",
+            style: 'default',
+            icon: (
+              <Svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M20 16V5a2 2 0 0 0 -2 -2H6a2 2 0 0 0 -2 2v11" />
+                <Path d="M2 20h20" />
+                <Path d="M12 12v.01" />
+                <Path d="M8.5 9.5a5 5 0 0 1 7 0" />
+              </Svg>
+            ),
+            onPress: () => {
+              setShowExportModal(false);
+              setShowWebShareModal(true);
+            }
+          },
+          {
             label: loc.editor.cancel,
             style: 'cancel',
             onPress: () => setShowExportModal(false)
@@ -1372,6 +1390,11 @@ export default function EditNoteScreen() {
           setShowTableModal(false);
           setIsDirty(true);
         }}
+      />
+      <WebShareModal
+        visible={showWebShareModal}
+        onClose={() => setShowWebShareModal(false)}
+        onShowToast={(msg) => setAppAlert({ visible: true, title: "Web Share Studio", subtitle: msg })}
       />
     </View>
   );

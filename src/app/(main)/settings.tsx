@@ -23,6 +23,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { APP_VERSION, checkForUpdate, downloadAndInstallApk, UpdateInfo, UPDATER_MODE } from '../../utils/githubUpdater';
 import * as Haptics from 'expo-haptics';
 import { useToastStore } from '../../store/toastStore';
+import { WebShareModal } from '../../components/ui/WebShareModal';
 
 const STANDARD_THEMES: { id: ThemeName; label: string }[] = [
     { id: 'classic', label: 'Tippani' },
@@ -90,6 +91,7 @@ export default function SettingsScreen() {
     const [tempKey, setTempKey] = React.useState('');
     const [syncAlert, setSyncAlert] = React.useState<{ visible: boolean, title: string, sub: string }>({ visible: false, title: '', sub: '' });
     const [updateModal, setUpdateModal] = React.useState<{ visible: boolean, title: string, sub: string, info: UpdateInfo | null }>({ visible: false, title: '', sub: '', info: null });
+    const [showWebShareModal, setShowWebShareModal] = React.useState(false);
 
     // Updater State
     const [updateInfo, setUpdateInfo] = React.useState<UpdateInfo | null>(null);
@@ -725,6 +727,24 @@ export default function SettingsScreen() {
                 {/* CLOUD & BACKUP */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.cloudIntelligence}</Text>
                 <View style={s.listBlock}>
+                    {/* Local WiFi Web Share */}
+                    <View style={s.listItem}>
+                        <View style={s.listContent}>
+                            <Text style={s.listLabel}>WiFi Web Share Studio</Text>
+                            <Text style={s.listSub}>Connect from any computer or tablet browser on your WiFi network to view, edit, and manage your notes with real-time sync.</Text>
+                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                                <Pressable
+                                    style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
+                                    onPress={() => setShowWebShareModal(true)}
+                                >
+                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
+                                        Open Web Share Studio
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+
                     {/* Spark AI Key */}
                     <View style={s.listItem}>
                         <View style={s.listContent}>
@@ -967,6 +987,11 @@ export default function SettingsScreen() {
                         },
                     }
                 ]}
+            />
+            <WebShareModal
+                visible={showWebShareModal}
+                onClose={() => setShowWebShareModal(false)}
+                onShowToast={(msg) => setSyncAlert({ visible: true, title: "Web Share Studio", sub: msg })}
             />
         </View>
     );
