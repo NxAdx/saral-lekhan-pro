@@ -21,7 +21,6 @@ import { ThemedModal } from '../../components/ui/ThemedModal';
 import { SmoothLanding } from '../../components/ui/SmoothLanding';
 import { stripMarkdown, markdownToHtml } from '../../utils/markdown';
 import { checkForUpdate } from '../../utils/githubUpdater';
-import { WebShareModal } from '../../components/ui/WebShareModal';
 
 const HOME_BRAND_EN = 'Saral';
 const HOME_BRAND_HI = 'Lekhan';
@@ -61,7 +60,6 @@ export default function HomeScreen() {
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [appAlert, setAppAlert] = useState<{ visible: boolean; title: string; subtitle: string }>({ visible: false, title: '', subtitle: '' });
   const [updateModal, setUpdateModal] = useState<{ visible: boolean; title: string; subtitle: string; version: string }>({ visible: false, title: '', subtitle: '', version: '' });
-  const [showWebShareModal, setShowWebShareModal] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const isSelectionMode = selectedIds.size > 0;
@@ -437,14 +435,6 @@ export default function HomeScreen() {
               <Text style={s.appSub}>{loc.appSub || "NOTES EXPERIENCE"}</Text>
             </View>
             <View style={s.headerRight}>
-              <Pressable onPress={() => setShowWebShareModal(true)} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Web Share Studio">
-                <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
-                  <Path d="M20 16V5a2 2 0 0 0 -2 -2H6a2 2 0 0 0 -2 2v11" />
-                  <Path d="M2 20h20" />
-                  <Path d="M12 12v.01" />
-                  <Path d="M8.5 9.5a5 5 0 0 1 7 0" />
-                </Svg>
-              </Pressable>
               <Pressable onPress={handleImport} style={s.circleBtn} hitSlop={theme.hitSlop} accessibilityLabel="Import notes">
                 <Svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke={colors.ink} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
                   <Path d="M14 3v4a1 1 0 0 0 1 1h4" />
@@ -636,11 +626,6 @@ export default function HomeScreen() {
             style: 'default'
           }
         ]}
-      />
-      <WebShareModal
-        visible={showWebShareModal}
-        onClose={() => setShowWebShareModal(false)}
-        onShowToast={(msg) => setAppAlert({ visible: true, title: "Web Share", subtitle: msg })}
       />
     </Animated.View>
   );

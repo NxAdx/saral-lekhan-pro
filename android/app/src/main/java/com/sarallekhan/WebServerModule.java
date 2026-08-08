@@ -243,6 +243,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
                 }
             }
             // Fallback to iterating NetworkInterfaces
+            String fallbackIp = null;
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces != null && interfaces.hasMoreElements()) {
                 NetworkInterface intf = interfaces.nextElement();
@@ -250,10 +251,16 @@ public class WebServerModule extends ReactContextBaseJavaModule {
                 while (addrs.hasMoreElements()) {
                     InetAddress addr = addrs.nextElement();
                     if (!addr.isLoopbackAddress() && addr.getHostAddress() != null && addr.getHostAddress().indexOf(':') < 0) {
-                        return addr.getHostAddress();
+                        String name = intf.getName().toLowerCase();
+                        if (name.contains("wlan") || name.contains("eth")) {
+                            return addr.getHostAddress();
+                        } else if (fallbackIp == null) {
+                            fallbackIp = addr.getHostAddress();
+                        }
                     }
                 }
             }
+            if (fallbackIp != null) return fallbackIp;
         } catch (Exception e) {
             Log.w(TAG, "Failed to get IP address", e);
         }
