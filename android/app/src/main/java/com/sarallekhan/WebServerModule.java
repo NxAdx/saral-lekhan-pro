@@ -247,12 +247,16 @@ public class WebServerModule extends ReactContextBaseJavaModule {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces != null && interfaces.hasMoreElements()) {
                 NetworkInterface intf = interfaces.nextElement();
+                String name = intf.getName().toLowerCase();
+                // Skip mobile data interfaces
+                if (name.contains("rmnet") || name.contains("ccmni") || name.contains("pdp")) {
+                    continue;
+                }
                 Enumeration<InetAddress> addrs = intf.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     InetAddress addr = addrs.nextElement();
                     if (!addr.isLoopbackAddress() && addr.getHostAddress() != null && addr.getHostAddress().indexOf(':') < 0) {
-                        String name = intf.getName().toLowerCase();
-                        if (name.contains("wlan") || name.contains("eth")) {
+                        if (name.contains("wlan") || name.contains("ap") || name.contains("eth") || name.contains("rndis")) {
                             return addr.getHostAddress();
                         } else if (fallbackIp == null) {
                             fallbackIp = addr.getHostAddress();
