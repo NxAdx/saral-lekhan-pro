@@ -442,13 +442,13 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>\n");
         sb.append("<html lang='en' data-theme='dark'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n");
-        sb.append("<title>Tippani · टिप्पणी — Web Studio</title>\n");
+        sb.append("<title>Saral Lekhan Studio — Web Share</title>\n");
         sb.append("<link rel='preconnect' href='https://fonts.googleapis.com'>\n");
         sb.append("<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>\n");
         sb.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap' rel='stylesheet'>\n");
         sb.append("<style>\n");
         
-        // Tippani Design System Theme Variables (Classic Dark & Light)
+        // Classic Warm Color Palette for Saral Lekhan
         sb.append(":root, [data-theme='dark'] {\n");
         sb.append("  --bg: #1C1A17; --bg-raised: #2B2926; --bg-deep: #12110F;\n");
         sb.append("  --stroke: #3D3A36; --stroke-dim: #2B2926; --stroke-focus: #E8866A;\n");
@@ -482,7 +482,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.85); } }\n");
         sb.append(".brand-actions { display: flex; align-items: center; gap: 8px; }\n");
 
-        // Physical Mechanical Buttons (Tippani keypress style)
+        // Physical Mechanical Buttons (Pill-forward style)
         sb.append(".key-btn { border: 1px solid var(--stroke); border-radius: var(--radius-pill); background: var(--card-bg); color: var(--ink); padding: 7px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease; user-select: none; box-shadow: 0 2px 0 var(--stroke); }\n");
         sb.append(".key-btn:hover { background: var(--card-hover); border-color: var(--accent); }\n");
         sb.append(".key-btn:active { transform: translateY(2px); box-shadow: none; }\n");
@@ -541,7 +541,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".tool-pill.active { background: var(--accent); color: #fff; border-color: var(--accent-dark); }\n");
         sb.append(".tool-sep { width: 1px; height: 18px; background: var(--stroke); margin: 0 4px; }\n");
         
-        // Segmented Control for Visual ↔ Source Mode (Fixes text overlap)
+        // Segmented Control for Visual ↔ Source Mode (Fixed overlap)
         sb.append(".segmented-control { margin-left: auto; display: inline-flex; background: var(--card-bg); border: 1px solid var(--stroke); border-radius: var(--radius-pill); padding: 2px; gap: 2px; }\n");
         sb.append(".segmented-btn { padding: 4px 12px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--ink-mid); font-size: 11.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease; }\n");
         sb.append(".segmented-btn.active { background: var(--accent); color: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }\n");
@@ -552,24 +552,24 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".editor-title-input { flex: 1; font-size: 28px; font-weight: 700; background: transparent; border: none; color: var(--ink); outline: none; letter-spacing: -0.4px; }\n");
         sb.append(".editor-title-input::placeholder { color: var(--ink-dim); opacity: 0.6; }\n");
         
-        // Tag Capsule Input (Tippani Pill style)
+        // Tag Capsule Input
         sb.append(".editor-tag-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }\n");
         sb.append(".tag-input-capsule { display: inline-flex; align-items: center; gap: 4px; background: var(--card-bg); border: 1px solid var(--stroke); border-radius: var(--radius-pill); padding: 5px 12px; font-size: 12px; color: var(--accent); font-weight: 600; }\n");
         sb.append(".tag-input-field { background: transparent; border: none; outline: none; color: var(--accent); font-size: 12px; font-weight: 600; width: 140px; }\n");
         sb.append(".tag-input-field::placeholder { color: var(--ink-dim); font-weight: 400; }\n");
 
-        // Rich Content Area & Typography
+        // Rich Content Area & Typography (FIX: Removed border-bottom from h1!)
         sb.append(".rich-canvas { flex: 1; min-height: 400px; outline: none; color: var(--ink); font-size: 15.5px; line-height: 1.75; word-break: break-word; }\n");
-        sb.append(".rich-canvas h1 { font-size: 25px; font-weight: 700; color: var(--ink); margin: 18px 0 8px; border-bottom: 1px solid var(--stroke-dim); padding-bottom: 4px; }\n");
+        sb.append(".rich-canvas h1 { font-size: 25px; font-weight: 700; color: var(--ink); margin: 18px 0 8px; border: none !important; padding: 0 !important; }\n");
         sb.append(".rich-canvas h2 { font-size: 20px; font-weight: 600; color: var(--ink); margin: 14px 0 6px; }\n");
         sb.append(".rich-canvas h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin: 12px 0 4px; }\n");
         sb.append(".rich-canvas p { margin-bottom: 12px; }\n");
         sb.append(".rich-canvas ul, .rich-canvas ol { padding-left: 26px; margin-bottom: 12px; }\n");
         sb.append(".rich-canvas li { margin-bottom: 4px; }\n");
-        sb.append(".rich-canvas blockquote { border-left: 3.5px solid var(--accent); padding: 8px 16px; color: var(--ink-mid); background: var(--accent-bg); margin: 14px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-style: italic; }\n");
-        sb.append(".rich-canvas pre { background: var(--bg-deep); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--stroke); overflow-x: auto; margin: 14px 0; }\n");
-        sb.append(".rich-canvas code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--accent); background: var(--card-bg); padding: 2px 5px; border-radius: 4px; border: 1px solid var(--stroke); }\n");
-        sb.append(".rich-canvas pre code { border: none; background: transparent; padding: 0; color: var(--ink); }\n");
+        sb.append(".rich-canvas blockquote { border-left: 3.5px solid var(--accent); padding: 8px 16px; color: var(--ink-mid); background: var(--accent-bg); margin: 12px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-style: italic; }\n");
+        sb.append(".rich-canvas pre { background: var(--bg-deep); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--stroke); overflow-x: auto; margin: 14px 0; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }\n");
+        sb.append(".rich-canvas code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--stroke); }\n");
+        sb.append(".rich-canvas pre code { border: none; background: transparent; padding: 0; color: var(--ink); font-size: 13.5px; }\n");
         sb.append(".rich-canvas a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }\n");
         sb.append(".rich-canvas hr { border: none; border-top: 1px solid var(--stroke); margin: 18px 0; }\n");
         
@@ -592,7 +592,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  <div class='brand-header'>\n");
         sb.append("    <div class='brand-logo'>\n");
         sb.append("      <div class='pulse-beacon' title='Connected Live to Mobile'></div>\n");
-        sb.append("      <span>Tippani</span><span class='hindi'>· टिप्पणी</span>\n");
+        sb.append("      <span>Saral Lekhan</span><span class='hindi'>· सरल लेखन</span>\n");
         sb.append("    </div>\n");
         sb.append("    <div class='brand-actions'>\n");
         sb.append("      <button class='key-btn icon-only' id='themeToggleBtn' title='Toggle Dark / Light Theme' onclick='toggleTheme()'>🌙</button>\n");
@@ -640,11 +640,11 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("    <div class='tool-sep'></div>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('insertUnorderedList')\" title='Bullet List'>• List</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('insertOrderedList')\" title='Numbered List'>1. List</button>\n");
-        sb.append("    <button class='tool-pill' onclick=\"applyBlockquote()\" title='Quote'>&ldquo; Quote</button>\n");
+        sb.append("    <button class='tool-pill' onclick=\"applyBlockquote()\" title='Quote (Click again to toggle off)'>&ldquo; Quote</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"applyCode()\" title='Code Block'>&lt;/&gt;</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"applyLink()\" title='Insert Link'>🔗 Link</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('insertHorizontalRule')\" title='Divider Line'>—</button>\n");
-        sb.append("    <button class='tool-pill' onclick=\"exec('removeFormat')\" title='Clear Formatting'>✕</button>\n");
+        sb.append("    <button class='tool-pill' onclick=\"clearFormatting()\" title='Clear All Formatting'>✕ Clear</button>\n");
         sb.append("    <div class='tool-sep'></div>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('undo')\" title='Undo (Ctrl+Z)'>↩</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('redo')\" title='Redo (Ctrl+Y)'>↪</button>\n");
@@ -666,14 +666,14 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("        <input type='text' class='tag-input-field' id='editTag' placeholder='tag (e.g. work)'>\n");
         sb.append("      </div>\n");
         sb.append("    </div>\n");
-        sb.append("    <div class='rich-canvas' id='richEditor' contenteditable='true' placeholder='Start writing in Tippani...'></div>\n");
+        sb.append("    <div class='rich-canvas' id='richEditor' contenteditable='true' placeholder='Start writing here...'></div>\n");
         sb.append("    <textarea class='raw-canvas' id='rawEditor' placeholder='Raw HTML / Markdown...'></textarea>\n");
         sb.append("  </div>\n");
 
         // Footer Bar Markup
         sb.append("  <div class='editor-bottombar'>\n");
         sb.append("    <span id='wordCount'>0 words · 0 characters</span>\n");
-        sb.append("    <span>Tippani Web Studio · Local Wireless Sync</span>\n");
+        sb.append("    <span>Saral Lekhan Studio · Local Wireless Sync</span>\n");
         sb.append("  </div>\n");
         sb.append("</div>\n");
         sb.append("<div class='toast-pill' id='toast'>Saved to phone!</div>\n");
@@ -689,13 +689,13 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("let editorMode = 'visual';\n");
         sb.append("let isDirty = false;\n");
         sb.append("let autoSaveTimer = null;\n");
-        sb.append("let currentTheme = localStorage.getItem('tippani_web_theme') || 'dark';\n");
+        sb.append("let currentTheme = localStorage.getItem('saral_lekhan_web_theme') || 'dark';\n");
 
         // Theme management
         sb.append("function applyTheme(theme) {\n");
         sb.append("  currentTheme = theme;\n");
         sb.append("  document.documentElement.setAttribute('data-theme', theme);\n");
-        sb.append("  localStorage.setItem('tippani_web_theme', theme);\n");
+        sb.append("  localStorage.setItem('saral_lekhan_web_theme', theme);\n");
         sb.append("  const btn = document.getElementById('themeToggleBtn');\n");
         sb.append("  if (btn) btn.innerText = theme === 'dark' ? '🌙' : '☀️';\n");
         sb.append("}\n");
@@ -804,7 +804,11 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("}\n");
 
         sb.append("function selectNote(id) {\n");
-        sb.append("  if (isDirty && activeNoteId && activeNoteId !== id) saveNoteSilently();\n");
+        sb.append("  if (isDirty && activeNoteId && activeNoteId !== id) {\n");
+        sb.append("    const prevNote = allNotes.find(x => x.id === activeNoteId);\n");
+        sb.append("    if (prevNote && !prevNote.is_deleted) saveNoteSilently();\n");
+        sb.append("  }\n");
+        sb.append("  clearTimeout(autoSaveTimer);\n");
         sb.append("  isCreatingNew = false;\n");
         sb.append("  activeNoteId = id;\n");
         sb.append("  isDirty = false;\n");
@@ -866,7 +870,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("function triggerAutoSave() {\n");
         sb.append("  clearTimeout(autoSaveTimer);\n");
         sb.append("  setSyncStatus('Saving...', false);\n");
-        sb.append("  autoSaveTimer = setTimeout(() => { saveCurrentNote(true); }, 1500);\n");
+        sb.append("  autoSaveTimer = setTimeout(() => { saveCurrentNote(true); }, 1200);\n");
         sb.append("}\n");
 
         sb.append("function setSyncStatus(text, isSaved) {\n");
@@ -913,22 +917,46 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  await saveCurrentNote(true);\n");
         sb.append("}\n");
 
+        // Fixed Trash Current Note to delete immediately in one action and never create an empty untitled note!
         sb.append("async function trashCurrentNote() {\n");
         sb.append("  if (!activeNoteId) return;\n");
+        sb.append("  clearTimeout(autoSaveTimer);\n");
+        sb.append("  isDirty = false;\n");
+        sb.append("  const targetId = activeNoteId;\n");
+        sb.append("  const note = allNotes.find(x => x.id === targetId);\n");
+        sb.append("  if (note) note.is_deleted = true;\n");
         sb.append("  try {\n");
         sb.append("    await fetch('/api/notes', {\n");
         sb.append("      method: 'POST',\n");
         sb.append("      headers: { 'Content-Type': 'application/json' },\n");
-        sb.append("      body: JSON.stringify({ action: 'delete', noteId: activeNoteId })\n");
+        sb.append("      body: JSON.stringify({ action: 'delete', noteId: targetId })\n");
         sb.append("    });\n");
-        sb.append("    const note = allNotes.find(x => x.id === activeNoteId);\n");
-        sb.append("    if (note) note.is_deleted = true;\n");
         sb.append("    showToast('Moved note to Trash', 'success');\n");
         sb.append("    updateCountsAndBadges();\n");
         sb.append("    const nextActive = getFilteredNotes();\n");
-        sb.append("    if (nextActive.length > 0) selectNote(nextActive[0].id);\n");
-        sb.append("    else createNewNote();\n");
+        sb.append("    if (nextActive.length > 0) {\n");
+        sb.append("      selectNote(nextActive[0].id);\n");
+        sb.append("    } else {\n");
+        sb.append("      resetEditorBlank();\n");
+        sb.append("    }\n");
         sb.append("  } catch (e) { showToast('Error moving to trash', 'error'); }\n");
+        sb.append("}\n");
+
+        sb.append("function resetEditorBlank() {\n");
+        sb.append("  clearTimeout(autoSaveTimer);\n");
+        sb.append("  isCreatingNew = true;\n");
+        sb.append("  activeNoteId = null;\n");
+        sb.append("  isDirty = false;\n");
+        sb.append("  isPinned = false;\n");
+        sb.append("  document.getElementById('editTitle').value = '';\n");
+        sb.append("  document.getElementById('editTag').value = '';\n");
+        sb.append("  document.getElementById('richEditor').innerHTML = '';\n");
+        sb.append("  document.getElementById('rawEditor').value = '';\n");
+        sb.append("  updatePinButton();\n");
+        sb.append("  renderTrashBanner(false);\n");
+        sb.append("  renderHeaderActions(false);\n");
+        sb.append("  renderList();\n");
+        sb.append("  updateCounts();\n");
         sb.append("}\n");
 
         sb.append("async function restoreNote(id) {\n");
@@ -961,7 +989,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("    updateCountsAndBadges();\n");
         sb.append("    const next = getFilteredNotes();\n");
         sb.append("    if (next.length > 0) selectNote(next[0].id);\n");
-        sb.append("    else createNewNote();\n");
+        sb.append("    else resetEditorBlank();\n");
         sb.append("  } catch (e) { showToast('Error deleting', 'error'); }\n");
         sb.append("}\n");
 
@@ -977,11 +1005,16 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("    showToast('Trash emptied', 'success');\n");
         sb.append("    updateCountsAndBadges();\n");
         sb.append("    renderList();\n");
+        sb.append("    resetEditorBlank();\n");
         sb.append("  } catch (e) { showToast('Error emptying trash', 'error'); }\n");
         sb.append("}\n");
 
         sb.append("function createNewNote() {\n");
-        sb.append("  if (isDirty && activeNoteId) saveNoteSilently();\n");
+        sb.append("  if (isDirty && activeNoteId) {\n");
+        sb.append("    const note = allNotes.find(x => x.id === activeNoteId);\n");
+        sb.append("    if (note && !note.is_deleted) saveNoteSilently();\n");
+        sb.append("  }\n");
+        sb.append("  clearTimeout(autoSaveTimer);\n");
         sb.append("  isCreatingNew = true;\n");
         sb.append("  activeNoteId = null;\n");
         sb.append("  isDirty = false;\n");
@@ -1033,27 +1066,72 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("}\n");
 
         sb.append("function applyHeading(tag) {\n");
-        sb.append("  exec('formatBlock', tag);\n");
+        sb.append("  document.getElementById('richEditor').focus();\n");
+        sb.append("  document.execCommand('formatBlock', false, tag);\n");
+        sb.append("  isDirty = true;\n");
+        sb.append("  triggerAutoSave();\n");
+        sb.append("  updateCounts();\n");
         sb.append("}\n");
 
+        // Toggle Blockquote support (easily step in & out of blockquote)
         sb.append("function applyBlockquote() {\n");
-        sb.append("  exec('formatBlock', 'blockquote');\n");
+        sb.append("  document.getElementById('richEditor').focus();\n");
+        sb.append("  const sel = window.getSelection();\n");
+        sb.append("  let inQuote = false;\n");
+        sb.append("  if (sel && sel.rangeCount > 0) {\n");
+        sb.append("    let node = sel.anchorNode;\n");
+        sb.append("    const editor = document.getElementById('richEditor');\n");
+        sb.append("    while (node && node !== editor) {\n");
+        sb.append("      if (node.nodeName === 'BLOCKQUOTE') { inQuote = true; break; }\n");
+        sb.append("      node = node.parentNode;\n");
+        sb.append("    }\n");
+        sb.append("  }\n");
+        sb.append("  if (inQuote) {\n");
+        sb.append("    document.execCommand('formatBlock', false, 'p');\n");
+        sb.append("    showToast('Quote toggled off');\n");
+        sb.append("  } else {\n");
+        sb.append("    document.execCommand('formatBlock', false, 'blockquote');\n");
+        sb.append("    showToast('Quote applied');\n");
+        sb.append("  }\n");
+        sb.append("  isDirty = true;\n");
+        sb.append("  triggerAutoSave();\n");
+        sb.append("  updateCounts();\n");
+        sb.append("}\n");
+
+        sb.append("function clearFormatting() {\n");
+        sb.append("  document.getElementById('richEditor').focus();\n");
+        sb.append("  document.execCommand('removeFormat', false, null);\n");
+        sb.append("  document.execCommand('formatBlock', false, 'p');\n");
+        sb.append("  document.execCommand('unlink', false, null);\n");
+        sb.append("  isDirty = true;\n");
+        sb.append("  triggerAutoSave();\n");
+        sb.append("  updateCounts();\n");
+        sb.append("  showToast('Formatting cleared');\n");
         sb.append("}\n");
 
         sb.append("function applyCode() {\n");
+        sb.append("  document.getElementById('richEditor').focus();\n");
         sb.append("  const selection = window.getSelection();\n");
-        sb.append("  if (!selection.rangeCount) return;\n");
+        sb.append("  if (!selection || !selection.rangeCount) return;\n");
         sb.append("  const text = selection.toString();\n");
         sb.append("  if (text.includes('\\n')) {\n");
-        sb.append("    exec('insertHTML', `<pre><code>${escapeHtml(text)}</code></pre>`);\n");
+        sb.append("    document.execCommand('insertHTML', false, `<pre><code>${escapeHtml(text)}</code></pre><p><br></p>`);\n");
         sb.append("  } else {\n");
-        sb.append("    exec('insertHTML', `<code>${escapeHtml(text || 'code')}</code>`);\n");
+        sb.append("    document.execCommand('insertHTML', false, `<code>${escapeHtml(text || 'code')}</code>&nbsp;`);\n");
         sb.append("  }\n");
+        sb.append("  isDirty = true;\n");
+        sb.append("  triggerAutoSave();\n");
+        sb.append("  updateCounts();\n");
         sb.append("}\n");
 
         sb.append("function applyLink() {\n");
-        sb.append("  const url = prompt('Enter URL (e.g. https://example.com):');\n");
-        sb.append("  if (url) exec('createLink', url);\n");
+        sb.append("  const url = prompt('Enter link URL (e.g. https://example.com):');\n");
+        sb.append("  if (url) {\n");
+        sb.append("    document.getElementById('richEditor').focus();\n");
+        sb.append("    document.execCommand('createLink', false, url);\n");
+        sb.append("    isDirty = true;\n");
+        sb.append("    triggerAutoSave();\n");
+        sb.append("  }\n");
         sb.append("}\n");
 
         sb.append("function switchMode(mode) {\n");
@@ -1103,6 +1181,26 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("document.getElementById('rawEditor').addEventListener('input', () => { isDirty = true; updateCounts(); triggerAutoSave(); });\n");
         sb.append("document.getElementById('editTitle').addEventListener('input', () => { isDirty = true; triggerAutoSave(); });\n");
         sb.append("document.getElementById('editTag').addEventListener('input', () => { isDirty = true; triggerAutoSave(); });\n");
+
+        // Keyboard handler for escaping blockquote on empty line enter
+        sb.append("document.getElementById('richEditor').addEventListener('keydown', (e) => {\n");
+        sb.append("  if (e.key === 'Enter') {\n");
+        sb.append("    const sel = window.getSelection();\n");
+        sb.append("    if (!sel || !sel.rangeCount) return;\n");
+        sb.append("    let node = sel.anchorNode;\n");
+        sb.append("    while (node && node !== document.getElementById('richEditor')) {\n");
+        sb.append("      if (node.nodeName === 'BLOCKQUOTE') {\n");
+        sb.append("        const text = node.innerText || '';\n");
+        sb.append("        if (text.trim() === '') {\n");
+        sb.append("          e.preventDefault();\n");
+        sb.append("          document.execCommand('formatBlock', false, 'p');\n");
+        sb.append("        }\n");
+        sb.append("        break;\n");
+        sb.append("      }\n");
+        sb.append("      node = node.parentNode;\n");
+        sb.append("    }\n");
+        sb.append("  }\n");
+        sb.append("});\n");
 
         sb.append("document.addEventListener('keydown', (e) => {\n");
         sb.append("  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {\n");
