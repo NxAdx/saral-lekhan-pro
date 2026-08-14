@@ -33,35 +33,51 @@ export const startWebShareServer = async (port: number = 8085): Promise<WebShare
     const res: any = await WebServerModule.startServer(port, initialNotes);
     isServerRunning = true;
 
-    // Listen to note actions from Web UI (save, create, delete)
+    // Listen to note actions from Web UI (save, create, delete, restore, permanentlyDelete, emptyTrash)
     if (!eventSubscription) {
       eventSubscription = DeviceEventEmitter.addListener('onWebShareNotesUpdated', (payloadString: string) => {
         try {
           const data = JSON.parse(payloadString);
           if (!data) return;
 
+          const notesStore = useNotesStore.getState();
+
           if (data.action === 'save' && data.note && data.note.id) {
             const noteId = Number(data.note.id);
-            const { title, body, tag } = data.note;
-            useNotesStore.getState().updateNote(noteId, {
+            const { title, body, tag, pinned, folder_name } = data.note;
+            notesStore.updateNote(noteId, {
               title: title || '',
               body: body || '',
               tag: tag || '',
+              pinned: !!pinned,
+              folder_name: folder_name || null,
             });
             log.info(`Synced web edit for note #${noteId}`);
           } else if (data.action === 'create' && data.note) {
-            const { title, body, tag } = data.note;
-            const newId = useNotesStore.getState().addNote({
+            const { title, body, tag, pinned, folder_name } = data.note;
+            const newId = notesStore.addNote({
               title: title || 'Untitled',
               body: body || '',
               tag: tag || '',
-              pinned: false,
+              pinned: !!pinned,
+              folder_name: folder_name || null,
             });
             log.info(`Created new note from web #${newId}`);
           } else if (data.action === 'delete' && data.noteId) {
             const noteId = Number(data.noteId);
-            useNotesStore.getState().deleteNote(noteId);
-            log.info(`Deleted note #${noteId} from web`);
+            notesStore.deleteNote(noteId);
+            log.info(`Moved note #${noteId} to trash from web`);
+          } else if (data.action === 'restore' && data.noteId) {
+            const noteId = Number(data.noteId);
+            notesStore.restoreNote(noteId);
+            log.info(`Restored note #${noteId} from trash from web`);
+          } else if (data.action === 'permanentlyDelete' && data.noteId) {
+            const noteId = Number(data.noteId);
+            notesStore.permanentlyDeleteNote(noteId);
+            log.info(`Permanently deleted note #${noteId} from web`);
+          } else if (data.action === 'emptyTrash') {
+            notesStore.emptyTrash();
+            log.info(`Emptied trash from web`);
           }
         } catch (error) {
           log.error('Error processing web share notes update event', error as any);
