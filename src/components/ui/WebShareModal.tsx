@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, ScrollView, Platform, Clipboard } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../store/themeStore';
 import { ThemedModal } from './ThemedModal';
@@ -73,9 +72,9 @@ export function WebShareModal({ visible, onClose, onShowToast }: WebShareModalPr
     }
   };
 
-  const handleCopy = async (url: string) => {
+  const handleCopy = (url: string) => {
     try {
-      await Clipboard.setStringAsync(url);
+      Clipboard.setString(url);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCopiedUrl(url);
       onShowToast('Web address copied!');
