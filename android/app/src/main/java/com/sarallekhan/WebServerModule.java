@@ -477,7 +477,6 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".sidebar { width: 350px; background: var(--bg-raised); border-right: 1px solid var(--stroke); display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }\n");
         sb.append(".brand-header { padding: 16px 20px; border-bottom: 1px solid var(--stroke); display: flex; align-items: center; justify-content: space-between; }\n");
         sb.append(".brand-logo { font-size: 17px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }\n");
-        sb.append(".brand-logo span.hindi { font-size: 13.5px; font-weight: 400; color: var(--ink-mid); opacity: 0.85; margin-left: 2px; }\n");
         sb.append(".pulse-beacon { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 2s infinite; display: inline-block; }\n");
         sb.append("@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.85); } }\n");
         sb.append(".brand-actions { display: flex; align-items: center; gap: 8px; }\n");
@@ -541,7 +540,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".tool-pill.active { background: var(--accent); color: #fff; border-color: var(--accent-dark); }\n");
         sb.append(".tool-sep { width: 1px; height: 18px; background: var(--stroke); margin: 0 4px; }\n");
         
-        // Segmented Control for Visual ↔ Source Mode (Fixed overlap)
+        // Segmented Control for Visual ↔ Source Mode
         sb.append(".segmented-control { margin-left: auto; display: inline-flex; background: var(--card-bg); border: 1px solid var(--stroke); border-radius: var(--radius-pill); padding: 2px; gap: 2px; }\n");
         sb.append(".segmented-btn { padding: 4px 12px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--ink-mid); font-size: 11.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease; }\n");
         sb.append(".segmented-btn.active { background: var(--accent); color: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }\n");
@@ -558,7 +557,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".tag-input-field { background: transparent; border: none; outline: none; color: var(--accent); font-size: 12px; font-weight: 600; width: 140px; }\n");
         sb.append(".tag-input-field::placeholder { color: var(--ink-dim); font-weight: 400; }\n");
 
-        // Rich Content Area & Typography (FIX: Removed border-bottom from h1!)
+        // Rich Content Area & Typography (Clean, robust code block and quote styles)
         sb.append(".rich-canvas { flex: 1; min-height: 400px; outline: none; color: var(--ink); font-size: 15.5px; line-height: 1.75; word-break: break-word; }\n");
         sb.append(".rich-canvas h1 { font-size: 25px; font-weight: 700; color: var(--ink); margin: 18px 0 8px; border: none !important; padding: 0 !important; }\n");
         sb.append(".rich-canvas h2 { font-size: 20px; font-weight: 600; color: var(--ink); margin: 14px 0 6px; }\n");
@@ -567,8 +566,8 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append(".rich-canvas ul, .rich-canvas ol { padding-left: 26px; margin-bottom: 12px; }\n");
         sb.append(".rich-canvas li { margin-bottom: 4px; }\n");
         sb.append(".rich-canvas blockquote { border-left: 3.5px solid var(--accent); padding: 8px 16px; color: var(--ink-mid); background: var(--accent-bg); margin: 12px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-style: italic; }\n");
-        sb.append(".rich-canvas pre { background: var(--bg-deep); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--stroke); overflow-x: auto; margin: 14px 0; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }\n");
-        sb.append(".rich-canvas code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--stroke); }\n");
+        sb.append(".rich-canvas pre { background: var(--bg-deep); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--stroke); overflow-x: auto; margin: 12px 0; font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 13.5px; line-height: 1.6; }\n");
+        sb.append(".rich-canvas code { font-family: 'JetBrains Mono', Consolas, Monaco, monospace; font-size: 13px; color: var(--accent); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--stroke); }\n");
         sb.append(".rich-canvas pre code { border: none; background: transparent; padding: 0; color: var(--ink); font-size: 13.5px; }\n");
         sb.append(".rich-canvas a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }\n");
         sb.append(".rich-canvas hr { border: none; border-top: 1px solid var(--stroke); margin: 18px 0; }\n");
@@ -587,12 +586,12 @@ public class WebServerModule extends ReactContextBaseJavaModule {
 
         sb.append("</style>\n</head>\n<body>\n");
 
-        // Sidebar Markup
+        // Sidebar Markup (English only logo)
         sb.append("<div class='sidebar'>\n");
         sb.append("  <div class='brand-header'>\n");
         sb.append("    <div class='brand-logo'>\n");
         sb.append("      <div class='pulse-beacon' title='Connected Live to Mobile'></div>\n");
-        sb.append("      <span>Saral Lekhan</span><span class='hindi'>· सरल लेखन</span>\n");
+        sb.append("      <span>Saral Lekhan</span>\n");
         sb.append("    </div>\n");
         sb.append("    <div class='brand-actions'>\n");
         sb.append("      <button class='key-btn icon-only' id='themeToggleBtn' title='Toggle Dark / Light Theme' onclick='toggleTheme()'>🌙</button>\n");
@@ -641,7 +640,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("    <button class='tool-pill' onclick=\"exec('insertUnorderedList')\" title='Bullet List'>• List</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('insertOrderedList')\" title='Numbered List'>1. List</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"applyBlockquote()\" title='Quote (Click again to toggle off)'>&ldquo; Quote</button>\n");
-        sb.append("    <button class='tool-pill' onclick=\"applyCode()\" title='Code Block'>&lt;/&gt;</button>\n");
+        sb.append("    <button class='tool-pill' onclick=\"applyCode()\" title='Code / Code Block'>&lt;/&gt; Code</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"applyLink()\" title='Insert Link'>🔗 Link</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"exec('insertHorizontalRule')\" title='Divider Line'>—</button>\n");
         sb.append("    <button class='tool-pill' onclick=\"clearFormatting()\" title='Clear All Formatting'>✕ Clear</button>\n");
@@ -779,6 +778,14 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });\n");
         sb.append("}\n");
 
+        sb.append("function cleanTextSnippet(body) {\n");
+        sb.append("  if (!body) return 'Empty note';\n");
+        sb.append("  const tmp = document.createElement('div');\n");
+        sb.append("  tmp.innerHTML = body;\n");
+        sb.append("  const txt = (tmp.textContent || tmp.innerText || '').replace(/\\s+/g, ' ').trim();\n");
+        sb.append("  return txt.substring(0, 90) || 'Empty note';\n");
+        sb.append("}\n");
+
         sb.append("function renderList() {\n");
         sb.append("  const listEl = document.getElementById('notesList');\n");
         sb.append("  const trashContainer = document.getElementById('trashHeaderContainer');\n");
@@ -795,7 +802,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  filtered.forEach(n => {\n");
         sb.append("    const el = document.createElement('div');\n");
         sb.append("    el.className = 'note-card' + (n.id === activeNoteId && !isCreatingNew ? ' active' : '');\n");
-        sb.append("    const cleanSnippet = (n.body || 'Empty note').replace(/<[^>]*>?/gm, ' ').substring(0, 90);\n");
+        sb.append("    const cleanSnippet = cleanTextSnippet(n.body);\n");
         sb.append("    const dateStr = formatCardDate(n.updated_at);\n");
         sb.append("    el.innerHTML = `<div class='note-card-title'><span>${escapeHtml(n.title || 'Untitled')}</span>${n.pinned ? '<span class=\"star-icon\">★</span>' : ''}</div><div class='note-card-snippet'>${escapeHtml(cleanSnippet)}</div><div class='note-card-footer'><span>${dateStr}</span>${n.tag ? `<span class='tag-capsule'>#${escapeHtml(n.tag)}</span>` : ''}</div>`;\n");
         sb.append("    el.onclick = () => selectNote(n.id);\n");
@@ -917,7 +924,6 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  await saveCurrentNote(true);\n");
         sb.append("}\n");
 
-        // Fixed Trash Current Note to delete immediately in one action and never create an empty untitled note!
         sb.append("async function trashCurrentNote() {\n");
         sb.append("  if (!activeNoteId) return;\n");
         sb.append("  clearTimeout(autoSaveTimer);\n");
@@ -1073,7 +1079,7 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  updateCounts();\n");
         sb.append("}\n");
 
-        // Toggle Blockquote support (easily step in & out of blockquote)
+        // Toggle Blockquote
         sb.append("function applyBlockquote() {\n");
         sb.append("  document.getElementById('richEditor').focus();\n");
         sb.append("  const sel = window.getSelection();\n");
@@ -1109,15 +1115,34 @@ public class WebServerModule extends ReactContextBaseJavaModule {
         sb.append("  showToast('Formatting cleared');\n");
         sb.append("}\n");
 
+        // Fixed Robust Code block & inline code application (No placeholder "code" or "&nbsp;" text)
         sb.append("function applyCode() {\n");
         sb.append("  document.getElementById('richEditor').focus();\n");
         sb.append("  const selection = window.getSelection();\n");
         sb.append("  if (!selection || !selection.rangeCount) return;\n");
+        sb.append("  let node = selection.anchorNode;\n");
+        sb.append("  const editor = document.getElementById('richEditor');\n");
+        sb.append("  let inCode = false;\n");
+        sb.append("  while (node && node !== editor) {\n");
+        sb.append("    if (node.nodeName === 'CODE' || node.nodeName === 'PRE') { inCode = true; break; }\n");
+        sb.append("    node = node.parentNode;\n");
+        sb.append("  }\n");
+        sb.append("  if (inCode) {\n");
+        sb.append("    document.execCommand('removeFormat', false, null);\n");
+        sb.append("    document.execCommand('formatBlock', false, 'p');\n");
+        sb.append("    showToast('Code mode removed');\n");
+        sb.append("    isDirty = true;\n");
+        sb.append("    triggerAutoSave();\n");
+        sb.append("    updateCounts();\n");
+        sb.append("    return;\n");
+        sb.append("  }\n");
         sb.append("  const text = selection.toString();\n");
         sb.append("  if (text.includes('\\n')) {\n");
         sb.append("    document.execCommand('insertHTML', false, `<pre><code>${escapeHtml(text)}</code></pre><p><br></p>`);\n");
+        sb.append("  } else if (text.length > 0) {\n");
+        sb.append("    document.execCommand('insertHTML', false, `<code>${escapeHtml(text)}</code>`);\n");
         sb.append("  } else {\n");
-        sb.append("    document.execCommand('insertHTML', false, `<code>${escapeHtml(text || 'code')}</code>&nbsp;`);\n");
+        sb.append("    document.execCommand('insertHTML', false, `<code>&#8203;</code>`);\n");
         sb.append("  }\n");
         sb.append("  isDirty = true;\n");
         sb.append("  triggerAutoSave();\n");
