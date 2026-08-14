@@ -4,11 +4,25 @@ import { log } from './Logger';
 
 const { WebServerModule } = NativeModules;
 
+export interface NetworkEndpointInfo {
+  ip: string;
+  url: string;
+  type: 'hotspot' | 'wifi' | 'ethernet' | 'lan' | 'fallback';
+  label: string;
+}
+
+export interface WebShareServerState {
+  isRunning: boolean;
+  primaryUrl: string | null;
+  port: number;
+  endpoints: NetworkEndpointInfo[];
+}
+
 let eventSubscription: EmitterSubscription | null = null;
 let storeUnsubscribe: (() => void) | null = null;
 let isServerRunning = false;
 
-export const startWebShareServer = async (port: number = 8085): Promise<string | null> => {
+export const startWebShareServer = async (port: number = 8085): Promise<WebShareServerState | null> => {
   if (!WebServerModule) {
     log.warn('WebServerModule is not available on this device/environment.');
     return null;
@@ -16,15 +30,17 @@ export const startWebShareServer = async (port: number = 8085): Promise<string |
 
   try {
     const initialNotes = JSON.stringify(useNotesStore.getState().notes || []);
-    const url: string = await WebServerModule.startServer(port, initialNotes);
+    const res: any = await WebServerModule.startServer(port, initialNotes);
     isServerRunning = true;
 
-    // Listen to note edits from Web UI
+    // Listen to note actions from Web UI (save, create, delete)
     if (!eventSubscription) {
       eventSubscription = DeviceEventEmitter.addListener('onWebShareNotesUpdated', (payloadString: string) => {
         try {
           const data = JSON.parse(payloadString);
-          if (data && data.action === 'save' && data.note && data.note.id) {
+          if (!data) return;
+
+          if (data.action === 'save' && data.note && data.note.id) {
             const noteId = Number(data.note.id);
             const { title, body, tag } = data.note;
             useNotesStore.getState().updateNote(noteId, {
@@ -33,6 +49,19 @@ export const startWebShareServer = async (port: number = 8085): Promise<string |
               tag: tag || '',
             });
             log.info(`Synced web edit for note #${noteId}`);
+          } else if (data.action === 'create' && data.note) {
+            const { title, body, tag } = data.note;
+            const newId = useNotesStore.getState().addNote({
+              title: title || 'Untitled',
+              body: body || '',
+              tag: tag || '',
+              pinned: false,
+            });
+            log.info(`Created new note from web #${newId}`);
+          } else if (data.action === 'delete' && data.noteId) {
+            const noteId = Number(data.noteId);
+            useNotesStore.getState().deleteNote(noteId);
+            log.info(`Deleted note #${noteId} from web`);
           }
         } catch (error) {
           log.error('Error processing web share notes update event', error as any);
@@ -49,8 +78,15 @@ export const startWebShareServer = async (port: number = 8085): Promise<string |
       });
     }
 
-    log.info('Web Share server running at: ' + url);
-    return url;
+    const state: WebShareServerState = {
+      isRunning: true,
+      primaryUrl: res?.primaryUrl || `http://127.0.0.1:${port}`,
+      port: res?.port || port,
+      endpoints: Array.isArray(res?.endpoints) ? res.endpoints : [],
+    };
+
+    log.info('Web Share server running at: ' + state.primaryUrl);
+    return state;
   } catch (error) {
     log.error('Failed starting web share server', error as any);
     return null;
@@ -88,10 +124,17 @@ export const updateWebShareNotes = async (): Promise<void> => {
   }
 };
 
-export const getWebShareServerUrl = async (): Promise<string | null> => {
+export const getWebShareServerStatus = async (): Promise<WebShareServerState | null> => {
   if (!WebServerModule) return null;
   try {
-    return await WebServerModule.getServerUrl();
+    const res: any = await WebServerModule.getServerUrl();
+    if (!res) return null;
+    return {
+      isRunning: !!res.isRunning,
+      primaryUrl: res.primaryUrl || null,
+      port: res.port || 8085,
+      endpoints: Array.isArray(res.endpoints) ? res.endpoints : [],
+    };
   } catch (error) {
     return null;
   }
