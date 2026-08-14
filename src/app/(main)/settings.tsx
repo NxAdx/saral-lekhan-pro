@@ -405,6 +405,29 @@ export default function SettingsScreen() {
 
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                     <Pressable
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setShowWebShareModal(true);
+                        }}
+                        accessibilityLabel="WiFi Web Share Studio"
+                        style={({ pressed }) => ({
+                            width: 38, height: 38, borderRadius: 99,
+                            borderWidth: 1.5, borderColor: colors.strokeDim,
+                            backgroundColor: colors.bgRaised,
+                            justifyContent: 'center', alignItems: 'center',
+                            opacity: pressed ? 0.7 : 1,
+                            ...theme.shadow.gentle
+                        })}
+                    >
+                        <Svg viewBox="0 0 24 24" width={22} height={22} fill="none" stroke={colors.accent} strokeWidth={theme.strokeWidth.sw} strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M12 18l.01 0" />
+                            <Path d="M9.172 15.172a4 4 0 0 1 5.656 0" />
+                            <Path d="M6.343 12.343a8 8 0 0 1 11.314 0" />
+                            <Path d="M3.515 9.515c4.686 -4.687 12.284 -4.687 16.97 0" />
+                        </Svg>
+                    </Pressable>
+
+                    <Pressable
                         onPress={handleBugReport}
                         style={({ pressed }) => ({
                             width: 38, height: 38, borderRadius: 99,
@@ -727,24 +750,6 @@ export default function SettingsScreen() {
                 {/* CLOUD & BACKUP */}
                 <Text style={s.sectionTitle}>{loc.settingsScreen.cloudIntelligence}</Text>
                 <View style={s.listBlock}>
-                    {/* Local WiFi Web Share */}
-                    <View style={s.listItem}>
-                        <View style={s.listContent}>
-                            <Text style={s.listLabel}>WiFi Web Share Studio</Text>
-                            <Text style={s.listSub}>Connect from any computer or tablet browser on your WiFi network to view, edit, and manage your notes with real-time sync.</Text>
-                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-                                <Pressable
-                                    style={{ flex: 1, paddingVertical: 12, backgroundColor: colors.accent, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' }}
-                                    onPress={() => setShowWebShareModal(true)}
-                                >
-                                    <Text style={{ fontFamily: font.sansSemi, color: colors.white, fontSize: 13, textAlign: 'center', includeFontPadding: false }}>
-                                        Open Web Share Studio
-                                    </Text>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </View>
-
                     {/* Spark AI Key */}
                     <View style={s.listItem}>
                         <View style={s.listContent}>
